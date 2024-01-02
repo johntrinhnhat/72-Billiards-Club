@@ -1,0 +1,27 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+body,
+html,
+.stTextInput,
+.stSelectbox,
+.stTextarea,
+.stMarkdown,
+p {
+    font-family: 'Roboto', serif;
+}
+
+.st-emotion-cache-q8sbsg p {
+    font-size: 28px;
+}
+
+.st-emotion-cache-keje6w {
+    padding: 30px;
+    border-radius: 10px;
+}
