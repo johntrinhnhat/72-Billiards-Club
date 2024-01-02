@@ -4,9 +4,12 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import base64
 
+
+github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
+
 # Load data
 def load_data():
-    return pd.read_csv('kioviet.csv')
+    return pd.read_csv(github_csv_url)
 
 # Streamlit app
 def run_app():
@@ -121,13 +124,6 @@ def run_app():
 
         # Plot the results using st.bar_chart
         st.bar_chart(weekly_sales.rename(columns={'DayOfWeek': 'index'}).set_index('index'), color='#3B8132')
-
-
-    
-        subprocess.run(['C:\\Users\\Khoi\\Desktop\\BilliardsClub\\git_update.sh'])
-
-
-
 
 # Run the app
 if __name__ == "__main__":
