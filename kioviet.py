@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import subprocess
 import re
 import requests
 import csv
@@ -145,3 +146,18 @@ try:
 finally:
     print(f"\nSuccessfuly import data to Google Sheet ✅\n")
 
+def run_git_commands():
+    try:
+        # Navigate to the directory containing your repository
+        os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
+
+        # Git commands
+        subprocess.run(['git', 'add', '.'], check=True)
+        subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
+        subprocess.run(['git', 'push'], check=True)
+        print("Changes pushed to GitHub.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error in Git operation: {e}")
+
+# Call the function at the end of your script
+run_git_commands()
