@@ -4,6 +4,9 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import base64
 
+with open('style.css') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 # Load data
 def load_data():
