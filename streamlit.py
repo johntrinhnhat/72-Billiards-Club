@@ -1,10 +1,10 @@
+import subprocess
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import base64
 
 # Load data
-@st.cache_data
 def load_data():
     return pd.read_csv('kioviet.csv')
 
@@ -52,8 +52,8 @@ def run_app():
 
 
     ## ---- MAIN PAGE ----
-    st.title("🎱 72 BILLIARDS CLUB")
-    st.header("Sales Dashboard")
+    st.image('./logo.png')
+    st.title("🎱 SALES DASHBOARD")
     st.markdown("##")
 
  
@@ -124,6 +124,7 @@ def run_app():
 
 
     
+        subprocess.run(['C:\\Users\\Khoi\\Desktop\\BilliardsClub\\git_update.sh'])
 
 
 
