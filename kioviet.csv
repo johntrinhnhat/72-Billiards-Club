@@ -1,4 +1,7 @@
 Id,Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status
+124873100,khách lẻ,2024,1,2,12,Tuesday,159145.0,Done
+124872835,Triệu,2024,1,2,12,Tuesday,395513.0,Done
+124857103,PHÚ,2024,1,2,11,Tuesday,134230.0,Done
 124809199,minh,2024,1,2,4,Tuesday,418788.0,Done
 124809170,KHÔI DƯƠNG,2024,1,2,4,Tuesday,405060.0,Done
 124809150,khách lẻ,2024,1,2,4,Tuesday,114750.0,Done
