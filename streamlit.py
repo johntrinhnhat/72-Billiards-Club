@@ -18,7 +18,7 @@ def run_app():
     df = load_data()
 
     ## Side Bar
-    st.sidebar.header("Features Variables:")
+    st.sidebar.header("Feature Variables:")
 
     year = st.sidebar.multiselect(
         "Select the Year:",
@@ -52,20 +52,23 @@ def run_app():
 
 
     ## ---- MAIN PAGE ----
-    st.title("🎱 72 Billiards Club Sales Dashboard")
+    st.title("🎱 72 BILLIARDS CLUB")
+    st.header("Sales Dashboard")
     st.markdown("##")
 
+ 
     # TOP KPI's
     total_sales = int(df_selection['Sales'].sum())  
     average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
 
     left_column, right_column = st.columns(2)
     with left_column:
-        st.subheader("Total Sales:")
+        st.subheader("Total Sales")
         st.subheader(f"{total_sales:,} đ")
+        
 
     with right_column:
-        st.subheader("Average Sales:")
+        st.subheader("Average Sales")
         st.subheader(f"{average_sale_per_transaction:,} đ")
 
     st.markdown("---")
@@ -75,7 +78,7 @@ def run_app():
     def filedownload(df_selection):
         csv = df_selection.to_csv(index=False)
         b64 = base64.b64encode(csv.encode()).decode() # strings <-> bytes conversions
-        href = f'<a href="data:file/csv;base64, {b64}" download="data.csv">Download CSV file</a>'
+        href = f'<a href="data:file/csv;base64, {b64}" download="data.csv">Download Excel file</a>'
         return href 
     # Display the download link
     st.markdown(filedownload(df_selection), unsafe_allow_html=True)
@@ -111,7 +114,7 @@ def run_app():
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
 
         # Group by 'DayOfWeek' and sum the 'Sales'
-        weekly_sales = df_selection.groupby('DayOfWeek')['Sales'].sum()
+        weekly_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum()
 
         # Reset the index so 'DayOfWeek' becomes a column again
         weekly_sales = weekly_sales.reset_index()
