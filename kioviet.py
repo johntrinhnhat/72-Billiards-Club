@@ -7,7 +7,6 @@ import csv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
-import streamlit as st
 import base64
 
 # Load environment variables from a .env file
@@ -152,7 +151,6 @@ def run_git_commands():
     try:
         # Navigate to the directory containing your repository
         os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
-
         # Git commands
         subprocess.run(['git', 'add', '.'], check=True)
         subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
