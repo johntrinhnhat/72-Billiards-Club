@@ -107,7 +107,7 @@ if st.button('Show Plots'):
     dayofweek_sale = df_selection[['DayOfWeek', 'Sales']]
     dayofweek_sales = dayofweek_sale.groupby('DayOfWeek')['Sales'].max().reset_index()
 
-    st.line_chart(dayofweek_sales.set_index('DayOfWeek'), color='#3B8132')
+    st.line_chart(dayofweek_sales.set_index('DayOfWeek'), color='#ED64D9')
 
     # Bar chart (Sum Of Sales by Weekday)
     st.title('Sum Of Sales by Weekday')
@@ -124,5 +124,5 @@ if st.button('Show Plots'):
     weekly_sales = weekly_sales.reset_index()
 
     # Plot the results using st.bar_chart
-    st.bar_chart(weekly_sales.rename(columns={'DayOfWeek': 'index'}).set_index('index'), color='#3B8132')
+    st.bar_chart(weekly_sales.rename(columns={'DayOfWeek': 'index'}).set_index('index'), color='#ED64D9')
 
