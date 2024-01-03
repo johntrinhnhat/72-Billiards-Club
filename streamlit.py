@@ -67,7 +67,7 @@ df_selection = df.query(
 st.image('./logo.png')
 st.markdown("##")
 
-tab1, tab2= st.tabs(["Sales", "Customer"])
+tab1, tab2= st.tabs(["SALE", "CUSTOMER"])
 
 with tab1:
 
