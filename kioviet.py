@@ -92,13 +92,17 @@ customers = []
 
 for customer in customers_data:
 
+    # Extract date and hour using regular expression
+    create_date_match = re.search(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', customer.get("CreatedDate", ""))
+    create_date = create_date_match.group(1) if create_date_match else None
+
     customers_data_schema = {
         'Id': customer["Id"],
         'BranchId': customer["BranchId"],
         'Name': customer.get("Name", None),
         'Contact_Number': customer.get("ContactNumber", None),
         'Membership': customer.get("Groups",None),
-        'Created_Date': customer.get("CreatedDate"),
+        'Created_Date': create_date,
         'Debt': customer.get("Debt", None),
         'Total_Revenue': customer.get("TotalRevenue"),
         'Is_Active': customer["IsActive"],
