@@ -100,44 +100,40 @@ with tab1:
     # Display the download link
     st.markdown(filedownload(df_selection), unsafe_allow_html=True)
 
-    # Button Show Plots
+    #### Button Show Plots
     if st.button('Show Plots'):
-        # Line Chart ( Peak Houly Sales Trend)
+
+        ### Line Chart ( Peak Houly Sales Trend)
         st.title('Peak Hourly Sales Trend')
         hour_sale = df_selection[['Hour', 'Sales']]
         hourly_sales = hour_sale.groupby('Hour')['Sales'].max().reset_index()
-        st.line_chart(hourly_sales.set_index('Hour'), color='#FFA500')
+        fig = px.line(hourly_sales, x='Hour', y='Sales', line_shape='linear', markers=False)
+        fig.update_traces(line=dict(color='#FFA500'))
+        st.plotly_chart(fig)
 
-        # Bar Chart (Number Of Transaction By Hour)
+        ### Bar Chart (Number Of Transaction By Hour)
         st.title('Number of Transactions by Hour')
-        
         transactions_per_hour = df_selection['Hour'].value_counts().sort_index()
-        transactions_per_hour = transactions_per_hour.sort_index()
-        st.bar_chart(transactions_per_hour,  color='#FFA500')
+        fig = px.bar(transactions_per_hour, x=transactions_per_hour.index, y=transactions_per_hour.values, labels={'y':'Transactions', 'x':'Hour'})
+        fig.update_traces(marker_color='#FFA500')
+        st.plotly_chart(fig)
 
-        # Line Chart ( Peak Weekday Sales Trend)
+        ### Line Chart ( Peak Weekday Sales Trend)
         st.title('Peek Weekday Sales Trend')
         dayofweek_sale = df_selection[['DayOfWeek', 'Sales']]
         dayofweek_sales = dayofweek_sale.groupby('DayOfWeek')['Sales'].max().reset_index()
+        fig = px.line(dayofweek_sales, x='DayOfWeek', y='Sales', line_shape='linear', markers=False)
+        fig.update_traces(line=dict(color='#ED64A6'))  # Updated to a valid HEX color
+        st.plotly_chart(fig)
 
-        st.line_chart(dayofweek_sales.set_index('DayOfWeek'), color='#ED64D9')
-
-        # Bar chart (Sum Of Sales by Weekday)
+        ### Bar chart (Sum Of Sales by Weekday)
         st.title('Sum Of Sales by Weekday')
-        # Define the correct order of the days
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-        # Ensure that 'DayOfWeek' is a categorical type with the specified order
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
-
-        # Group by 'DayOfWeek' and sum the 'Sales'
-        weekly_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum()
-
-        # Reset the index so 'DayOfWeek' becomes a column again
-        weekly_sales = weekly_sales.reset_index()
-
-        # Plot the results using st.bar_chart
-        st.bar_chart(weekly_sales.rename(columns={'DayOfWeek': 'index'}).set_index('index'), color='#ED64D9')
+        weekly_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
+        fig = px.bar(weekly_sales, x='DayOfWeek', y='Sales')
+        fig.update_traces(marker_color='#ED64D9')
+        st.plotly_chart(fig)
 
 
 with tab2:
