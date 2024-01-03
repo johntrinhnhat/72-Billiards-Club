@@ -133,9 +133,17 @@ df_customer['Total_Revenue'] = df_customer['Total_Revenue'].replace(0, 'None')
 df_customer['Membership'] = df_customer['Membership'].fillna('None')
 df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
 df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
-# df_customer['Contact_Number'] = df_customer['Contact_Number'].fillna(0).astype(int).apply(lambda x: f'{x:09d}')
-# df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: f'{x[:3]}-{x[3:6]}-{x[6:]}')
-# df_customer['Contact_Number'] = df_customer['Contact_Number'].fillna(0).astype(int)
+# First ensure that the 'contact_number' column is treated as strings
+df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str)
+
+# Remove any '.0' that comes from floating point representation
+df_customer['Contact_Number'] = df_customer['Contact_Number'].str.replace('.0', '', regex=False)
+
+# Now add the leading '0' if it's not already there
+df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x if not x.startswith('0') else x)
+
+# Ensure consistent formatting: ###-###-####
+df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
 # Convert `PurchaseDate` to datetime object
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 # Extract features from `PurchaseDate`
