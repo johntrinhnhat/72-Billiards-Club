@@ -152,6 +152,7 @@ df['Year'] = df['PurchaseDate'].dt.year
 df['Month'] = df['PurchaseDate'].dt.month
 df['Day'] = df['PurchaseDate'].dt.day
 
+
 day_map = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'}
 df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
 
@@ -160,7 +161,7 @@ df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
 df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 # The columns want to keep
-columns_to_keep = ['Id', 'Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status']
+columns_to_keep = ['Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status', 'PurchaseDate']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 
 # Select only the desired columns

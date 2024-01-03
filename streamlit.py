@@ -18,6 +18,15 @@ def load_customer_data():
 df = load_data()
 df_customer = load_customer_data()
 
+# Identify repeat and one-time customers
+customer_freq = df['Customer_Name'].value_counts().reset_index()
+customer_freq.columns = ['Customer_Name', 'Frequency']
+repeat_customers = customer_freq[customer_freq['Frequency'] > 1]['Customer_Name']
+one_time_customers = customer_freq[customer_freq['Frequency'] == 1]['Customer_Name']
+
+# Filter the main dataframe for repeat customers
+df_repeat_customers = df[df['Customer_Name'].isin(repeat_customers)]
+
 # Streamlit Web App
 st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
@@ -125,14 +134,17 @@ with tab1:
         fig.update_traces(line=dict(color='#ED64A6'))  # Updated to a valid HEX color
         st.plotly_chart(fig)
 
-        ### Bar chart (Sum Of Sales by Weekday)
+        ### Pie chart (Sum Of Sales by Weekday)
         st.title('Sum Of Sales by Weekday')
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
-        weekly_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
-        fig = px.bar(weekly_sales, x='DayOfWeek', y='Sales')
-        fig.update_traces(marker_color='#ED64D9')
+        weekly_sales = df_selection.groupby('DayOfWeek')['Sales'].sum().reset_index()
+        fig = px.pie(weekly_sales, names='DayOfWeek', values='Sales')
         st.plotly_chart(fig)
+
+        st.write("### Customer Behavior Analysis")
+    
+        
 
 
 with tab2:
@@ -157,4 +169,6 @@ with tab2:
 
         # Display the interactive plot in Streamlit
         st.plotly_chart(fig)
+
+        
 
