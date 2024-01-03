@@ -128,22 +128,62 @@ with tab1:
 
         ### Line Chart ( Peak Weekday Sales Trend)
         st.title('Peek Weekday Sales Trend')
-        dayofweek_sale = df_selection[['DayOfWeek', 'Sales']]
-        dayofweek_sales = dayofweek_sale.groupby('DayOfWeek')['Sales'].max().reset_index()
+        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        dayofweek_sale = df_selection[['DayOfWeek', 'Sales']].copy()
+        dayofweek_sale['DayOfWeek'] = pd.Categorical(dayofweek_sale['DayOfWeek'], categories=days_order, ordered=True)
+        dayofweek_sales = dayofweek_sale.groupby('DayOfWeek', observed=False)['Sales'].max().reset_index()
         fig = px.line(dayofweek_sales, x='DayOfWeek', y='Sales', line_shape='linear', markers=False)
         fig.update_traces(line=dict(color='#ED64A6'))  # Updated to a valid HEX color
         st.plotly_chart(fig)
 
         ### Pie chart (Sum Of Sales by Weekday)
         st.title('Sum Of Sales by Weekday')
-        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
-        weekly_sales = df_selection.groupby('DayOfWeek')['Sales'].sum().reset_index()
+        weekly_sales = df_selection.groupby('DayOfWeek', observed=False)['Sales'].sum().reset_index()
         fig = px.pie(weekly_sales, names='DayOfWeek', values='Sales')
         st.plotly_chart(fig)
 
-        st.write("### Customer Behavior Analysis")
-    
+        ### Line Chart (Purchasing Pattern)
+        st.title("Purchasing Behavior of 'khách lẻ'")
+        khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ'].copy()
+        khach_le_transactions['PurchaseDate'] =  pd.to_datetime(khach_le_transactions['PurchaseDate'], errors='coerce')
+        purchasing_pattern = khach_le_transactions.groupby('PurchaseDate')['Sales'].sum().reset_index()
+        # Plotting with Plotly
+        fig = px.line(purchasing_pattern,
+                    x='PurchaseDate',
+                    y='Sales',
+                    line_shape='linear',
+                    markers=False
+        )
+        st.plotly_chart(fig)
+
+        ### Line Chart (Purchasing Pattern)
+        khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ'].copy()
+        khach_le_transactions['DayOfWeek'] = pd.Categorical(khach_le_transactions['DayOfWeek'], categories=days_order, ordered=True)
+        purchasing_pattern = khach_le_transactions.groupby('DayOfWeek', observed=False)['Sales'].sum().reset_index()
+        # Plotting with Plotly
+        fig = px.line(purchasing_pattern,
+                    x='DayOfWeek',
+                    y='Sales',
+                    line_shape='linear',
+                    markers=False
+        )
+        fig.update_traces(line=dict(color='#ED64A6'))  # Updated to a valid HEX color
+        st.plotly_chart(fig)
+
+        ### Line Chart (Purchasing Pattern)
+        khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ']
+        # khach_le_transactions['DayOfWeek'] = pd.Categorical(khach_le_transactions['DayOfWeek'], categories=days_order, ordered=True)
+        purchasing_pattern = khach_le_transactions.groupby('Hour')['Sales'].sum().reset_index()
+        # Plotting with Plotly
+        fig = px.line(purchasing_pattern,
+                    x='Hour',
+                    y='Sales',
+                    line_shape='linear',
+                    markers=False
+        )
+        fig.update_traces(line=dict(color='#FFA500'))
+        st.plotly_chart(fig)
         
 
 
@@ -163,8 +203,10 @@ with tab2:
                     hover_data=['Membership', 'Count'], color='Count')
         st.plotly_chart(fig)
 
-        # 
+
         
+
+
 
         
 
