@@ -169,7 +169,8 @@ df = df[columns_to_keep]
 df_customer = df_customer[column_to_keep]
 # Change title `Total_Payment` to `Sales`
 df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
-
+customer_counts = df['Customer_Name'].value_counts().reset_index()
+print(customer_counts)
 # Change value of `Status` from `hoàn thành` to `done`
 df.loc[df['Status'] == 'Hoàn thành', 'Status'] = 'Done'
 

@@ -156,19 +156,15 @@ with tab2:
     if st.button('Show Plot'):
         # Bar Chart (Number of Membership)
         st.title('Number of Membership')
-
         membership_counts = df_customer['Membership'].value_counts(dropna=False).reset_index()
         membership_counts.columns = ['Membership', 'Count']
-
-        # Replace NaN values with the string 'None' for display purposes
         membership_counts['Membership'] = membership_counts['Membership'].fillna('None')
-
-        # Create an interactive bar chart with Plotly
         fig = px.bar(membership_counts, x='Membership', y='Count', 
                     hover_data=['Membership', 'Count'], color='Count')
-
-        # Display the interactive plot in Streamlit
         st.plotly_chart(fig)
+
+        # 
+        
 
         
 
