@@ -5,20 +5,28 @@ import base64
 
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
+github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
+
 # Load data
 def load_data():
     return pd.read_csv(github_csv_url)
 
+def load_customer_data():
+    return pd.read_csv(github_csv_customer_url)
+
+df = load_data()
+df_customer = load_customer_data()
 
 # Streamlit Web App
 st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
                 layout="wide")
 
-df = load_data()
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+
 ## Side Bar
 st.sidebar.header("Feature Variables:")
 
@@ -27,6 +35,7 @@ year = st.sidebar.multiselect(
     options=df['Year'].unique(),
     default=df['Year'].unique()
 )
+
 month = st.sidebar.multiselect(
     "Select the Month:",
     options=df['Month'].unique(),
@@ -55,74 +64,84 @@ df_selection = df.query(
 
 ## ---- MAIN PAGE ----
 st.image('./logo.png')
-st.title("🎱 SALES DASHBOARD")
+st.title("🎱 DASHBOARD")
 st.markdown("##")
 
+tab1, tab2= st.tabs(["Sales", "Customer"])
 
-# TOP KPI's
-total_sales = int(df_selection['Sales'].sum())  
-average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
+with tab1:
 
-left_column, right_column = st.columns(2)
-with left_column:
-    # st.subheader("Total Sales")
-    # st.subheader(f"{total_sales:,} đ")
-    st.metric(label="Total Sales", value=f"{total_sales:,} đ")
-    
+    # TOP KPI's
+    total_sales = int(df_selection['Sales'].sum())  
+    average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
 
-with right_column:
-    # st.subheader("Average Sales")
-    # st.subheader(f"{average_sale_per_transaction:,} đ")
-    st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
+    left_column, right_column = st.columns(2)
+    with left_column:
+        # st.subheader("Total Sales")
+        # st.subheader(f"{total_sales:,} đ")
+        st.metric(label="Total Sales", value=f"{total_sales:,} đ")
+        
 
-st.markdown("---")
-st.dataframe(df_selection)
+    with right_column:
+        # st.subheader("Average Sales")
+        # st.subheader(f"{average_sale_per_transaction:,} đ")
+        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
 
-# Download data
-def filedownload(df_selection):
-    csv = df_selection.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode() # strings <-> bytes conversions
-    href = f'<a href="data:file/csv;base64, {b64}" download="data.csv">Download Excel file</a>'
-    return href 
-# Display the download link
-st.markdown(filedownload(df_selection), unsafe_allow_html=True)
+    st.markdown("---")
+    st.dataframe(df_selection)
 
-# Button Show Plots
-if st.button('Show Plots'):
-    # Line Chart ( Peak Houly Sales Trend)
-    st.title('Peak Hourly Sales Trend')
-    hour_sale = df_selection[['Hour', 'Sales']]
-    hourly_sales = hour_sale.groupby('Hour')['Sales'].max().reset_index()
-    st.line_chart(hourly_sales.set_index('Hour'), color='#FFA500')
+    # Download data
+    def filedownload(df_selection):
+        csv = df_selection.to_csv(index=False)
+        b64 = base64.b64encode(csv.encode()).decode() # strings <-> bytes conversions
+        href = f'<a href="data:file/csv;base64, {b64}" download="data.csv">Download Excel file</a>'
+        return href 
+    # Display the download link
+    st.markdown(filedownload(df_selection), unsafe_allow_html=True)
 
-    # Bar Chart (Number Of Transaction By Hour)
-    st.title('Number of Transactions by Hour')
-    
-    transactions_per_hour = df_selection['Hour'].value_counts().sort_index()
-    transactions_per_hour = transactions_per_hour.sort_index()
-    st.bar_chart(transactions_per_hour,  color='#FFA500')
+    # Button Show Plots
+    if st.button('Show Plots'):
+        # Line Chart ( Peak Houly Sales Trend)
+        st.title('Peak Hourly Sales Trend')
+        hour_sale = df_selection[['Hour', 'Sales']]
+        hourly_sales = hour_sale.groupby('Hour')['Sales'].max().reset_index()
+        st.line_chart(hourly_sales.set_index('Hour'), color='#FFA500')
 
-    # Line Chart ( Peak Weekday Sales Trend)
-    st.title('Peek Weekday Sales Trend')
-    dayofweek_sale = df_selection[['DayOfWeek', 'Sales']]
-    dayofweek_sales = dayofweek_sale.groupby('DayOfWeek')['Sales'].max().reset_index()
+        # Bar Chart (Number Of Transaction By Hour)
+        st.title('Number of Transactions by Hour')
+        
+        transactions_per_hour = df_selection['Hour'].value_counts().sort_index()
+        transactions_per_hour = transactions_per_hour.sort_index()
+        st.bar_chart(transactions_per_hour,  color='#FFA500')
 
-    st.line_chart(dayofweek_sales.set_index('DayOfWeek'), color='#ED64D9')
+        # Line Chart ( Peak Weekday Sales Trend)
+        st.title('Peek Weekday Sales Trend')
+        dayofweek_sale = df_selection[['DayOfWeek', 'Sales']]
+        dayofweek_sales = dayofweek_sale.groupby('DayOfWeek')['Sales'].max().reset_index()
 
-    # Bar chart (Sum Of Sales by Weekday)
-    st.title('Sum Of Sales by Weekday')
-    # Define the correct order of the days
-    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        st.line_chart(dayofweek_sales.set_index('DayOfWeek'), color='#ED64D9')
 
-    # Ensure that 'DayOfWeek' is a categorical type with the specified order
-    df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
+        # Bar chart (Sum Of Sales by Weekday)
+        st.title('Sum Of Sales by Weekday')
+        # Define the correct order of the days
+        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-    # Group by 'DayOfWeek' and sum the 'Sales'
-    weekly_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum()
+        # Ensure that 'DayOfWeek' is a categorical type with the specified order
+        df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
 
-    # Reset the index so 'DayOfWeek' becomes a column again
-    weekly_sales = weekly_sales.reset_index()
+        # Group by 'DayOfWeek' and sum the 'Sales'
+        weekly_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum()
 
-    # Plot the results using st.bar_chart
-    st.bar_chart(weekly_sales.rename(columns={'DayOfWeek': 'index'}).set_index('index'), color='#ED64D9')
+        # Reset the index so 'DayOfWeek' becomes a column again
+        weekly_sales = weekly_sales.reset_index()
+
+        # Plot the results using st.bar_chart
+        st.bar_chart(weekly_sales.rename(columns={'DayOfWeek': 'index'}).set_index('index'), color='#ED64D9')
+
+
+with tab2:
+    total_customer = len(df_customer)
+    st.metric(label="Total Customers", value=f"{total_customer}")
+    st.dataframe(df_customer)
+
 

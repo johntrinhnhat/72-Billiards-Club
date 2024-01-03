@@ -15,6 +15,7 @@ load_dotenv()
 Retailer  = os.getenv('Retailer')
 access_token = os.getenv('access_token')
 url = os.getenv('url')
+url_customer=os.getenv('url_customer')
 
 # Set up API request details
 invoices_url = url
@@ -70,13 +71,70 @@ with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
 
     writer.writerows(invoices)
 
+# Set up API request details
+customers_url = url_customer
+customers_headers = {
+    'Retailer': f'{Retailer}', 
+    'Authorization': f'Bearer {access_token}',
+}
+
+customers_params = {
+    'name': 'string',
+    'contactNumber': 'string',
+}
+
+# Perform the API request
+response = requests.get(customers_url, headers=customers_headers, params=customers_params)
+response_data = response.json()
+customers_data = response_data["Data"]
+
+customers = []
+
+for customer in customers_data:
+
+    customers_data_schema = {
+        'Id': customer["Id"],
+        'BranchId': customer["BranchId"],
+        'Name': customer.get("Name", None),
+        'Contact_Number': customer.get("ContactNumber", None),
+        'Membership': customer.get("Groups",None),
+        'Created_Date': customer.get("CreatedDate"),
+        'Debt': customer.get("Debt", None),
+        'Total_Revenue': customer.get("TotalRevenue"),
+        'Is_Active': customer["IsActive"],
+        'Last_Trading_Date': customer.get("LastTradingDate", None)
+    }
+
+    # Add invoice to list if BranchId is not 0
+    if customers_data_schema["BranchId"] != 0:
+        customers.append(customers_data_schema)
+
+print(f"Total Customers: {len(customers)}")
+
+# Define CSV field names
+fieldnamess=['Id', 'BranchId', 'Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Is_Active', 'Last_Trading_Date']
+
+# Write data to a CSV file
+with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_file:
+    writer = csv.DictWriter(kioviet_customer_file, fieldnames=fieldnamess)
+    writer.writeheader()
+
+    writer.writerows(customers)
+
 
 # Load data into a DataFrame
 df = pd.read_csv('kioviet.csv')
-
+df_customer = pd.read_csv('kioviet_customer.csv')
 # Replace missing values in 'Customer_Name' with 'khách lẻ'
 df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
-
+# Replace missing value in debt
+df_customer['Debt'] = df_customer['Debt'].fillna('None')
+df_customer['Membership'] = df_customer['Membership'].fillna('None')
+df_customer['Debt'] = df_customer['Debt'].replace(0.0,'None')
+df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
+df_customer['Contact_Number'] = df_customer['Contact_Number'].fillna(0).astype(int).apply(lambda x: f'{x:09d}')
+df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: f'{x[:3]}-{x[3:6]}-{x[6:]}')
+# df_customer['Contact_Number'] = df_customer['Contact_Number'].fillna(0).astype(int)
 # Convert `PurchaseDate` to datetime object
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 # Extract features from `PurchaseDate`
@@ -111,53 +169,54 @@ df = df[df['Sales'] != 2836000]
 df = df[df['Status'] != 'Đã hủy']
 
 print(df.head(), df.shape)
+print(df_customer.head(), df_customer.shape)
 
 # Save DataFrame to CSV file
 df.to_csv('kioviet.csv', index=False)
 
 
-### IMPORT DATA TO GOOGLE SHEET
+# ### IMPORT DATA TO GOOGLE SHEET
 
-# Defind the scope of the application
-scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+# # Defind the scope of the application
+# scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 
-# Add credential to account
-creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json')
+# # Add credential to account
+# creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json')
 
-# Authorize the clientsheet
-client = gspread.authorize(creds)
+# # Authorize the clientsheet
+# client = gspread.authorize(creds)
 
-# Open the sheet
-sheet = client.open('kioviet_api_data_live')
+# # Open the sheet
+# sheet = client.open('kioviet_api_data_live')
 
-# Get sheets
-sheet_1 = sheet.get_worksheet(0)
+# # Get sheets
+# sheet_1 = sheet.get_worksheet(0)
 
 
-# Convert api dataframe to a list of lists
-data_sheet = df.values.tolist()
+# # Convert api dataframe to a list of lists
+# data_sheet = df.values.tolist()
 
-# Include the header
-header = df.columns.tolist()
-data_sheet.insert(0, header)
+# # Include the header
+# header = df.columns.tolist()
+# data_sheet.insert(0, header)
 
-try:
-    # Update the new worksheet starting at the first cell
-    sheet_1_updated = sheet_1.update(range_name='A1', values=data_sheet)
-finally:
-    print(f"\nSuccessfuly import data to Google Sheet ✅\n")
+# try:
+#     # Update the new worksheet starting at the first cell
+#     sheet_1_updated = sheet_1.update(range_name='A1', values=data_sheet)
+# finally:
+#     print(f"\nSuccessfuly import data to Google Sheet ✅\n")
 
-def run_git_commands():
-    try:
-        # Navigate to the directory containing your repository
-        os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
-        # Git commands
-        subprocess.run(['git', 'add', '.'], check=True)
-        subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
-        subprocess.run(['git', 'push'], check=True)
-        print("Changes pushed to GitHub.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error in Git operation: {e}")
+# def run_git_commands():
+#     try:
+#         # Navigate to the directory containing your repository
+#         os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
+#         # Git commands
+#         subprocess.run(['git', 'add', '.'], check=True)
+#         subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
+#         subprocess.run(['git', 'push'], check=True)
+#         print("Changes pushed to GitHub.")
+#     except subprocess.CalledProcessError as e:
+#         print(f"Error in Git operation: {e}")
 
-# Call the function at the end of your script
-run_git_commands()
+# # Call the function at the end of your script
+# run_git_commands()
