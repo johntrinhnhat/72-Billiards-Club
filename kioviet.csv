@@ -1,4 +1,95 @@
 Id,Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status
+125187200,khách lẻ,2024,1,4,1,Thursday,188365.0,Done
+125186985,khách lẻ,2024,1,4,0,Thursday,63365.0,Done
+125186801,khách lẻ,2024,1,4,0,Thursday,381365.0,Done
+125186663,Duy,2024,1,4,0,Thursday,279428.0,Done
+125186477,khách lẻ,2024,1,4,0,Thursday,95000.0,Done
+125186431,khách lẻ,2024,1,4,0,Thursday,333015.0,Done
+125186149,HUY,2024,1,4,0,Thursday,315000.0,Done
+125184886,khách lẻ,2024,1,4,0,Thursday,190500.0,Done
+125184866,khách lẻ,2024,1,4,0,Thursday,299135.0,Done
+125184336,Lành,2024,1,3,23,Wednesday,156721.0,Done
+125184181,khách lẻ,2024,1,3,23,Wednesday,272365.0,Done
+125184128,khách lẻ,2024,1,3,23,Wednesday,283365.0,Done
+125183569,trương,2024,1,3,23,Wednesday,170880.0,Done
+125183142,bảo,2024,1,3,23,Wednesday,167865.0,Done
+125183101,khách lẻ,2024,1,3,23,Wednesday,142500.0,Done
+125182492,khách lẻ,2024,1,3,23,Wednesday,222150.0,Done
+125182031,long,2024,1,3,23,Wednesday,348865.0,Done
+125181601,khách lẻ,2024,1,3,23,Wednesday,190000.0,Done
+125179991,khách lẻ,2024,1,3,22,Wednesday,158365.0,Done
+125178337,Lành,2024,1,3,22,Wednesday,99778.0,Done
+125177998,khôi,2024,1,3,22,Wednesday,271471.0,Done
+125176567,khách lẻ,2024,1,3,22,Wednesday,267500.0,Done
+125176272,HƯNG,2024,1,3,22,Wednesday,396675.0,Done
+125175151,quân,2024,1,3,22,Wednesday,208365.0,Done
+125174592,Lành,2024,1,3,22,Wednesday,207778.0,Done
+125174538,KỲ,2024,1,3,22,Wednesday,255203.0,Done
+125173891,Chị Thư,2024,1,3,21,Wednesday,152000.0,Done
+125169932,Thịnh,2024,1,3,21,Wednesday,212928.0,Done
+125166385,Anh Vũ,2024,1,3,21,Wednesday,346027.0,Done
+125165746,Lành,2024,1,3,21,Wednesday,233428.0,Done
+125164640,Duy,2024,1,3,21,Wednesday,209000.0,Done
+125163296,khách lẻ,2024,1,3,21,Wednesday,172500.0,Done
+125162640,khách lẻ,2024,1,3,21,Wednesday,243365.0,Done
+125162330,khách lẻ,2024,1,3,21,Wednesday,248390.0,Done
+125162109,Lực,2024,1,3,21,Wednesday,310973.0,Done
+125158782,khách lẻ,2024,1,3,20,Wednesday,172500.0,Done
+125157350,khách lẻ,2024,1,3,20,Wednesday,125000.0,Done
+125145747,khách lẻ,2024,1,3,20,Wednesday,139135.0,Done
+125144079,khách lẻ,2024,1,3,20,Wednesday,310865.0,Done
+125142152,khách lẻ,2024,1,3,19,Wednesday,118120.0,Done
+125139552,khách lẻ,2024,1,3,19,Wednesday,62485.0,Done
+125137792,khách lẻ,2024,1,3,19,Wednesday,229635.0,Done
+125136777,sơn,2024,1,3,19,Wednesday,240865.0,Done
+125135859,khách lẻ,2024,1,3,19,Wednesday,180890.0,Done
+125135226,khách lẻ,2024,1,3,19,Wednesday,312865.0,Done
+125134272,sơn,2024,1,3,19,Wednesday,177475.0,Done
+125131926,khôi,2024,1,3,19,Wednesday,110250.0,Done
+125129692,khách lẻ,2024,1,3,19,Wednesday,239145.0,Done
+125120558,khách lẻ,2024,1,3,18,Wednesday,87525.0,Done
+125117232,QUỐC ANH,2024,1,3,18,Wednesday,237524.0,Done
+125116569,khách lẻ,2024,1,3,18,Wednesday,112500.0,Done
+125115892,khôi,2024,1,3,18,Wednesday,218227.0,Done
+125114956,khôi,2024,1,3,18,Wednesday,45022.0,Done
+125114393,khôi,2024,1,3,18,Wednesday,101250.0,Done
+125113620,khách lẻ,2024,1,3,18,Wednesday,267000.0,Done
+125111603,Anh Vũ,2024,1,3,17,Wednesday,1160977.0,Done
+125109986,Chị Thư,2024,1,3,17,Wednesday,180020.0,Done
+125109797,khách lẻ,2024,1,3,17,Wednesday,206475.0,Done
+125107608,khách lẻ,2024,1,3,17,Wednesday,129975.0,Done
+125107399,khôi,2024,1,3,17,Wednesday,426622.0,Done
+125102997,Nghĩa,2024,1,3,17,Wednesday,94976.0,Done
+125101846,khách lẻ,2024,1,3,16,Wednesday,180500.0,Done
+125101827,khách lẻ,2024,1,3,16,Wednesday,129975.0,Done
+125098299,khách lẻ,2024,1,3,16,Wednesday,124975.0,Done
+125097494,Nghĩa,2024,1,3,16,Wednesday,524761.0,Done
+125097332,khách lẻ,2024,1,3,16,Wednesday,212500.0,Done
+125094329,khách lẻ,2024,1,3,16,Wednesday,149985.0,Done
+125093726,khách lẻ,2024,1,3,16,Wednesday,111485.0,Done
+125091288,khách lẻ,2024,1,3,15,Wednesday,407355.0,Done
+125090681,Nghĩa,2024,1,3,15,Wednesday,143901.0,Done
+125089797,kiệt,2024,1,3,15,Wednesday,125025.0,Done
+125087890,giao,2024,1,3,15,Wednesday,171000.0,Done
+125087691,Dũng,2024,1,3,15,Wednesday,259975.0,Done
+125086353,khách lẻ,2024,1,3,15,Wednesday,192525.0,Done
+125081626,Chị Thư,2024,1,3,14,Wednesday,118000.0,Done
+125076164,Lành,2024,1,3,14,Wednesday,163822.0,Done
+125075968,khách lẻ,2024,1,3,14,Wednesday,99975.0,Done
+125075066,Lành,2024,1,3,13,Wednesday,101250.0,Done
+125074174,khách lẻ,2024,1,3,13,Wednesday,87525.0,Done
+125072213,khách lẻ,2024,1,3,13,Wednesday,156975.0,Done
+125069701,Chị Thư,2024,1,3,13,Wednesday,70020.0,Done
+125068600,thuận,2024,1,3,13,Wednesday,184120.0,Done
+125068284,thuận,2024,1,3,13,Wednesday,293120.0,Done
+125061654,khách lẻ,2024,1,3,12,Wednesday,75000.0,Done
+125052495,thắng,2024,1,3,11,Wednesday,108355.0,Done
+125051169,khách lẻ,2024,1,3,11,Wednesday,86645.0,Done
+125050874,khách lẻ,2024,1,3,11,Wednesday,54145.0,Done
+125048245,khách lẻ,2024,1,3,11,Wednesday,75855.0,Done
+125048196,khách lẻ,2024,1,3,11,Wednesday,138145.0,Done
+125046491,khách lẻ,2024,1,3,11,Wednesday,86645.0,Done
+125044337,khách lẻ,2024,1,3,11,Wednesday,75855.0,Done
 125000829,khách lẻ,2024,1,3,5,Wednesday,449000.0,Done
 125000632,giàu,2024,1,3,4,Wednesday,391555.0,Done
 125000576,minh,2024,1,3,4,Wednesday,197600.0,Done
