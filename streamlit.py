@@ -65,7 +65,6 @@ df_selection = df.query(
 
 ## ---- MAIN PAGE ----
 st.image('./logo.png')
-st.title("🎱 DASHBOARD")
 st.markdown("##")
 
 tab1, tab2= st.tabs(["Sales", "Customer"])
