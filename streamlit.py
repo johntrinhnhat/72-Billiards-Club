@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import plotly.express as px
 import base64
 
 
@@ -144,4 +145,18 @@ with tab2:
     st.metric(label="Total Customers", value=f"{total_customer}")
     st.dataframe(df_customer)
 
+    # Button Show Plots
+    if st.button('Show Plot'):
+        # Line Chart ( Peak Houly Sales Trend)
+        st.title('Number of Memberships')
+
+        membership_counts = df_customer['Membership'].value_counts().reset_index()
+        membership_counts.columns = ['Membership', 'Count']
+
+        # Create an interactive bar chart with Plotly
+        fig = px.bar(membership_counts, x='Membership', y='Count', 
+                    hover_data=['Membership', 'Count'], color='Count')
+
+        # Display the interactive plot in Streamlit
+        st.plotly_chart(fig)
 
