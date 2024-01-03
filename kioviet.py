@@ -130,7 +130,7 @@ df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
 # Replace missing value in debt
 df_customer['Debt'] = df_customer['Debt'].fillna('None')
 df_customer['Membership'] = df_customer['Membership'].fillna('None')
-df_customer['Debt'] = df_customer['Debt'].replace(0.0,'None')
+df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
 df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
 df_customer['Contact_Number'] = df_customer['Contact_Number'].fillna(0).astype(int).apply(lambda x: f'{x:09d}')
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: f'{x[:3]}-{x[3:6]}-{x[6:]}')
@@ -151,10 +151,11 @@ df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H
 
 # The columns want to keep
 columns_to_keep = ['Id', 'Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status']
+column_to_keep = ['Id', 'Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 
 # Select only the desired columns
 df = df[columns_to_keep]
-
+df_customer = df_customer[column_to_keep]
 # Change title `Total_Payment` to `Sales`
 df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
 
@@ -173,6 +174,7 @@ print(df_customer.head(), df_customer.shape)
 
 # Save DataFrame to CSV file
 df.to_csv('kioviet.csv', index=False)
+df_customer.to_csv('kioviet_customer.csv', index=False)
 
 
 # ### IMPORT DATA TO GOOGLE SHEET
@@ -206,17 +208,17 @@ df.to_csv('kioviet.csv', index=False)
 # finally:
 #     print(f"\nSuccessfuly import data to Google Sheet ✅\n")
 
-# def run_git_commands():
-#     try:
-#         # Navigate to the directory containing your repository
-#         os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
-#         # Git commands
-#         subprocess.run(['git', 'add', '.'], check=True)
-#         subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
-#         subprocess.run(['git', 'push'], check=True)
-#         print("Changes pushed to GitHub.")
-#     except subprocess.CalledProcessError as e:
-#         print(f"Error in Git operation: {e}")
+def run_git_commands():
+    try:
+        # Navigate to the directory containing your repository
+        os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
+        # Git commands
+        subprocess.run(['git', 'add', '.'], check=True)
+        subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
+        subprocess.run(['git', 'push'], check=True)
+        print("Changes pushed to GitHub.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error in Git operation: {e}")
 
-# # Call the function at the end of your script
-# run_git_commands()
+# Call the function at the end of your script
+run_git_commands()
