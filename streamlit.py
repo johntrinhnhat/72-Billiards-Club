@@ -143,11 +143,14 @@ with tab2:
 
     # Button Show Plots
     if st.button('Show Plot'):
-        # Line Chart ( Peak Houly Sales Trend)
-        st.title('Number of Memberships')
+        # Bar Chart (Number of Membership)
+        st.title('Number of Membership')
 
-        membership_counts = df_customer['Membership'].value_counts().reset_index()
+        membership_counts = df_customer['Membership'].value_counts(dropna=False).reset_index()
         membership_counts.columns = ['Membership', 'Count']
+
+        # Replace NaN values with the string 'None' for display purposes
+        membership_counts['Membership'] = membership_counts['Membership'].fillna('None')
 
         # Create an interactive bar chart with Plotly
         fig = px.bar(membership_counts, x='Membership', y='Count', 
