@@ -103,7 +103,7 @@ with st.sidebar:
 st.image('./logo.png')
 st.markdown("##")
 
-tab1, tab2= st.tabs(["SALE", "CUSTOMER"])
+tab1, tab2= st.tabs(["SALE", "MEMBERSHIP"])
 
 with tab1:
     # TOP KPI's
@@ -240,7 +240,25 @@ with tab1:
 with tab2:
     total_customer = len(df_customer)
     st.markdown("---")
-    st.metric(label="Total Customers", value=f"{total_customer}")
+    left_column, right_column = st.columns(2)
+    with left_column:
+        st.metric(label="Total Membership", value=f"{total_customer}")
+    with right_column:
+        st.dataframe(df_customer,
+            column_order=("Name", "Total_Revenue"),
+            hide_index=True,
+            width=None,
+            column_config={
+                "Name": st.column_config.TextColumn(
+                    "Name",
+                ),
+                "Total_Revenue": st.column_config.ProgressColumn(
+                    "Total_Revenue",
+                    format="%f",
+                    min_value=0,
+                    max_value=max(df_customer.Total_Revenue),
+                )}
+            )
     st.markdown("---")
     st.dataframe(df_customer)
 
@@ -254,6 +272,9 @@ with tab2:
         fig = px.bar(membership_counts, x='Membership', y='Count', 
                     hover_data=['Membership', 'Count'], color='Count')
         st.plotly_chart(fig)
+
+    
+    
 
 
         
