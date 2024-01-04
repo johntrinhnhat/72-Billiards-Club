@@ -247,7 +247,7 @@ with tab2:
         st.metric(label="Top Membership", value=None)
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
         st.dataframe(df_customer_sorted,
-            column_order=("Name", "Total_Revenue"),
+            column_order=("Name", "Total_Revenue", "LineChartColumn"),
             hide_index=True,
             width=None,
             column_config={
