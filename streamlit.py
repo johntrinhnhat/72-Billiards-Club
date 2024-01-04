@@ -8,6 +8,8 @@ import base64
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
 
+
+
 # Load data
 def load_data():
     return pd.read_csv(github_csv_url)
@@ -31,6 +33,17 @@ df_repeat_customers = df[df['Customer_Name'].isin(repeat_customers)]
 st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
                 layout="wide")
+
+# CSS styling
+st.markdown("""
+<style>
+
+[data-testid="stMetric"] {
+    padding: 15px 0;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 
 with open('style.css') as f:
@@ -95,9 +108,6 @@ tab1, tab2= st.tabs(["SALE", "CUSTOMER"])
 with tab1:
     # TOP KPI's
     st.markdown("---")
-    total_sales = int(df_selection['Sales'].sum())  
-    average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
-    total_invoices = len(df_selection)
 
     # Assuming 'year' is a list with the current year range selected in the sidebar
     current_year_range = year
@@ -110,11 +120,15 @@ with tab1:
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek"
     )
-
     # Calculate previous period KPIs
     total_sales_previous = int(df_previous_period['Sales'].sum())
     average_sale_per_transaction_previous = round(df_previous_period['Sales'].mean(), 2)
     total_invoices_previous = len(df_previous_period)
+
+    # Calculate current period KPIs
+    total_sales = int(df_selection['Sales'].sum())  
+    average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
+    total_invoices = len(df_selection)
 
     # Calculate deltas
     delta_total_sales = total_sales - total_sales_previous
