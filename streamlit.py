@@ -244,6 +244,7 @@ with tab2:
     with left_column:
         st.metric(label="Total Membership", value=f"{total_customer}")
     with right_column:
+        df_customer['Total_Revenue'] = df_customer['Total_Revenue'].sort_values(ascending=False)
         st.dataframe(df_customer,
             column_order=("Name", "Total_Revenue"),
             hide_index=True,
