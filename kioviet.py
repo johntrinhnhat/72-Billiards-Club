@@ -133,7 +133,7 @@ df_customer = pd.read_csv('kioviet_customer.csv')
 df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
 # Replace missing value in debt
 df_customer['Debt'] = df_customer['Debt'].fillna('None')
-df_customer['Total_Revenue'] = df_customer['Total_Revenue'].apply(lambda x: f"{x:,.0f}")
+# df_customer['Total_Revenue'] = df_customer['Total_Revenue'].apply(lambda x: f"{x:,.0f}")
 df_customer['Membership'] = df_customer['Membership'].fillna('None')
 df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
 df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
