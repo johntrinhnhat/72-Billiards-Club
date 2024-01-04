@@ -244,7 +244,8 @@ with tab2:
     with left_column:
         st.metric(label="Total Membership", value=f"{total_customer}")
     with right_column:
-        df_customer['Total_Revenue'] = df_customer['Total_Revenue'].sort_values(ascending=False)
+        df_customer = df_customer.sort_values(by='Total_Revenue',ascending=False)
+        st.metric(label="Top Membership", value=None)
         st.dataframe(df_customer,
             column_order=("Name", "Total_Revenue"),
             hide_index=True,
@@ -255,7 +256,7 @@ with tab2:
                 ),
                 "Total_Revenue": st.column_config.ProgressColumn(
                     "Total_Revenue",
-                    format="%f",
+                    format="%d đ",
                     min_value=0,
                     max_value=max(df_customer.Total_Revenue),
                 )}
