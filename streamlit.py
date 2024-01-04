@@ -38,50 +38,51 @@ with open('style.css') as f:
 
 
 ## Side Bar
-st.sidebar.title("Filter:")
+with st.sidebar:
+    # st.title("🎱 DASHBOARD")
 
-year = st.sidebar.slider(
-    "Year:",
-    min_value=int(min(df['Year'].unique())),
-    max_value=int(max(df['Year'].unique())),
-    value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
-)
+    year = st.sidebar.slider(
+        "Year:",
+        min_value=int(min(df['Year'].unique())),
+        max_value=int(max(df['Year'].unique())),
+        value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
+    )
 
-month = st.sidebar.slider(
-    "Month:",
-    min_value=int(min(df['Month'].unique())),
-    max_value=int(max(df['Month'].unique())),
-    value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
-)
+    month = st.sidebar.slider(
+        "Month:",
+        min_value=int(min(df['Month'].unique())),
+        max_value=int(max(df['Month'].unique())),
+        value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
+    )
 
-day = st.sidebar.slider(
-    "Day:",
-    min_value=int(min(df['Day'].unique())),
-    max_value=int(max(df['Day'].unique())),
-    value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
-)
+    day = st.sidebar.slider(
+        "Day:",
+        min_value=int(min(df['Day'].unique())),
+        max_value=int(max(df['Day'].unique())),
+        value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
+    )
 
-hour = st.sidebar.slider(
-    "Hour:",
-    min_value=int(min(df['Hour'].unique())),
-    max_value=int(max(df['Hour'].unique())),
-    value=(int(min(df['Hour'].unique())), int(max(df['Hour'].unique())))
-)
+    hour = st.sidebar.slider(
+        "Hour:",
+        min_value=int(min(df['Hour'].unique())),
+        max_value=int(max(df['Hour'].unique())),
+        value=(int(min(df['Hour'].unique())), int(max(df['Hour'].unique())))
+    )
 
-dayofweek = st.sidebar.multiselect(
-    "DayOfWeek:",
-    options=df['DayOfWeek'].unique(),
-    default=df['DayOfWeek'].unique()
-)
+    dayofweek = st.sidebar.multiselect(
+        "DayOfWeek:",
+        options=df['DayOfWeek'].unique(),
+        default=df['DayOfWeek'].unique()
+    )
 
 
-df_selection = df.query(
-    "Year >= @year[0] & Year <= @year[1] & "
-    "Month >= @month[0] & Month <= @month[1] & "
-    "Day >= @day[0] & Day <= @day[1] & "
-    "Hour >= @hour[0] & Hour <= @hour[1] & "
-    "DayOfWeek == @dayofweek"
-)
+    df_selection = df.query(
+        "Year >= @year[0] & Year <= @year[1] & "
+        "Month >= @month[0] & Month <= @month[1] & "
+        "Day >= @day[0] & Day <= @day[1] & "
+        "Hour >= @hour[0] & Hour <= @hour[1] & "
+        "DayOfWeek == @dayofweek"
+    )
 
 
 
@@ -94,20 +95,21 @@ tab1, tab2= st.tabs(["SALE", "CUSTOMER"])
 with tab1:
 
     # TOP KPI's
+    st.markdown("---")
     total_sales = int(df_selection['Sales'].sum())  
     average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
+    total_invoices = len(df_selection)
 
-    left_column, right_column = st.columns(2)
+    left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        # st.subheader("Total Sales")
-        # st.subheader(f"{total_sales:,} đ")
         st.metric(label="Total Sales", value=f"{total_sales:,} đ")
         
 
-    with right_column:
-        # st.subheader("Average Sales")
-        # st.subheader(f"{average_sale_per_transaction:,} đ")
+    with middle_column:
         st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
+
+    with right_column:
+        st.metric(label="Total Invoices", value=total_invoices)
 
     st.markdown("---")
     st.dataframe(df_selection)
@@ -202,7 +204,9 @@ with tab1:
 
 with tab2:
     total_customer = len(df_customer)
+    st.markdown("---")
     st.metric(label="Total Customers", value=f"{total_customer}")
+    st.markdown("---")
     st.dataframe(df_customer)
 
     # Button Show Plots
