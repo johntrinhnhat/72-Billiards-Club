@@ -242,12 +242,28 @@ with tab2:
     st.markdown("---")
     left_column, right_column = st.columns(2)
     with left_column:
+        # non_khach_le_transaction = df[df['Customer_Name'] != 'khách lẻ']
+        # non_khach_le_transaction_pattern = non_khach_le_transaction.groupby('Customer_Name')['PurchaseDate'].sum().reset_index()
+        # print(non_khach_le_transaction_pattern)
         st.metric(label="Total Membership", value=f"{total_customer}")
+        # st.dataframe(non_khach_le_transaction_pattern,
+        #     column_order=("Customer_Name", "PurchaseDate"),
+        #     hide_index=True,
+        #     width=None,
+        #     column_config={
+        #         "Customer_Name": st.column_config.TextColumn(
+        #             "Customer_Name",
+        #         ),
+        #         "Behaviors": st.column_config.LineChartColumn(
+
+        #         )
+        #     }
+        #     )
     with right_column:
         st.metric(label="Top Membership", value=None)
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
         st.dataframe(df_customer_sorted,
-            column_order=("Name", "Total_Revenue", "LineChartColumn"),
+            column_order=("Name", "Total_Revenue", "Activities"),
             hide_index=True,
             width=None,
             column_config={
@@ -259,7 +275,8 @@ with tab2:
                     format="%d đ",
                     min_value=0,
                     max_value=max(df_customer.Total_Revenue),
-                )}
+                ),
+                }
             )
     st.markdown("---")
     st.dataframe(df_customer)
