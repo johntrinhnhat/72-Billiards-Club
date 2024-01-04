@@ -227,7 +227,7 @@ def run_git_commands():
         subprocess.run(['git', 'add', '.'], check=True)
         subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
         subprocess.run(['git', 'push'], check=True)
-        print("Changes pushed to GitHub.")
+        print("Changes pushed to GitHub ✅.")
     except subprocess.CalledProcessError as e:
         print(f"Error in Git operation: {e}")
 

@@ -38,38 +38,51 @@ with open('style.css') as f:
 
 
 ## Side Bar
-st.sidebar.header("Feature Variables:")
+st.sidebar.title("Filter:")
 
-year = st.sidebar.multiselect(
-    "Select the Year:",
-    options=df['Year'].unique(),
-    default=df['Year'].unique()
+year = st.sidebar.slider(
+    "Year:",
+    min_value=int(min(df['Year'].unique())),
+    max_value=int(max(df['Year'].unique())),
+    value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
 )
 
-month = st.sidebar.multiselect(
-    "Select the Month:",
-    options=df['Month'].unique(),
-    default=df['Month'].unique()
+month = st.sidebar.slider(
+    "Month:",
+    min_value=int(min(df['Month'].unique())),
+    max_value=int(max(df['Month'].unique())),
+    value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
 )
-day = st.sidebar.multiselect(
-    "Select the Day:",
-    options=df['Day'].unique(),
-    default=df['Day'].unique()
+
+day = st.sidebar.slider(
+    "Day:",
+    min_value=int(min(df['Day'].unique())),
+    max_value=int(max(df['Day'].unique())),
+    value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
 )
-hour = st.sidebar.multiselect(
-    "Select the Hour:",
-    options=df['Hour'].unique(),
-    default=df['Hour'].unique()
+
+hour = st.sidebar.slider(
+    "Hour:",
+    min_value=int(min(df['Hour'].unique())),
+    max_value=int(max(df['Hour'].unique())),
+    value=(int(min(df['Hour'].unique())), int(max(df['Hour'].unique())))
 )
+
 dayofweek = st.sidebar.multiselect(
-    "Select the DayOfWeek:",
+    "DayOfWeek:",
     options=df['DayOfWeek'].unique(),
     default=df['DayOfWeek'].unique()
 )
 
+
 df_selection = df.query(
-    "Year == @year & Month == @month & Day == @day & Hour == @hour & DayOfWeek == @dayofweek"
+    "Year >= @year[0] & Year <= @year[1] & "
+    "Month >= @month[0] & Month <= @month[1] & "
+    "Day >= @day[0] & Day <= @day[1] & "
+    "Hour >= @hour[0] & Hour <= @hour[1] & "
+    "DayOfWeek == @dayofweek"
 )
+
 
 
 ## ---- MAIN PAGE ----
