@@ -93,23 +93,44 @@ st.markdown("##")
 tab1, tab2= st.tabs(["SALE", "CUSTOMER"])
 
 with tab1:
-
     # TOP KPI's
     st.markdown("---")
     total_sales = int(df_selection['Sales'].sum())  
     average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
     total_invoices = len(df_selection)
 
+    # Assuming 'year' is a list with the current year range selected in the sidebar
+    current_year_range = year
+    previous_year_range = [year[0] - 1, year[1] - 1]
+
+    df_previous_period = df.query(
+        "Year >= @previous_year_range[0] & Year <= @previous_year_range[1] & "
+        "Month >= @month[0] & Month <= @month[1] & "
+        "Day >= @day[0] & Day <= @day[1] & "
+        "Hour >= @hour[0] & Hour <= @hour[1] & "
+        "DayOfWeek == @dayofweek"
+    )
+
+    # Calculate previous period KPIs
+    total_sales_previous = int(df_previous_period['Sales'].sum())
+    average_sale_per_transaction_previous = round(df_previous_period['Sales'].mean(), 2)
+    total_invoices_previous = len(df_previous_period)
+
+    # Calculate deltas
+    delta_total_sales = total_sales - total_sales_previous
+    delta_average_sale_per_transaction = average_sale_per_transaction - average_sale_per_transaction_previous
+    delta_total_invoices = total_invoices - total_invoices_previous
+
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        st.metric(label="Total Sales", value=f"{total_sales:,} đ")
+        st.metric(label="Total Sales", value=f"{total_sales:,} đ", delta=f"{delta_total_sales:+,} đ")
         
 
     with middle_column:
-        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
+        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ", delta=f"{delta_average_sale_per_transaction:+,.2f} đ")
 
     with right_column:
-        st.metric(label="Total Invoices", value=total_invoices)
+        st.metric(label="Total Invoices", value=total_invoices, delta=f"{delta_total_invoices:+,}")
 
     st.markdown("---")
     st.dataframe(df_selection)
