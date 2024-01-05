@@ -135,13 +135,18 @@ with tab1:
     delta_average_sale_per_transaction = average_sale_per_transaction - average_sale_per_transaction_previous
     delta_total_invoices = total_invoices - total_invoices_previous
 
+    # Calculate deltas as percentages
+    delta_total_sales_percentage = ((delta_total_sales / total_sales_previous) * 100) if total_sales_previous != 0 else 0
+    delta_average_sale_per_transaction_percentage = ((delta_average_sale_per_transaction / average_sale_per_transaction_previous) * 100) if average_sale_per_transaction_previous != 0 else 0
+    delta_total_invoices_percentage = ((delta_total_invoices / total_invoices_previous) * 100) if total_invoices_previous != 0 else 0
+
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        st.metric(label="Total Sales", value=f"{total_sales:,} đ", delta=f"{delta_total_sales:+,} đ")
+        st.metric(label="Total Sales", value=f"{total_sales:,} đ", delta=f"{delta_total_sales_percentage:+,.2f} %")
         
 
     with middle_column:
-        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ", delta=f"{delta_average_sale_per_transaction:+,.2f} đ")
+        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ", delta=f"{delta_average_sale_per_transaction_percentage:+,.2f} %")
 
     with right_column:
         st.metric(label="Total Invoices", value=total_invoices, delta=f"{delta_total_invoices:+,}")
@@ -263,6 +268,7 @@ with tab2:
         st.metric(label="Top Membership", value=None)
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
         df_customer_sorted = df_customer_sorted[['Name', 'Total_Revenue']]
+        df_customer_sorted['Total_Revenue'] = df_customer_sorted['Total_Revenue'].apply(lambda x: f"{x:,}")
         print(df_customer_sorted)
         st.dataframe(df_customer_sorted,
             column_order=("Name", "Total_Revenue"),
@@ -276,7 +282,7 @@ with tab2:
                     "Total_Revenue",
                     format="%d đ",
                     min_value=0,
-                    max_value=max(df_customer.Total_Revenue),
+                    max_value=int(max(df_customer.Total_Revenue)),
                 ),
                 }
             )
