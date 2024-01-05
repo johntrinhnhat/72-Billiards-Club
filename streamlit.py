@@ -262,6 +262,8 @@ with tab2:
     with right_column:
         st.metric(label="Top Membership", value=None)
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
+        df_customer_sorted = df_customer_sorted[['Name', 'Total_Revenue']]
+        print(df_customer_sorted)
         st.dataframe(df_customer_sorted,
             column_order=("Name", "Total_Revenue"),
             hide_index=True,
