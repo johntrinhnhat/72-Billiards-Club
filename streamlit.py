@@ -3,6 +3,8 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 import base64
+import numpy as np
+
 
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
@@ -137,7 +139,7 @@ with tab1:
 
     # Calculate deltas as percentages
     delta_total_sales_percentage = ((delta_total_sales / total_sales_previous) * 100) if total_sales_previous != 0 else 0
-    delta_average_sale_per_transaction_percentage = ((delta_average_sale_per_transaction / average_sale_per_transaction_previous) * 100) if average_sale_per_transaction_previous != 0 else 0
+    delta_average_sale_per_transaction_percentage = np.nan_to_num(((delta_average_sale_per_transaction / average_sale_per_transaction_previous) * 100) if average_sale_per_transaction_previous != 0 else 0)
     delta_total_invoices_percentage = ((delta_total_invoices / total_invoices_previous) * 100) if total_invoices_previous != 0 else 0
 
     left_column, middle_column, right_column = st.columns(3)
@@ -149,7 +151,7 @@ with tab1:
         st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ", delta=f"{delta_average_sale_per_transaction_percentage:+,.2f} %")
 
     with right_column:
-        st.metric(label="Total Invoices", value=total_invoices, delta=f"{delta_total_invoices:+,}")
+        st.metric(label="Total Invoices", value=total_invoices, delta=f"{delta_total_invoices_percentage:+,.2f} %")
 
     st.markdown("---")
     st.dataframe(df_selection)
