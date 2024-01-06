@@ -1,4 +1,27 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+khách lẻ,2024,1,7,1,Sunday,732560.0,Done,2024-01-07
+sơn,2024,1,7,1,Sunday,153830.0,Done,2024-01-07
+Lành,2024,1,7,1,Sunday,48191.0,Done,2024-01-07
+khách lẻ,2024,1,7,1,Sunday,235865.0,Done,2024-01-07
+khách lẻ,2024,1,7,1,Sunday,127000.0,Done,2024-01-07
+khách lẻ,2024,1,7,1,Sunday,158365.0,Done,2024-01-07
+quân,2024,1,7,1,Sunday,264120.0,Done,2024-01-07
+Lành,2024,1,7,1,Sunday,94235.0,Done,2024-01-07
+PHÚ,2024,1,7,1,Sunday,494221.0,Done,2024-01-07
+phát,2024,1,7,0,Sunday,405303.0,Done,2024-01-07
+khách lẻ,2024,1,7,0,Sunday,460000.0,Done,2024-01-07
+khách lẻ,2024,1,7,0,Sunday,320850.0,Done,2024-01-07
+khách lẻ,2024,1,7,0,Sunday,292500.0,Done,2024-01-07
+phi hùng,2024,1,7,0,Sunday,467865.0,Done,2024-01-07
+Lành,2024,1,7,0,Sunday,127500.0,Done,2024-01-07
+Thịnh,2024,1,6,23,Saturday,120303.0,Done,2024-01-06
+khách lẻ,2024,1,6,23,Saturday,156635.0,Done,2024-01-06
+Phương,2024,1,6,23,Saturday,260865.0,Done,2024-01-06
+khách lẻ,2024,1,6,23,Saturday,14985.0,Done,2024-01-06
+khách lẻ,2024,1,6,23,Saturday,204635.0,Done,2024-01-06
+khách lẻ,2024,1,6,23,Saturday,63365.0,Done,2024-01-06
+CHINH,2024,1,6,23,Saturday,299135.0,Done,2024-01-06
+Bảo Yến,2024,1,6,23,Saturday,280000.0,Done,2024-01-06
 khách lẻ,2024,1,6,22,Saturday,45000.0,Done,2024-01-06
 khách lẻ,2024,1,6,22,Saturday,190000.0,Done,2024-01-06
 khách lẻ,2024,1,6,22,Saturday,235865.0,Done,2024-01-06
