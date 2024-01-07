@@ -1,4 +1,26 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+khách lẻ,2024,1,8,3,Monday,113305.0,Done,2024-01-08
+khách lẻ,2024,1,8,3,Monday,185805.0,Done,2024-01-08
+giàu,2024,1,8,3,Monday,372000.0,Done,2024-01-08
+khách lẻ,2024,1,8,2,Monday,184195.0,Done,2024-01-08
+KỲ,2024,1,8,2,Monday,458503.0,Done,2024-01-08
+khách lẻ,2024,1,8,2,Monday,196695.0,Done,2024-01-08
+khách lẻ,2024,1,8,2,Monday,466365.0,Done,2024-01-08
+khách lẻ,2024,1,8,2,Monday,188365.0,Done,2024-01-08
+khách lẻ,2024,1,8,2,Monday,230865.0,Done,2024-01-08
+khách lẻ,2024,1,8,1,Monday,188365.0,Done,2024-01-08
+khách lẻ,2024,1,8,1,Monday,483000.0,Done,2024-01-08
+Thịnh,2024,1,8,1,Monday,105322.0,Done,2024-01-08
+khách lẻ,2024,1,8,1,Monday,110865.0,Done,2024-01-08
+khách lẻ,2024,1,8,1,Monday,294500.0,Done,2024-01-08
+diệu,2024,1,8,1,Monday,188365.0,Done,2024-01-08
+khách lẻ,2024,1,8,0,Monday,140865.0,Done,2024-01-08
+Thịnh,2024,1,8,0,Monday,150447.0,Done,2024-01-08
+khách lẻ,2024,1,8,0,Monday,190000.0,Done,2024-01-08
+khách lẻ,2024,1,8,0,Monday,287500.0,Done,2024-01-08
+khách lẻ,2024,1,8,0,Monday,204135.0,Done,2024-01-08
+Vịnh,2024,1,8,0,Monday,142500.0,Done,2024-01-08
+quân,2024,1,8,0,Monday,208000.0,Done,2024-01-08
 khách lẻ,2024,1,7,23,Sunday,204135.0,Done,2024-01-07
 Anh Vũ,2024,1,7,23,Sunday,265315.0,Done,2024-01-07
 khách lẻ,2024,1,7,23,Sunday,172500.0,Done,2024-01-07
