@@ -1,4 +1,5 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+khách lẻ,2024,1,9,12,Tuesday,114120.0,Done,2024-01-09
 khách lẻ,2024,1,9,11,Tuesday,86645.0,Done,2024-01-09
 quang,2024,1,9,3,Tuesday,264195.0,Done,2024-01-09
 khách lẻ,2024,1,9,3,Tuesday,212805.0,Done,2024-01-09
