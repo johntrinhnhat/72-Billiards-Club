@@ -1,9 +1,12 @@
 import pandas as pd
+import numpy as np
 import streamlit as st
+import base64
 import matplotlib.pyplot as plt
 import plotly.express as px
-import base64
-import numpy as np
+from plotly.subplots import make_subplots
+import plotly.graph_objs as go
+
 
 
 
@@ -169,77 +172,110 @@ with tab1:
     if st.button('Show Plots'):
 
         ### Line Chart ( Peak Houly Sales Trend)
-        st.title('Peak Hourly Sales Trend')
-        hour_sale = df_selection[['Hour', 'Sales']]
-        hourly_sales = hour_sale.groupby('Hour')['Sales'].max().reset_index()
-        fig = px.line(hourly_sales, x='Hour', y='Sales', line_shape='linear', markers=False)
-        fig.update_traces(line=dict(color='#FFA500'))
-        st.plotly_chart(fig)
+        st.title('Sales Trend')
+        hour_sale = df_selection[['Hour','Sales']]
+        # Aggregate sales by hour
+        hourly_sales = df_selection.groupby('Hour')['Sales'].max().reset_index()
 
-        ### Bar Chart (Number Of Transaction By Hour)
-        st.title('Number of Transactions by Hour')
-        transactions_per_hour = df_selection['Hour'].value_counts().sort_index()
-        fig = px.bar(transactions_per_hour, x=transactions_per_hour.index, y=transactions_per_hour.values, labels={'y':'Transactions', 'x':'Hour'})
-        fig.update_traces(marker_color='#FFA500')
-        st.plotly_chart(fig)
-
-        ### Line Chart ( Peak Weekday Sales Trend)
-        st.title('Peek Weekday Sales Trend')
+        # Aggregate sales by day of the week
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        dayofweek_sale = df_selection[['DayOfWeek', 'Sales']].copy()
-        dayofweek_sale['DayOfWeek'] = pd.Categorical(dayofweek_sale['DayOfWeek'], categories=days_order, ordered=True)
-        dayofweek_sales = dayofweek_sale.groupby('DayOfWeek', observed=False)['Sales'].max().reset_index()
-        fig = px.line(dayofweek_sales, x='DayOfWeek', y='Sales', line_shape='linear', markers=False)
-        fig.update_traces(line=dict(color='#ED64A6'))  # Updated to a valid HEX color
-        st.plotly_chart(fig)
-
-        ### Pie chart (Sum Of Sales by Weekday)
-        st.title('Sum Of Sales by Weekday')
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
-        weekly_sales = df_selection.groupby('DayOfWeek', observed=False)['Sales'].sum().reset_index()
-        fig = px.pie(weekly_sales, names='DayOfWeek', values='Sales')
+        dayofweek_sales = df_selection.groupby('DayOfWeek')['Sales'].sum().reset_index()
+
+        # Aggregate sales by purchase date
+        df_selection['PurchaseDate'] = pd.to_datetime(df_selection['PurchaseDate'])
+        purchasedate_sales = df_selection.groupby(df_selection['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
+        purchasedate_sales = purchasedate_sales.sort_values('PurchaseDate')
+
+        # Create a subplot figure
+        fig = make_subplots(rows=3, cols=1, subplot_titles=("Peak Hourly Sales Trend", "Sales Trend by Day of the Week", "Sales Trend by Purchase Date"))
+
+        # Add Hourly Sales trace
+        fig.add_trace(
+            go.Scatter(x=hourly_sales['Hour'], y=hourly_sales['Sales'], name="Hourly Sales", marker_color='#FFA500'),
+            row=1, col=1,
+        )
+
+        # Add Day of Week Sales trace
+        fig.add_trace(
+            go.Scatter(x=dayofweek_sales['DayOfWeek'], y=dayofweek_sales['Sales'], name="Day of Week Sales", marker_color='#ED64A6'),
+            row=2, col=1,
+        )
+
+        # Add Purchase Date Sales trace
+        fig.add_trace(
+            go.Scatter(x=purchasedate_sales['PurchaseDate'], y=purchasedate_sales['Sales'], name="Purchase Date Sales", marker_color='#00BFFF'),
+            row=3, col=1,
+        )
+
+        # Update x-axis titles
+        fig.update_xaxes(title_text="Hour", row=1, col=1)
+        fig.update_xaxes(title_text="Day of Week", row=2, col=1)
+        fig.update_xaxes(title_text="Purchase Date", row=3, col=1)
+
+        # Update y-axis titles
+        fig.update_yaxes(title_text="Sales", row=1, col=1)
+        fig.update_yaxes(title_text="Sales", row=2, col=1)
+        fig.update_yaxes(title_text="Sales", row=3, col=1)
+
+        # Update layout
+        fig.update_layout(height=900, showlegend=False)
+
+        # Display the figure in Streamlit
         st.plotly_chart(fig)
 
         ### Line Chart (Purchasing Pattern)
         st.title("Purchasing Behavior of 'khách lẻ'")
+        # Filter transactions for 'khách lẻ'
         khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ'].copy()
-        khach_le_transactions['PurchaseDate'] =  pd.to_datetime(khach_le_transactions['PurchaseDate'], errors='coerce')
-        purchasing_pattern = khach_le_transactions.groupby('PurchaseDate')['Sales'].sum().reset_index()
-        # Plotting with Plotly
-        fig = px.line(purchasing_pattern,
-                    x='PurchaseDate',
-                    y='Sales',
-                    line_shape='linear',
-                    markers=False
-        )
-        st.plotly_chart(fig)
 
-        ### Line Chart (Purchasing Pattern)
-        khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ'].copy()
+        # Aggregate sales by purchase date
+        khach_le_transactions['PurchaseDate'] = pd.to_datetime(khach_le_transactions['PurchaseDate'], errors='coerce')
+        purchasedate_sales = khach_le_transactions.groupby(khach_le_transactions['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
+
+        # Aggregate sales by day of the week
+        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         khach_le_transactions['DayOfWeek'] = pd.Categorical(khach_le_transactions['DayOfWeek'], categories=days_order, ordered=True)
-        purchasing_pattern = khach_le_transactions.groupby('DayOfWeek', observed=False)['Sales'].sum().reset_index()
-        # Plotting with Plotly
-        fig = px.line(purchasing_pattern,
-                    x='DayOfWeek',
-                    y='Sales',
-                    line_shape='linear',
-                    markers=False
-        )
-        fig.update_traces(line=dict(color='#ED64A6'))  # Updated to a valid HEX color
-        st.plotly_chart(fig)
+        dayofweek_sales = khach_le_transactions.groupby('DayOfWeek')['Sales'].sum().reset_index()
 
-        ### Line Chart (Purchasing Pattern)
-        khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ']
-        # khach_le_transactions['DayOfWeek'] = pd.Categorical(khach_le_transactions['DayOfWeek'], categories=days_order, ordered=True)
-        purchasing_pattern = khach_le_transactions.groupby('Hour')['Sales'].sum().reset_index()
-        # Plotting with Plotly
-        fig = px.line(purchasing_pattern,
-                    x='Hour',
-                    y='Sales',
-                    line_shape='linear',
-                    markers=False
+        # Aggregate sales by hour
+        hourly_sales = khach_le_transactions.groupby('Hour')['Sales'].sum().reset_index()
+
+        # Create a subplot figure
+        fig = make_subplots(rows=3, cols=1, subplot_titles=("Purchasing Behavior by Purchase Date", "Purchasing Behavior by Day of the Week", "Purchasing Behavior by Hour"))
+
+        # Add Purchase Date Sales trace
+        fig.add_trace(
+            go.Scatter(x=purchasedate_sales['PurchaseDate'], y=purchasedate_sales['Sales'], name="Purchase Date Sales", marker_color='#00BFFF'),
+            row=1, col=1,
         )
-        fig.update_traces(line=dict(color='#FFA500'))
+
+        # Add Day of Week Sales trace
+        fig.add_trace(
+            go.Scatter(x=dayofweek_sales['DayOfWeek'], y=dayofweek_sales['Sales'], name="Day of Week Sales", marker_color='#ED64A6'),
+            row=2, col=1,
+        )
+
+        # Add Hourly Sales trace
+        fig.add_trace(
+            go.Scatter(x=hourly_sales['Hour'], y=hourly_sales['Sales'], name="Hourly Sales", marker_color='#FFA500'),
+            row=3, col=1,
+        )
+
+        # Update x-axis titles
+        fig.update_xaxes(title_text="Purchase Date", row=1, col=1)
+        fig.update_xaxes(title_text="Day of the Week", row=2, col=1)
+        fig.update_xaxes(title_text="Hour", row=3, col=1)
+
+        # Update y-axis titles
+        fig.update_yaxes(title_text="Sales", row=1, col=1)
+        fig.update_yaxes(title_text="Sales", row=2, col=1)
+        fig.update_yaxes(title_text="Sales", row=3, col=1)
+
+        # Update layout
+        fig.update_layout(height=900, showlegend=False)
+
+        # Display the figure in Streamlit
         st.plotly_chart(fig)
         
 
