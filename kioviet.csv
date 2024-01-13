@@ -1,4 +1,37 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+nguyễn thế phong,2024,1,14,2,Sunday,352560.0,Done,2024-01-14
+HUY,2024,1,14,2,Sunday,85000.0,Done,2024-01-14
+Thịnh,2024,1,14,1,Sunday,155961.0,Done,2024-01-14
+khách lẻ,2024,1,14,1,Sunday,28305.0,Done,2024-01-14
+khách lẻ,2024,1,14,1,Sunday,245670.0,Done,2024-01-14
+nguyễn thế phong,2024,1,14,1,Sunday,165805.0,Done,2024-01-14
+thế anh,2024,1,14,1,Sunday,142790.0,Done,2024-01-14
+Khôi,2024,1,14,1,Sunday,219322.0,Done,2024-01-14
+QUỐC ANH,2024,1,14,1,Sunday,208178.0,Done,2024-01-14
+khách lẻ,2024,1,14,1,Sunday,137500.0,Done,2024-01-14
+HUY,2024,1,14,1,Sunday,251305.0,Done,2024-01-14
+phi hùng,2024,1,14,1,Sunday,250075.0,Done,2024-01-14
+Khôi,2024,1,14,1,Sunday,207413.0,Done,2024-01-14
+HOÀNG ANH,2024,1,14,1,Sunday,484865.0,Done,2024-01-14
+Mai,2024,1,14,0,Sunday,165428.0,Done,2024-01-14
+khách lẻ,2024,1,14,0,Sunday,101308.0,Done,2024-01-14
+Lĩnh,2024,1,14,0,Sunday,158365.0,Done,2024-01-14
+khách lẻ,2024,1,14,0,Sunday,109150.0,Done,2024-01-14
+HỨA THANH TÂM,2024,1,14,0,Sunday,312500.0,Done,2024-01-14
+khách lẻ,2024,1,14,0,Sunday,445500.0,Done,2024-01-14
+PHÚ,2024,1,14,0,Sunday,212278.0,Done,2024-01-14
+di,2024,1,13,23,Saturday,174135.0,Done,2024-01-13
+Chị Thư,2024,1,13,23,Saturday,101308.0,Done,2024-01-13
+khách lẻ,2024,1,13,23,Saturday,166620.0,Done,2024-01-13
+HƯNG,2024,1,13,23,Saturday,584160.0,Done,2024-01-13
+sơn,2024,1,13,23,Saturday,148803.0,Done,2024-01-13
+phương,2024,1,13,23,Saturday,621000.0,Done,2024-01-13
+Mai,2024,1,13,23,Saturday,120303.0,Done,2024-01-13
+khách lẻ,2024,1,13,23,Saturday,145865.0,Done,2024-01-13
+khách lẻ,2024,1,13,23,Saturday,110865.0,Done,2024-01-13
+Vũ,2024,1,13,22,Saturday,126635.0,Done,2024-01-13
+Chị Thư,2024,1,13,22,Saturday,250692.0,Done,2024-01-13
+khách lẻ,2024,1,13,22,Saturday,241865.0,Done,2024-01-13
 Chị Thư,2024,1,13,22,Saturday,240692.0,Done,2024-01-13
 Lành,2024,1,13,22,Saturday,107640.0,Done,2024-01-13
 Nghĩa,2024,1,13,22,Saturday,135375.0,Done,2024-01-13
