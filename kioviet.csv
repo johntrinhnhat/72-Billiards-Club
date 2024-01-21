@@ -1,4 +1,8 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+khách lẻ,2024,1,22,3,Monday,371330.0,Done,2024-01-22
+khách lẻ,2024,1,22,3,Monday,113305.0,Done,2024-01-22
+Lành,2024,1,22,3,Monday,322741.0,Done,2024-01-22
+quang,2024,1,22,3,Monday,52515.0,Done,2024-01-22
 Khôi,2024,1,22,2,Monday,236711.0,Done,2024-01-22
 linh,2024,1,22,2,Monday,225890.0,Done,2024-01-22
 phi hùng,2024,1,22,2,Monday,97135.0,Done,2024-01-22
