@@ -128,6 +128,9 @@ with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_fi
 
 # Load data into a DataFrame
 df = pd.read_csv('kioviet.csv')
+"""
+CUSTOMER DATA PROCESS
+"""
 df_customer = pd.read_csv('kioviet_customer.csv')
 # Replace missing values in 'Customer_Name' with 'khách lẻ'
 df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
@@ -165,7 +168,7 @@ columns_to_keep = ['Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'Day
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 # Select only the desired columns
 df = df[columns_to_keep]
-print(df.dtypes)
+# print(df.dtypes)
 df_customer = df_customer[column_to_keep]
 # Change title `Total_Payment` to `Sales`
 df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
