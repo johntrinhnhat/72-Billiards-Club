@@ -163,9 +163,9 @@ df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H
 # The columns want to keep
 columns_to_keep = ['Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status', 'PurchaseDate']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
-
 # Select only the desired columns
 df = df[columns_to_keep]
+print(df.dtypes)
 df_customer = df_customer[column_to_keep]
 # Change title `Total_Payment` to `Sales`
 df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
@@ -188,7 +188,7 @@ df.to_csv('kioviet.csv', index=False)
 df_customer.to_csv('kioviet_customer.csv', index=False)
 
 
-# ### IMPORT DATA TO GOOGLE SHEET
+### IMPORT DATA TO GOOGLE SHEET
 
 # # Defind the scope of the application
 # scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
