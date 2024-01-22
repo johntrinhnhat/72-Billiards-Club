@@ -33,7 +33,7 @@ invoices_params = {
 response = requests.get(invoices_url, headers=invoices_headers, params=invoices_params)
 response_data = response.json()
 data = response_data["Data"]
-
+print(data)
 invoices = []
 
 # Process each item in the response data
