@@ -58,7 +58,6 @@ for item in data:
         invoices.append(data_schema)
     
 # Print total number of invoices processed
-print(invoices)
 print(f"Total Invoices: {len(invoices)}")
 
 # Define CSV field names
