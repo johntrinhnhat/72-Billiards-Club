@@ -1,4 +1,6 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+vi,2024,1,27,13,Saturday,155805.0,Done,2024-01-27
+Nghĩa,2024,1,27,13,Saturday,178785.0,Done,2024-01-27
 Liêm,2024,1,27,12,Saturday,162160.0,Done,2024-01-27
 nguyên,2024,1,27,12,Saturday,285695.0,Done,2024-01-27
 Liêm,2024,1,27,12,Saturday,85000.0,Done,2024-01-27
