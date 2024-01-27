@@ -1,4 +1,10 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+Liêm,2024,1,27,12,Saturday,162160.0,Done,2024-01-27
+nguyên,2024,1,27,12,Saturday,285695.0,Done,2024-01-27
+Liêm,2024,1,27,12,Saturday,85000.0,Done,2024-01-27
+thành luân,2024,1,27,12,Saturday,85000.0,Done,2024-01-27
+khách lẻ,2024,1,27,12,Saturday,113305.0,Done,2024-01-27
+Liêm,2024,1,27,12,Saturday,263625.0,Done,2024-01-27
 khách lẻ,2024,1,27,11,Saturday,195000.0,Done,2024-01-27
 khách lẻ,2024,1,27,11,Saturday,155805.0,Done,2024-01-27
 khách lẻ,2024,1,27,11,Saturday,143305.0,Done,2024-01-27
