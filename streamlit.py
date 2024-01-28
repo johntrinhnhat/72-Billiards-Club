@@ -62,17 +62,16 @@ with st.sidebar:
 
     # Ensure there are no NaT values and find the minimum and maximum dates
     valid_dates = df['PurchaseDate'].dropna()
-    if not valid_dates.empty:
-        min_date = valid_dates.min().to_pydatetime()
-        max_date = valid_dates.max().to_pydatetime()
+    min_date = valid_dates.min().to_pydatetime()
+    max_date = valid_dates.max().to_pydatetime()
 
-        # Create the datetime slider
-        selected_date_range = st.slider(
-            "Date:",
-            min_value=min_date,
-            max_value=max_date,
-            value=(min_date, max_date),
-        )
+    # Create the datetime slider
+    selected_date_range = st.slider(
+        "Date:",
+        min_value=min_date,
+        max_value=max_date,
+        value=(min_date, max_date),
+    )
 
     year = st.sidebar.slider(
         "Year:",
