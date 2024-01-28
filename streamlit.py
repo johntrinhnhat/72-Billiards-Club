@@ -57,9 +57,22 @@ with open('style.css') as f:
 with st.sidebar:
     # st.title("🎱 DASHBOARD")
 
-    # Find the minimum and maximum dates
-    min_date = df['PurchaseDate'].min()
-    max_date = df['PurchaseDate'].max()
+    
+    df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
+
+    # Ensure there are no NaT values and find the minimum and maximum dates
+    valid_dates = df['PurchaseDate'].dropna()
+    if not valid_dates.empty:
+        min_date = valid_dates.min().to_pydatetime()
+        max_date = valid_dates.max().to_pydatetime()
+
+        # Create the datetime slider
+        selected_date_range = st.slider(
+            "Date:",
+            min_value=min_date,
+            max_value=max_date,
+            value=(min_date, max_date),
+        )
 
     year = st.sidebar.slider(
         "Year:",
@@ -102,6 +115,7 @@ with st.sidebar:
         "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek"
+        "PurchaseDate >= @selected_date_range[0] & PurchaseDate <= @selected_date_range[1]"
     )
 
 
