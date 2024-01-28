@@ -57,6 +57,10 @@ with open('style.css') as f:
 with st.sidebar:
     # st.title("🎱 DASHBOARD")
 
+    # Find the minimum and maximum dates
+    min_date = df['PurchaseDate'].min()
+    max_date = df['PurchaseDate'].max()
+
     year = st.sidebar.slider(
         "Year:",
         min_value=int(min(df['Year'].unique())),
