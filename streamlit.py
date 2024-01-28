@@ -66,33 +66,33 @@ with st.sidebar:
     max_date = valid_dates.max().to_pydatetime()
 
     # Create the datetime slider
-    selected_date_range = st.slider(
+    selected_date_range = st.sidebar.slider(
         "Date:",
         min_value=min_date,
         max_value=max_date,
         value=(min_date, max_date),
     )
 
-    year = st.sidebar.slider(
-        "Year:",
-        min_value=int(min(df['Year'].unique())),
-        max_value=int(max(df['Year'].unique())),
-        value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
-    )
+    # year = st.sidebar.slider(
+    #     "Year:",
+    #     min_value=int(min(df['Year'].unique())),
+    #     max_value=int(max(df['Year'].unique())),
+    #     value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
+    # )
 
-    month = st.sidebar.slider(
-        "Month:",
-        min_value=int(min(df['Month'].unique())),
-        max_value=int(max(df['Month'].unique())),
-        value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
-    )
+    # month = st.sidebar.slider(
+    #     "Month:",
+    #     min_value=int(min(df['Month'].unique())),
+    #     max_value=int(max(df['Month'].unique())),
+    #     value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
+    # )
 
-    day = st.sidebar.slider(
-        "Day:",
-        min_value=int(min(df['Day'].unique())),
-        max_value=int(max(df['Day'].unique())),
-        value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
-    )
+    # day = st.sidebar.slider(
+    #     "Day:",
+    #     min_value=int(min(df['Day'].unique())),
+    #     max_value=int(max(df['Day'].unique())),
+    #     value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
+    # )
 
     hour = st.sidebar.slider(
         "Hour:",
@@ -109,11 +109,11 @@ with st.sidebar:
 
 
     df_selection = df.query(
-        "Year >= @year[0] & Year <= @year[1] & "
-        "Month >= @month[0] & Month <= @month[1] & "
-        "Day >= @day[0] & Day <= @day[1] & "
+        # "Year >= @year[0] & Year <= @year[1] & "
+        # "Month >= @month[0] & Month <= @month[1] & "
+        # "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
-        "DayOfWeek == @dayofweek"
+        "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @selected_date_range[0] & PurchaseDate <= @selected_date_range[1]"
     )
 
@@ -130,13 +130,13 @@ with tab1:
     st.markdown("---")
 
     # Assuming 'year' is a list with the current year range selected in the sidebar
-    current_year_range = year
-    previous_year_range = [year[0] - 1, year[1] - 1]
+    # current_year_range = year
+    # previous_year_range = [year[0] - 1, year[1] - 1]
 
     df_previous_period = df.query(
-        "Year >= @previous_year_range[0] & Year <= @previous_year_range[1] & "
-        "Month >= @month[0] & Month <= @month[1] & "
-        "Day >= @day[0] & Day <= @day[1] & "
+        # "Year >= @previous_year_range[0] & Year <= @previous_year_range[1] & "
+        # "Month >= @month[0] & Month <= @month[1] & "
+        # "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek"
     )

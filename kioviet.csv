@@ -1,4 +1,7 @@
 Customer_Name,Year,Month,Day,Hour,DayOfWeek,Sales,Status,PurchaseDate
+linh,2024,1,29,3,Monday,180805.0,Done,2024-01-29
+diệu,2024,1,29,3,Monday,275805.0,Done,2024-01-29
+Đạt,2024,1,29,3,Monday,279170.0,Done,2024-01-29
 quân,2024,1,29,3,Monday,187500.0,Done,2024-01-29
 hiếu,2024,1,29,2,Monday,104500.0,Done,2024-01-29
 khách lẻ,2024,1,29,2,Monday,254135.0,Done,2024-01-29
