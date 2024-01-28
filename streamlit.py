@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -19,6 +20,8 @@ def load_customer_data():
 
 df = load_data()
 df_customer = load_customer_data()
+
+print(df)
 
 # Identify repeat and one-time customers
 customer_freq = df['Customer_Name'].value_counts().reset_index()
@@ -54,26 +57,26 @@ with open('style.css') as f:
 with st.sidebar:
     # st.title("🎱 DASHBOARD")
 
-    # year = st.sidebar.slider(
-    #     "Year:",
-    #     min_value=int(min(df['Year'].unique())),
-    #     max_value=int(max(df['Year'].unique())),
-    #     value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
-    # )
+    year = st.sidebar.slider(
+        "Year:",
+        min_value=int(min(df['Year'].unique())),
+        max_value=int(max(df['Year'].unique())),
+        value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
+    )
 
-    # month = st.sidebar.slider(
-    #     "Month:",
-    #     min_value=int(min(df['Month'].unique())),
-    #     max_value=int(max(df['Month'].unique())),
-    #     value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
-    # )
+    month = st.sidebar.slider(
+        "Month:",
+        min_value=int(min(df['Month'].unique())),
+        max_value=int(max(df['Month'].unique())),
+        value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
+    )
 
-    # day = st.sidebar.slider(
-    #     "Day:",
-    #     min_value=int(min(df['Day'].unique())),
-    #     max_value=int(max(df['Day'].unique())),
-    #     value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
-    # )
+    day = st.sidebar.slider(
+        "Day:",
+        min_value=int(min(df['Day'].unique())),
+        max_value=int(max(df['Day'].unique())),
+        value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
+    )
 
     hour = st.sidebar.slider(
         "Hour:",
@@ -90,9 +93,9 @@ with st.sidebar:
 
 
     df_selection = df.query(
-        # "Year >= @year[0] & Year <= @year[1] & "
-        # "Month >= @month[0] & Month <= @month[1] & "
-        # "Day >= @day[0] & Day <= @day[1] & "
+        "Year >= @year[0] & Year <= @year[1] & "
+        "Month >= @month[0] & Month <= @month[1] & "
+        "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek"
     )
@@ -110,13 +113,13 @@ with tab1:
     st.markdown("---")
 
     # Assuming 'year' is a list with the current year range selected in the sidebar
-    # current_year_range = year
-    # previous_year_range = [year[0] - 1, year[1] - 1]
+    current_year_range = year
+    previous_year_range = [year[0] - 1, year[1] - 1]
 
     df_previous_period = df.query(
-        # "Year >= @previous_year_range[0] & Year <= @previous_year_range[1] & "
-        # "Month >= @month[0] & Month <= @month[1] & "
-        # "Day >= @day[0] & Day <= @day[1] & "
+        "Year >= @previous_year_range[0] & Year <= @previous_year_range[1] & "
+        "Month >= @month[0] & Month <= @month[1] & "
+        "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek"
     )
@@ -142,15 +145,15 @@ with tab1:
 
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        st.metric(label="Total Sales", value=f"{total_sales:,} đ", delta=f"{delta_total_sales_percentage:+,.2f} %")
-        
+        st.metric(label="Total Sales", value=f"{total_sales:,} đ")
+        # delta=f"{delta_total_sales_percentage:+,.2f} %"
 
     with middle_column:
-        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ", delta=f"{delta_average_sale_per_transaction_percentage:+,.2f} %")
-
+        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
+        # delta=f"{delta_average_sale_per_transaction_percentage:+,.2f} %"
     with right_column:
-        st.metric(label="Total Invoices", value=total_invoices, delta=f"{delta_total_invoices_percentage:+,.2f} %")
-
+        st.metric(label="Total Invoices", value=total_invoices)
+        # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.markdown("---")
     st.dataframe(df_selection)
 
@@ -302,7 +305,7 @@ with tab2:
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
         df_customer_sorted = df_customer_sorted[['Name', 'Total_Revenue']]
         df_customer_sorted['Total_Revenue'] = df_customer_sorted['Total_Revenue'].apply(lambda x: f"{x:,}")
-        print(df_customer_sorted)
+        # print(df_customer_sorted)
         st.dataframe(df_customer_sorted,
             column_order=("Name", "Total_Revenue"),
             hide_index=True,

@@ -156,13 +156,13 @@ df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[
 INVOICES DATA PROCESS
 """
 # Convert `PurchaseDate` to datetime object
-# df['PurchaseDate'] = df['PurchaseDate'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S'))
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
-# Extract features from `PurchaseDate`
-# df['Year'] = df['PurchaseDate'].dt.year
-# df['Month'] = df['PurchaseDate'].dt.month
-# df['Day'] = df['PurchaseDate'].dt.day
+# df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
 
+# Extract features from `PurchaseDate`
+df['Year'] = df['PurchaseDate'].dt.year
+df['Month'] = df['PurchaseDate'].dt.month
+df['Day'] = df['PurchaseDate'].dt.day
 
 day_map = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'}
 df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
@@ -172,7 +172,7 @@ df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
 df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 # The columns want to keep
-columns_to_keep = ['Customer_Name', 'PurchaseDate', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status']
+columns_to_keep = ['Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status', 'PurchaseDate']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 # Select only the desired columns
 df = df[columns_to_keep]
@@ -199,7 +199,7 @@ df.to_csv('kioviet.csv', index=False)
 df_customer.to_csv('kioviet_customer.csv', index=False)
 
 
-## IMPORT DATA TO GOOGLE SHEET
+# # IMPORT DATA TO GOOGLE SHEET
 
 # # Defind the scope of the application
 # scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
