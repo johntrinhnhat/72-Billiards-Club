@@ -7,13 +7,8 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
 
-
-
-
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
-
-
 
 # Load data
 def load_data():

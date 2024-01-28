@@ -17,6 +17,9 @@ access_token = os.getenv('access_token')
 url = os.getenv('url')
 url_customer=os.getenv('url_customer')
 
+
+"""INVOICES DATA"""
+
 # Set up API request details
 invoices_url = url
 invoices_headers = {
@@ -70,6 +73,8 @@ with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
 
     writer.writerows(invoices)
 
+"""CUSTOMERS DATA"""
+
 # Set up API request details
 customers_url = url_customer
 customers_headers = {
@@ -115,11 +120,11 @@ for customer in customers_data:
 print(f"Total Customers: {len(customers)}")
 
 # Define CSV field names
-fieldnamess=['Id', 'BranchId', 'Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Is_Active', 'Last_Trading_Date']
+customer_fieldnames=['Id', 'BranchId', 'Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Is_Active', 'Last_Trading_Date']
 
 # Write data to a CSV file
 with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_file:
-    writer = csv.DictWriter(kioviet_customer_file, fieldnames=fieldnamess)
+    writer = csv.DictWriter(kioviet_customer_file, fieldnames=customer_fieldnames)
     writer.writeheader()
 
     writer.writerows(customers)
@@ -128,12 +133,12 @@ with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_fi
 # Load data into a DataFrame
 df = pd.read_csv('kioviet.csv')
 """
-CUSTOMER DATA PROCESS
+CUSTOMERS DATA PROCESS
 """
 df_customer = pd.read_csv('kioviet_customer.csv')
 # Replace missing values in 'Customer_Name' with 'khách lẻ'
 df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
-# Replace missing value in debt
+# Replace missing value in debt with
 df_customer['Debt'] = df_customer['Debt'].fillna('None')
 # df_customer['Total_Revenue'] = df_customer['Total_Revenue'].apply(lambda x: f"{x:,.0f}")
 df_customer['Membership'] = df_customer['Membership'].fillna('None')
@@ -147,12 +152,16 @@ df_customer['Contact_Number'] = df_customer['Contact_Number'].str.replace('.0', 
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x if not x.startswith('0') else x)
 # Ensure consistent formatting: ###-###-####
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
+"""
+INVOICES DATA PROCESS
+"""
 # Convert `PurchaseDate` to datetime object
+# df['PurchaseDate'] = df['PurchaseDate'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S'))
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 # Extract features from `PurchaseDate`
-df['Year'] = df['PurchaseDate'].dt.year
-df['Month'] = df['PurchaseDate'].dt.month
-df['Day'] = df['PurchaseDate'].dt.day
+# df['Year'] = df['PurchaseDate'].dt.year
+# df['Month'] = df['PurchaseDate'].dt.month
+# df['Day'] = df['PurchaseDate'].dt.day
 
 
 day_map = {0: 'Monday', 1: 'Tuesday', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'}
@@ -163,7 +172,7 @@ df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
 df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 # The columns want to keep
-columns_to_keep = ['Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status', 'PurchaseDate']
+columns_to_keep = ['Customer_Name', 'PurchaseDate', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 # Select only the desired columns
 df = df[columns_to_keep]
@@ -190,7 +199,7 @@ df.to_csv('kioviet.csv', index=False)
 df_customer.to_csv('kioviet_customer.csv', index=False)
 
 
-### IMPORT DATA TO GOOGLE SHEET
+## IMPORT DATA TO GOOGLE SHEET
 
 # # Defind the scope of the application
 # scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
