@@ -172,6 +172,7 @@ with tab1:
         st.metric(label="Total Invoices", value=total_invoices)
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.markdown("---")
+    
     st.dataframe(df_selection)
 
     # Download data
