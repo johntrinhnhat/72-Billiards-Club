@@ -11,20 +11,20 @@ import plotly.graph_objs as go
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
 
+# Streamlit Web App
+st.set_page_config(page_title="72 Billiards Club",
+                page_icon="🎱",
+                layout="wide")
+
+@st.cache_data
 # Load data
 def load_data():
     return pd.read_csv(github_csv_url)
 
 def load_customer_data():
     return pd.read_csv(github_csv_customer_url)
-
 df = load_data()
 df_customer = load_customer_data()
-
-# Streamlit Web App
-st.set_page_config(page_title="72 Billiards Club",
-                page_icon="🎱",
-                layout="wide")
 
 # CSS styling
 st.markdown("""
@@ -85,6 +85,9 @@ with st.sidebar:
     )
     df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
 
+    def highlight_sales(val):
+        color = 'green' if val > 360000 else ''
+        return f'background-color: {color}'
 
 
 ## ---- MAIN PAGE ----
@@ -114,7 +117,7 @@ with tab1:
         st.metric(label="Total Invoices", value=total_invoices)
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.markdown("---")
-    st.dataframe(df_selection)
+    st.dataframe(df_selection.style.applymap(highlight_sales, subset=['Sales']))
     print(df_selection)
     
     # Download data
