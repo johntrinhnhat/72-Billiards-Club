@@ -92,18 +92,18 @@ with st.sidebar:
         color = 'green' if val > 360000 else ''
         return f'background-color: {color}'
     
-    styled_df_selection = df_selection.style.format({"Sales": "{:,.0f} đ"}).applymap(highlight_sales, subset=['Sales'])
+    styled_df_selection = df_selection.style.format({"Sales": "{:,.0f} đ"}).map(highlight_sales, subset=['Sales'])
 
 
 ## ---- MAIN PAGE ----
 st.image('./logo.png')
 st.markdown("##")
 
-tab1, tab2= st.tabs(["SALE", "MEMBERSHIP"])
+tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "ML"])
 
 with tab1:
     # TOP KPI's
-    st.markdown("---")
+    st.divider()
 
     # Calculate current period KPIs
     total_sales = int(df_selection['Sales'].sum())  
@@ -121,7 +121,7 @@ with tab1:
     with right_column:
         st.metric(label="Total Invoices", value=total_invoices)
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
-    st.markdown("---")
+    st.divider()
 
     st.dataframe(styled_df_selection)
     
@@ -193,19 +193,19 @@ with tab1:
         ### Line Chart (Purchasing Pattern)
         st.title("Purchasing Behavior of 'khách lẻ'")
         # Filter transactions for 'khách lẻ'
-        khach_le_transactions = df[df['Customer_Name'] == 'khách lẻ'].copy()
-
+        df_guest = df_selection.copy()
+        df_guest = df_guest[df_guest['Customer_Name'] == 'khách lẻ']
+        print(df_guest)
         # Aggregate sales by purchase date
-        khach_le_transactions['PurchaseDate'] = pd.to_datetime(khach_le_transactions['PurchaseDate'], errors='coerce')
-        purchasedate_sales = khach_le_transactions.groupby(khach_le_transactions['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
+        purchasedate_sales = df_guest.groupby(df_guest['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
 
         # Aggregate sales by day of the week
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        khach_le_transactions['DayOfWeek'] = pd.Categorical(khach_le_transactions['DayOfWeek'], categories=days_order, ordered=True)
-        dayofweek_sales = khach_le_transactions.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
+        df_guest['DayOfWeek'] = pd.Categorical(df_guest['DayOfWeek'], categories=days_order, ordered=True)
+        dayofweek_sales = df_guest.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
 
         # Aggregate sales by hour
-        hourly_sales = khach_le_transactions.groupby('Hour')['Sales'].sum().reset_index()
+        hourly_sales = df_guest.groupby('Hour')['Sales'].max().reset_index()
 
         # Create a subplot figure
         fig = make_subplots(rows=3, cols=1, subplot_titles=("Purchasing Behavior by Purchase Date", "Purchasing Behavior by Day of the Week", "Purchasing Behavior by Hour"))
@@ -287,6 +287,9 @@ with tab2:
         fig = px.bar(membership_counts, x='Membership', y='Count', 
                     hover_data=['Membership', 'Count'], color='Count')
         st.plotly_chart(fig)
+
+with tab3:
+    st.divider()
 
     
     
