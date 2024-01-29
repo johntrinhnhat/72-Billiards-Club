@@ -116,6 +116,7 @@ with tab1:
     st.markdown("---")
     st.dataframe(df_selection)
     print(df_selection)
+    
     # Download data
     def filedownload(df_selection):
         csv = df_selection.to_csv(index=False)
