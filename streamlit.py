@@ -16,7 +16,7 @@ st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
                 layout="wide")
 
-@st.cache_data
+# @st.cache_data
 # Load data
 def load_data():
     return pd.read_csv(github_csv_url)
