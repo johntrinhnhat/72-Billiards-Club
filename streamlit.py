@@ -54,7 +54,7 @@ with st.sidebar:
     max_date = valid_dates.max()
 
     # Create the datetime slider
-    selected_date_range = st.sidebar.slider(
+    date = st.sidebar.slider(
         "Date:",
         min_value=min_date,
         max_value=max_date,
@@ -81,7 +81,7 @@ with st.sidebar:
         # "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek &"
-        "PurchaseDate >= @selected_date_range[0] & PurchaseDate <= @selected_date_range[1]"
+        "PurchaseDate >= @date[0] & PurchaseDate <= @date[1]"
     )
     df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
 

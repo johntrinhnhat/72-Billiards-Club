@@ -235,7 +235,8 @@ try:
     sheet_2_updated = sheet_2.update(range_name='A1', values=customer_data_sheet)
 finally:
     print(f"\nSuccessfuly import data to Google Sheet ✅\n")
-print(data_sheet)
+
+# Python Automation GitHub Update
 def run_git_commands():
     try:
         # Navigate to the directory containing your repository
@@ -248,5 +249,5 @@ def run_git_commands():
     except subprocess.CalledProcessError as e:
         print(f"Error in Git operation: {e}")
 
-# Call the function at the end of your script
+# Call the function at the end
 run_git_commands()
