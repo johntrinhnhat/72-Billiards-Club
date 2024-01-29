@@ -123,7 +123,8 @@ with tab1:
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.divider()
 
-    st.dataframe(styled_df_selection)
+    # Display Sale Dataframe
+    st.dataframe(styled_df_selection, width=650)
     
     # Download data
     def filedownload(df_selection):
