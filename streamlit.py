@@ -83,8 +83,14 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @date[0] & PurchaseDate <= @date[1]"
     )
+    """
+    PROCESS SALE DATAFRAME 
+    """
     df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
+    df_selection['Sales'] = df_selection['Sales'].astype(int)
+    df['Sales'] = df['Sales'].apply(lambda x: f"{x:,}")
 
+    print(df_selection['Sales'])
     def highlight_sales(val):
         color = 'green' if val > 360000 else ''
         return f'background-color: {color}'
@@ -117,8 +123,8 @@ with tab1:
         st.metric(label="Total Invoices", value=total_invoices)
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.markdown("---")
-    st.dataframe(df_selection.style.applymap(highlight_sales, subset=['Sales']))
-    print(df_selection)
+
+    st.dataframe(df_selection.style.map(highlight_sales, subset=['Sales']))
     
     # Download data
     def filedownload(df_selection):
