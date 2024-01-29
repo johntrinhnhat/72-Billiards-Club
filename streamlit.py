@@ -21,17 +21,6 @@ def load_customer_data():
 df = load_data()
 df_customer = load_customer_data()
 
-print(df)
-
-# Identify repeat and one-time customers
-customer_freq = df['Customer_Name'].value_counts().reset_index()
-customer_freq.columns = ['Customer_Name', 'Frequency']
-repeat_customers = customer_freq[customer_freq['Frequency'] > 1]['Customer_Name']
-one_time_customers = customer_freq[customer_freq['Frequency'] == 1]['Customer_Name']
-
-# Filter the main dataframe for repeat customers
-df_repeat_customers = df[df['Customer_Name'].isin(repeat_customers)]
-
 # Streamlit Web App
 st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
@@ -116,7 +105,7 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @selected_date_range[0] & PurchaseDate <= @selected_date_range[1]"
     )
-
+    
 
 
 ## ---- MAIN PAGE ----
@@ -172,9 +161,8 @@ with tab1:
         st.metric(label="Total Invoices", value=total_invoices)
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.markdown("---")
-    
     st.dataframe(df_selection)
-
+    print(df_selection)
     # Download data
     def filedownload(df_selection):
         csv = df_selection.to_csv(index=False)
