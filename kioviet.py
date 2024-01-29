@@ -157,7 +157,6 @@ INVOICES DATA PROCESS
 """
 # Convert `PurchaseDate` to datetime object
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
-# df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
 
 # Extract features from `PurchaseDate`
 df['Year'] = df['PurchaseDate'].dt.year
@@ -172,11 +171,11 @@ df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
 df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 # The columns want to keep
-columns_to_keep = ['Customer_Name', 'Year', 'Month', 'Day', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status', 'PurchaseDate']
+columns_to_keep = ['Customer_Name', 'PurchaseDate', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 # Select only the desired columns
 df = df[columns_to_keep]
-# print(df.dtypes)
+print(df)
 df_customer = df_customer[column_to_keep]
 # Change title `Total_Payment` to `Sales`
 df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
@@ -199,36 +198,42 @@ df.to_csv('kioviet.csv', index=False)
 df_customer.to_csv('kioviet_customer.csv', index=False)
 
 
-# # IMPORT DATA TO GOOGLE SHEET
+# IMPORT DATA TO GOOGLE SHEET
 
-# # Defind the scope of the application
-# scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+# Defind the scope of the application
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 
-# # Add credential to account
-# creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json')
+# Add credential to account
+creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json')
 
-# # Authorize the clientsheet
-# client = gspread.authorize(creds)
+# Authorize the clientsheet
+client = gspread.authorize(creds)
 
-# # Open the sheet
-# sheet = client.open('kioviet_api_data_live')
+# Open the sheet
+sheet = client.open('72BilliardsClub')
 
-# # Get sheets
-# sheet_1 = sheet.get_worksheet(0)
+# Get sheets
+sheet_1 = sheet.get_worksheet(0)
+sheet_2= sheet.get_worksheet(1)
 
 
-# # Convert api dataframe to a list of lists
-# data_sheet = df.values.tolist()
 
-# # Include the header
-# header = df.columns.tolist()
-# data_sheet.insert(0, header)
+df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
+# Convert api dataframe to a list of lists
+data_sheet = df.values.tolist()
+customer_data_sheet = df_customer.values.tolist()
+# Include the header
+header = df.columns.tolist()
+customer_data_header = df_customer.columns.tolist()
+data_sheet.insert(0, header)
+customer_data_sheet.insert(0,customer_data_header)
 
-# try:
-#     # Update the new worksheet starting at the first cell
-#     sheet_1_updated = sheet_1.update(range_name='A1', values=data_sheet)
-# finally:
-#     print(f"\nSuccessfuly import data to Google Sheet ✅\n")
+try:
+    # Update the new worksheet starting at the first cell
+    sheet_1_updated = sheet_1.update(range_name='A1', values=data_sheet)
+    sheet_2_updated = sheet_2.update(range_name='A1', values=customer_data_sheet)
+finally:
+    print(f"\nSuccessfuly import data to Google Sheet ✅\n")
 
 def run_git_commands():
     try:

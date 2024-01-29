@@ -46,13 +46,12 @@ with open('style.css') as f:
 with st.sidebar:
     # st.title("🎱 DASHBOARD")
 
-    
-    df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
+    df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 
     # Ensure there are no NaT values and find the minimum and maximum dates
     valid_dates = df['PurchaseDate'].dropna()
-    min_date = valid_dates.min().to_pydatetime()
-    max_date = valid_dates.max().to_pydatetime()
+    min_date = valid_dates.min()
+    max_date = valid_dates.max()
 
     # Create the datetime slider
     selected_date_range = st.sidebar.slider(
@@ -61,27 +60,6 @@ with st.sidebar:
         max_value=max_date,
         value=(min_date, max_date),
     )
-
-    # year = st.sidebar.slider(
-    #     "Year:",
-    #     min_value=int(min(df['Year'].unique())),
-    #     max_value=int(max(df['Year'].unique())),
-    #     value=(int(min(df['Year'].unique())), int(max(df['Year'].unique())))
-    # )
-
-    # month = st.sidebar.slider(
-    #     "Month:",
-    #     min_value=int(min(df['Month'].unique())),
-    #     max_value=int(max(df['Month'].unique())),
-    #     value=(int(min(df['Month'].unique())), int(max(df['Month'].unique())))
-    # )
-
-    # day = st.sidebar.slider(
-    #     "Day:",
-    #     min_value=int(min(df['Day'].unique())),
-    #     max_value=int(max(df['Day'].unique())),
-    #     value=(int(min(df['Day'].unique())), int(max(df['Day'].unique())))
-    # )
 
     hour = st.sidebar.slider(
         "Hour:",
@@ -105,7 +83,8 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @selected_date_range[0] & PurchaseDate <= @selected_date_range[1]"
     )
-    
+    df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
+
 
 
 ## ---- MAIN PAGE ----
@@ -118,36 +97,10 @@ with tab1:
     # TOP KPI's
     st.markdown("---")
 
-    # Assuming 'year' is a list with the current year range selected in the sidebar
-    # current_year_range = year
-    # previous_year_range = [year[0] - 1, year[1] - 1]
-
-    df_previous_period = df.query(
-        # "Year >= @previous_year_range[0] & Year <= @previous_year_range[1] & "
-        # "Month >= @month[0] & Month <= @month[1] & "
-        # "Day >= @day[0] & Day <= @day[1] & "
-        "Hour >= @hour[0] & Hour <= @hour[1] & "
-        "DayOfWeek == @dayofweek"
-    )
-    # Calculate previous period KPIs
-    total_sales_previous = int(df_previous_period['Sales'].sum())
-    average_sale_per_transaction_previous = round(df_previous_period['Sales'].mean(), 2)
-    total_invoices_previous = len(df_previous_period)
-
     # Calculate current period KPIs
     total_sales = int(df_selection['Sales'].sum())  
     average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
     total_invoices = len(df_selection)
-
-    # Calculate deltas
-    delta_total_sales = total_sales - total_sales_previous
-    delta_average_sale_per_transaction = average_sale_per_transaction - average_sale_per_transaction_previous
-    delta_total_invoices = total_invoices - total_invoices_previous
-
-    # Calculate deltas as percentages
-    delta_total_sales_percentage = ((delta_total_sales / total_sales_previous) * 100) if total_sales_previous != 0 else 0
-    delta_average_sale_per_transaction_percentage = np.nan_to_num(((delta_average_sale_per_transaction / average_sale_per_transaction_previous) * 100) if average_sale_per_transaction_previous != 0 else 0)
-    delta_total_invoices_percentage = ((delta_total_invoices / total_invoices_previous) * 100) if total_invoices_previous != 0 else 0
 
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
@@ -184,7 +137,7 @@ with tab1:
         # Aggregate sales by day of the week
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
-        dayofweek_sales = df_selection.groupby('DayOfWeek')['Sales'].sum().reset_index()
+        dayofweek_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
 
         # Aggregate sales by purchase date
         df_selection['PurchaseDate'] = pd.to_datetime(df_selection['PurchaseDate'])
@@ -240,7 +193,7 @@ with tab1:
         # Aggregate sales by day of the week
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         khach_le_transactions['DayOfWeek'] = pd.Categorical(khach_le_transactions['DayOfWeek'], categories=days_order, ordered=True)
-        dayofweek_sales = khach_le_transactions.groupby('DayOfWeek')['Sales'].sum().reset_index()
+        dayofweek_sales = khach_le_transactions.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
 
         # Aggregate sales by hour
         hourly_sales = khach_le_transactions.groupby('Hour')['Sales'].sum().reset_index()
@@ -289,23 +242,7 @@ with tab2:
     st.markdown("---")
     left_column, right_column = st.columns(2)
     with left_column:
-        # non_khach_le_transaction = df[df['Customer_Name'] != 'khách lẻ']
-        # non_khach_le_transaction_pattern = non_khach_le_transaction.groupby('Customer_Name')['PurchaseDate'].sum().reset_index()
-        # print(non_khach_le_transaction_pattern)
         st.metric(label="Total Membership", value=f"{total_customer}")
-        # st.dataframe(non_khach_le_transaction_pattern,
-        #     column_order=("Customer_Name", "PurchaseDate"),
-        #     hide_index=True,
-        #     width=None,
-        #     column_config={
-        #         "Customer_Name": st.column_config.TextColumn(
-        #             "Customer_Name",
-        #         ),
-        #         "Behaviors": st.column_config.LineChartColumn(
-
-        #         )
-        #     }
-        #     )
     with right_column:
         st.metric(label="Top Membership", value=None)
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
