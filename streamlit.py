@@ -88,12 +88,12 @@ with st.sidebar:
     """
     df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
     df_selection['Sales'] = df_selection['Sales'].astype(int)
-    df['Sales'] = df['Sales'].apply(lambda x: f"{x:,}")
 
-    print(df_selection['Sales'])
     def highlight_sales(val):
         color = 'green' if val > 360000 else ''
         return f'background-color: {color}'
+    
+    styled_df_selection = df_selection.style.format({"Sales": "{:,.0f} đ"}).applymap(highlight_sales, subset=['Sales'])
 
 
 ## ---- MAIN PAGE ----
@@ -124,7 +124,7 @@ with tab1:
         # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.markdown("---")
 
-    st.dataframe(df_selection.style.map(highlight_sales, subset=['Sales']))
+    st.dataframe(styled_df_selection)
     
     # Download data
     def filedownload(df_selection):
