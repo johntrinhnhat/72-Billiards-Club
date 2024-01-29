@@ -83,9 +83,8 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @date[0] & PurchaseDate <= @date[1]"
     )
-    """
-    PROCESS SALE DATAFRAME 
-    """
+    
+    # PROCESS SALE DATAFRAME 
     df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
     df_selection['Sales'] = df_selection['Sales'].astype(int)
 
