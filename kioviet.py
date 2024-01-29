@@ -225,6 +225,7 @@ customer_data_sheet = df_customer.values.tolist()
 # Include the header
 header = df.columns.tolist()
 customer_data_header = df_customer.columns.tolist()
+
 data_sheet.insert(0, header)
 customer_data_sheet.insert(0,customer_data_header)
 
@@ -234,7 +235,7 @@ try:
     sheet_2_updated = sheet_2.update(range_name='A1', values=customer_data_sheet)
 finally:
     print(f"\nSuccessfuly import data to Google Sheet ✅\n")
-
+print(data_sheet)
 def run_git_commands():
     try:
         # Navigate to the directory containing your repository
