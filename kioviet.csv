@@ -1,4 +1,5 @@
 Customer_Name,PurchaseDate,Hour,DayOfWeek,Sales,Status
+diệu,2024-01-31,3,Wednesday,259940.0,Done
 giao,2024-01-31,2,Wednesday,206625.0,Done
 HOÀNG ANH,2024-01-31,2,Wednesday,219195.0,Done
 Bảo Yến,2024-01-31,2,Wednesday,154130.0,Done
