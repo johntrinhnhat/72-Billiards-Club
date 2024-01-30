@@ -9,7 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import base64
 
-# Load environment variables from a .env file
+# Load environment variables from .env file
 from dotenv import load_dotenv
 load_dotenv()
 Retailer  = os.getenv('Retailer')
@@ -18,7 +18,7 @@ url = os.getenv('url')
 url_customer=os.getenv('url_customer')
 
 
-"""INVOICES DATA"""
+""""""""""""""""""" INVOICES DATA """""""""""""""""""
 
 # Set up API request details
 invoices_url = url
@@ -66,14 +66,14 @@ print(f"Total Invoices: {len(invoices)}")
 # Define CSV field names
 fieldnames=['Id', 'BranchId', 'Customer_Name', 'PurchaseDate', 'PurchaseHour', 'Total_Payment', 'Status']
 
-# Write data to a CSV file
+# Write invoices data to a CSV file
 with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
     writer = csv.DictWriter(kioviet_file, fieldnames=fieldnames)
     writer.writeheader()
 
     writer.writerows(invoices)
 
-"""CUSTOMERS DATA"""
+""""""""""""""""""" CUSTOMERS DATA """""""""""""""""""
 
 # Set up API request details
 customers_url = url_customer
@@ -130,17 +130,13 @@ with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_fi
     writer.writerows(customers)
 
 
-# Load data into a DataFrame
-df = pd.read_csv('kioviet.csv')
 """
 CUSTOMERS DATA PROCESS
 """
+# Load data into a DataFrame
 df_customer = pd.read_csv('kioviet_customer.csv')
-# Replace missing values in 'Customer_Name' with 'khách lẻ'
-df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
 # Replace missing value in debt with
 df_customer['Debt'] = df_customer['Debt'].fillna('None')
-# df_customer['Total_Revenue'] = df_customer['Total_Revenue'].apply(lambda x: f"{x:,.0f}")
 df_customer['Membership'] = df_customer['Membership'].fillna('None')
 df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
 df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
@@ -152,12 +148,25 @@ df_customer['Contact_Number'] = df_customer['Contact_Number'].str.replace('.0', 
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x if not x.startswith('0') else x)
 # Ensure consistent formatting: ###-###-####
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
+
 """
 INVOICES DATA PROCESS
 """
+# Load data into a DataFrame
+df = pd.read_csv('kioviet.csv')
+# Change title `Total_Payment` to `Sales`
+df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
+# Replace missing values in 'Customer_Name' with 'khách lẻ'
+df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
+# Change value of `Status` from `hoàn thành` to `done`
+df.loc[df['Status'] == 'Hoàn thành', 'Status'] = 'Done'
+# Drop bias value 
+df = df[df['Sales'] != 6555000]
+df = df[df['Sales'] != 2836000]
+# Drop any column that have `status` values `Đã hủy`
+df = df[df['Status'] != 'Đã hủy']
 # Convert `PurchaseDate` to datetime object
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
-
 # Extract features from `PurchaseDate`
 df['Year'] = df['PurchaseDate'].dt.year
 df['Month'] = df['PurchaseDate'].dt.month
@@ -168,75 +177,61 @@ df['DayOfWeek'] = df['PurchaseDate'].dt.dayofweek.map(day_map)
 
 # Assuming 'purchasehour' is in 'HH:MM' format
 # Convert it to a datetime object and then extract the hour
-df['PurchaseHour'] = df['PurchaseHour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
+df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 # The columns want to keep
-columns_to_keep = ['Customer_Name', 'PurchaseDate', 'PurchaseHour', 'DayOfWeek', 'Total_Payment', 'Status']
+columns_to_keep = ['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 # Select only the desired columns
 df = df[columns_to_keep]
-print(df)
 df_customer = df_customer[column_to_keep]
-# Change title `Total_Payment` to `Sales`
-df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
-
-# Change value of `Status` from `hoàn thành` to `done`
-df.loc[df['Status'] == 'Hoàn thành', 'Status'] = 'Done'
-
-# Drop bias value 
-df = df[df['Sales'] != 6555000]
-df = df[df['Sales'] != 2836000]
-
-# Drop any column that have `status` values `Đã hủy`
-df = df[df['Status'] != 'Đã hủy']
-
-print(df.head(), df.shape)
-print(df_customer.head(), df_customer.shape)
+print(df)
+print(df_customer)
+# print(df.head(), df.shape)
+# print(df_customer.head(), df_customer.shape)
 
 # Save DataFrame to CSV file
 df.to_csv('kioviet.csv', index=False)
 df_customer.to_csv('kioviet_customer.csv', index=False)
 
 
-# IMPORT DATA TO GOOGLE SHEET
+""""""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
 
 # Defind the scope of the application
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-
 # Add credential to account
 creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json')
-
 # Authorize the clientsheet
 client = gspread.authorize(creds)
-
 # Open the sheet
 sheet = client.open('72BilliardsClub')
-
 # Get sheets
 sheet_1 = sheet.get_worksheet(0)
 sheet_2= sheet.get_worksheet(1)
-
-
-
-df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
 # Convert api dataframe to a list of lists
+df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
 data_sheet = df.values.tolist()
 customer_data_sheet = df_customer.values.tolist()
 # Include the header
 header = df.columns.tolist()
 customer_data_header = df_customer.columns.tolist()
-
+# Insert header
 data_sheet.insert(0, header)
 customer_data_sheet.insert(0,customer_data_header)
 
 try:
-    # Update the new worksheet starting at the first cell
-    sheet_1_updated = sheet_1.update(range_name='A1', values=data_sheet)
-    sheet_2_updated = sheet_2.update(range_name='A1', values=customer_data_sheet)
-finally:
-    print(f"\nSuccessfuly import data to Google Sheet ✅\n")
+    # Update the first worksheet starting at the first cell
+    sheet_1_updated = sheet_1.update(values=data_sheet, range_name='A1')
+    # Update the second worksheet starting at the first cell
+    sheet_2_updated = sheet_2.update(values=customer_data_sheet, range_name='A1')
+    print("\nSuccessfully imported data to Google Sheets ✅\n")
+except gspread.exceptions.APIError as e:
+    print(f"Failed to update Google Sheets due to an API error: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
 
-# Python Automation GitHub Update
+
+""""""""""""""""""" AUTOMATION GITHUB UPDATE """""""""""""""""""
 def run_git_commands():
     try:
         # Navigate to the directory containing your repository
@@ -249,5 +244,4 @@ def run_git_commands():
     except subprocess.CalledProcessError as e:
         print(f"Error in Git operation: {e}")
 
-# Call the function at the end
 run_git_commands()
