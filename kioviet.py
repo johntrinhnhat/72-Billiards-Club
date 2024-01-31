@@ -163,6 +163,8 @@ df.loc[df['Status'] == 'Hoàn thành', 'Status'] = 'Done'
 # Drop bias value 
 df = df[df['Sales'] != 6555000]
 df = df[df['Sales'] != 2836000]
+# Delete 0 Sales
+df = df[df['Sales'] != 0]
 # Drop any column that have `status` values `Đã hủy`
 df = df[df['Status'] != 'Đã hủy']
 # Convert `PurchaseDate` to datetime object
