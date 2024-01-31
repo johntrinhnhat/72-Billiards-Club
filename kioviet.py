@@ -188,8 +188,8 @@ column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt'
 # Select only the desired columns
 df = df[columns_to_keep]
 df_customer = df_customer[column_to_keep]
-print(df)
-print(df_customer)
+print(df, df.dtypes)
+print(df_customer, df_customer.dtypes)
 # print(df.head(), df.shape)
 # print(df_customer.head(), df_customer.shape)
 
