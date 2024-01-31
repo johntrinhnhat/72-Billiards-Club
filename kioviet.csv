@@ -1,4 +1,9 @@
 Customer_Name,PurchaseDate,Hour,DayOfWeek,Discount,Sales,Status
+giàu,2024-02-01,0,Thursday,0.0,220000.0,Done
+LÊ ĐẠI VỸ,2024-02-01,0,Thursday,0.0,174135.0,Done
+khách lẻ,2024-02-01,0,Thursday,0.0,151635.0,Done
+QUỐC ANH,2024-02-01,0,Thursday,14375.0,273125.0,Done
+khách lẻ,2024-02-01,0,Thursday,0.0,79135.0,Done
 quân,2024-01-31,23,Wednesday,0.0,170880.0,Done
 diệu,2024-01-31,23,Wednesday,0.0,140865.0,Done
 phương,2024-01-31,23,Wednesday,0.0,110865.0,Done
