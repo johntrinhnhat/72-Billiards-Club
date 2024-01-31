@@ -169,10 +169,13 @@ df = df[df['Status'] != 'Đã hủy']
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 # Extract features from `PurchaseDate`
 df['DayOfWeek'] = df['PurchaseDate'].dt.day_name()
-df['Hour'] = df['PurchaseDate'].dt.hour
+df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
+# df['Hour'] = df['PurchaseDate'].dt.hour
 # df['Year'] = df['PurchaseDate'].dt.year
 # df['Month'] = df['PurchaseDate'].dt.month
 # df['Day'] = df['PurchaseDate'].dt.day
+# Assuming 'purchasehour' is in 'HH:MM' format
+# Convert it to a datetime object and then extract the hour
 
 # The columns want to keep
 columns_to_keep = ['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']
