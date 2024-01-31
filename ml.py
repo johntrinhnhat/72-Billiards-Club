@@ -50,15 +50,17 @@ rf_model.fit(X_train, y_train)
 # Make predictions on the test data
 y_pred = rf_model.predict(X_test)
 # Evaluate the rf_model
-rf_model_score = rf_model.score(X_train, y_train)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
+rf_model_score = rf_model.score(X_train, y_train)
 # Print out the metrics
-# print(f"RMSE: {rmse}")
-# print(f"R^2 Score: {r2}")
-# print(f"Model score is: {rf_model_score}")
-print(f"Sales Prediction:",y_pred)
-print(f"Sales Real:",y_test)
+print(f"RMSE: {rmse}")
+print(f"R^2 Score: {r2}")
+print(f"Model score is: {rf_model_score}")
+print(f"Sales Predict:",y_pred)
+print(f"Sales Actual:",y_test)
+
+
 """"""""""""""""" LINEAR REGRESSION """""""""""""""""
 linear_model = LinearRegression()
 # Train the model on the training data
@@ -66,8 +68,10 @@ linear_model.fit(X_train, y_train)
 # Make predictions on the test data
 y_pred = linear_model.predict(X_test)
 # linear_predictions = linear_model.predict(X_test)
+
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 # Evaluate the linear_model
-# print('The model score is:', linear_model.score(X_train, y_train))
-# print("Linear Regression Performance:")
-# print("MSE:", mean_squared_error(y_test, linear_predictions))
-# print("R2 Score:", r2_score(y_test, linear_predictions))
+print("Linear Regression Performance:")
+print('The model score is:', linear_model.score(X_train, y_train))
+print("MSE:", mean_squared_error(y_test, y_pred))
+print("R2 Score:", r2_score(y_test, y_pred))
