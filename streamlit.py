@@ -194,7 +194,7 @@ with tab1:
         st.title("Purchasing Behavior of 'khách lẻ'")
         # Filter transactions for 'khách lẻ'
         df_guest = df_selection[df_selection['Customer_Name'] == 'khách lẻ'].copy()
-        print(df_guest)
+        # print(df_guest)
 
         # Aggregate sales by purchase date, day of the week and hour
         df_guest['DayOfWeek'] = pd.Categorical(df_guest['DayOfWeek'], categories=days_order, ordered=True)
