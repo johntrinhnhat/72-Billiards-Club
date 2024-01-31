@@ -38,11 +38,14 @@ y = df['Sales']
 X = X.to_numpy()
 y = y.to_numpy()
 
-
+# Split data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
 
-# Train the model on the training data
+""""""""""""""""" RANDOM FOREST REGRESSOR """""""""""""""""
+# Defind the model
 rf_model = RandomForestRegressor()
+# Train the model on the training data
 rf_model.fit(X_train, y_train)
 # Make predictions on the test data
 y_pred = rf_model.predict(X_test)
@@ -51,16 +54,20 @@ rf_model_score = rf_model.score(X_train, y_train)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 # Print out the metrics
-print(f"RMSE: {rmse}")
-print(f"R^2 Score: {r2}")
-print(f"Model score is: {rf_model_score}")
-
-
+# print(f"RMSE: {rmse}")
+# print(f"R^2 Score: {r2}")
+# print(f"Model score is: {rf_model_score}")
+print(f"Sales Prediction:",y_pred)
+print(f"Sales Real:",y_test)
+""""""""""""""""" LINEAR REGRESSION """""""""""""""""
 linear_model = LinearRegression()
+# Train the model on the training data
 linear_model.fit(X_train, y_train)
-print('The model score is:', linear_model.score(X_train, y_train))
-linear_predictions = linear_model.predict(X_test)
-print("Linear Regression Performance:")
-print("MSE:", mean_squared_error(y_test, linear_predictions))
-# print("MAE:", mean_absolute_error(y_test, linear_predictions))
-print("R2 Score:", r2_score(y_test, linear_predictions))
+# Make predictions on the test data
+y_pred = linear_model.predict(X_test)
+# linear_predictions = linear_model.predict(X_test)
+# Evaluate the linear_model
+# print('The model score is:', linear_model.score(X_train, y_train))
+# print("Linear Regression Performance:")
+# print("MSE:", mean_squared_error(y_test, linear_predictions))
+# print("R2 Score:", r2_score(y_test, linear_predictions))
