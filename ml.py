@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_error
 
 
 # Load dataframe for machine learning project
@@ -54,11 +54,10 @@ rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 rf_model_score = rf_model.score(X_train, y_train)
 # Print out the metrics
+print("\nRandom Forest Regressor Performance:")
+print(f"The Model score is: {rf_model_score}")
 print(f"RMSE: {rmse}")
 print(f"R^2 Score: {r2}")
-print(f"Model score is: {rf_model_score}")
-print(f"Sales Predict:",y_pred)
-print(f"Sales Actual:",y_test)
 
 
 """"""""""""""""" LINEAR REGRESSION """""""""""""""""
@@ -69,9 +68,13 @@ linear_model.fit(X_train, y_train)
 y_pred = linear_model.predict(X_test)
 # linear_predictions = linear_model.predict(X_test)
 
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+rmse = root_mean_squared_error(y_test, y_pred)
 # Evaluate the linear_model
-print("Linear Regression Performance:")
+print("\nLinear Regression Performance:")
 print('The model score is:', linear_model.score(X_train, y_train))
+print("RMSE:", rmse)
 print("MSE:", mean_squared_error(y_test, y_pred))
 print("R2 Score:", r2_score(y_test, y_pred))
+
+print(f"\nSales Predict:",y_pred)
+print(f"Sales Actual:",y_test)
