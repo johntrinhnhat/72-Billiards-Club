@@ -41,4 +41,4 @@ r2 = r2_score(y_test, y_pred)
 # Print out the metrics
 # print(f"RMSE: {rmse}")
 # print(f"R^2 Score: {r2}")
-print(df[df['Sales'] == 0])
+print(df[df['Sales'] != 0])
