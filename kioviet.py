@@ -53,6 +53,7 @@ for item in data:
         'Customer_Name': item["CustomerName"],
         'PurchaseDate': purchase_date,
         'PurchaseHour': purchase_hour,
+        'Discount': item["Discount"],
         'Total_Payment': item["TotalPayment"],
         'Status': item["StatusValue"],
     }
@@ -64,7 +65,7 @@ for item in data:
 print(f"Total Invoices: {len(invoices)}")
 
 # Define CSV field names
-fieldnames=['Id', 'BranchId', 'Customer_Name', 'PurchaseDate', 'PurchaseHour', 'Total_Payment', 'Status']
+fieldnames=['Id', 'BranchId', 'Customer_Name', 'PurchaseDate', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
 
 # Write invoices data to a CSV file
 with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
@@ -154,8 +155,10 @@ INVOICES DATA PROCESS
 """
 # Load data into a DataFrame
 df = pd.read_csv('kioviet.csv')
-# Change title `Total_Payment` to `Sales`
+# Change column name `Total_Payment` to `Sales`
 df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
+# 
+# df['Discount'] = df['Discount'].replace(0, None)
 # Replace missing values in 'Customer_Name' with 'khách lẻ'
 df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
 # Change value of `Status` from `hoàn thành` to `done`
@@ -180,7 +183,7 @@ df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 # Convert it to a datetime object and then extract the hour
 
 # The columns want to keep
-columns_to_keep = ['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']
+columns_to_keep = ['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']
 column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
 # Select only the desired columns
 df = df[columns_to_keep]
