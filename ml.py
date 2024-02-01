@@ -1,7 +1,9 @@
 # Import all of neccessary packages
 from colorama import Fore, Back, Style, init
 init(autoreset=True)
-
+from xgboost import XGBRegressor
+import requests
+import json
 import holidays
 import pandas as pd
 import numpy as np
@@ -33,7 +35,7 @@ vn_holidays = holidays.VN()
 df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
 
 # Define final dataframe
-df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek_Monday', 'DayOfWeek_Tuesday', 'DayOfWeek_Wednesday', 'DayOfWeek_Thursday', 'DayOfWeek_Friday', 'DayOfWeek_Saturday', 'DayOfWeek_Sunday', 'Is_Holiday', 'Discount', 'Sales']]
+df = df[['PurchaseDate', 'Year', 'Month', 'Day', 'Hour', 'DayOfWeek_Monday', 'DayOfWeek_Tuesday', 'DayOfWeek_Wednesday', 'DayOfWeek_Thursday', 'DayOfWeek_Friday', 'DayOfWeek_Saturday', 'DayOfWeek_Sunday', 'Is_Holiday', 'Discount', 'Sales']]
 print(df)
 
 X = df.drop(['Sales'], axis=1)
@@ -98,35 +100,25 @@ print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 # print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 # print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
-# Define the parameter grid for RandomizedSearchCV
-param_grid = {
-    'n_estimators': [100, 200, 500, 1000],
-    'max_depth': [None, 10, 20, 30, 40],
-    'min_samples_split': [2, 5, 10],
-    'min_samples_leaf': [1, 2, 4],
-    'bootstrap': [True, False]
-}
 
-# Initialize the Random Forest Regressor
-rf = RandomForestRegressor()
+# Replace 'your_api_key' with your actual API key
+api_key = '17a2af3a1cf36f4fe30ea1f9a07181d9'
+city_name = 'Ho Chi Minh'
 
-# Initialize the RandomizedSearchCV object
-rf_random = RandomizedSearchCV(estimator=rf, param_distributions=param_grid, 
-                               n_iter=100, cv=5, verbose=2, random_state=42, n_jobs=-1)
+# Build the API URL
+url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric"
 
-# Fit the model to the training data
-rf_random.fit(X_train, y_train)
+# Make a GET request to fetch the weather data
+response = requests.get(url)
+weather_data = response.json()
 
-# Get the best parameters and estimator
-best_params = rf_random.best_params_
-best_rf_model = rf_random.best_estimator_
-
-print("Best Parameters:", best_params)
-
-# Evaluate the best_rf_model on the test set
-y_pred_rf = best_rf_model.predict(X_test).astype(int)
-rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))/1000
-# ... (continue with other metrics)
-
-print(f"RMSE: {rmse_rf:.2f}k đ")
-# ... (continue with printing other metrics)
+# Check the response status code
+if response.status_code == 200:
+    # If the request was successful, parse the data
+    temperature = weather_data['main']['temp']
+    
+    # Print the weather information
+    print(f"Temperature: {temperature}")
+else:
+    # If the request failed, print an error message
+    print("Error fetching data from the OpenWeatherMap API.")
