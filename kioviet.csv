@@ -1,4 +1,9 @@
 Customer_Name,PurchaseDate,Hour,DayOfWeek,Discount,Sales,Status
+Triệu,2024-02-01,11,Thursday,18032.0,162283.0,Done
+thắng,2024-02-01,11,Thursday,2291.0,43524.0,Done
+khách lẻ,2024-02-01,11,Thursday,0.0,73315.0,Done
+khách lẻ,2024-02-01,11,Thursday,0.0,225685.0,Done
+khách lẻ,2024-02-01,11,Thursday,28250.0,84750.0,Done
 Quỳnh,2024-02-01,3,Thursday,0.0,349000.0,Done
 Quỳnh,2024-02-01,3,Thursday,0.0,240805.0,Done
 khách lẻ,2024-02-01,3,Thursday,0.0,241195.0,Done
@@ -5507,7 +5512,7 @@ Chị Thư,2023-12-16,0,Saturday,12664.0,113971.0,Done
 khách lẻ,2023-12-16,0,Saturday,0.0,188365.0,Done
 Chị Thư,2023-12-16,0,Saturday,15664.0,140971.0,Done
 ngọc anh,2023-12-16,0,Saturday,7125.0,135375.0,Done
-0356641865,2023-12-16,0,Saturday,17793.0,338072.0,Done
+Đức,2023-12-16,0,Saturday,17793.0,338072.0,Done
 khách lẻ,2023-12-15,23,Friday,0.0,126635.0,Done
 Ngô Đình Ý,2023-12-15,23,Friday,7918.0,150447.0,Done
 khách lẻ,2023-12-15,23,Friday,0.0,142500.0,Done

@@ -58,18 +58,18 @@ rf_model.fit(X_train, y_train)
 y_pred_rf = rf_model.predict(X_test).astype(int)
 
 # Evaluate the rf_model
-rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
-mse_rf = mean_squared_error(y_test, y_pred_rf)
-mae_rf = mean_absolute_error(y_test, y_pred_rf)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))/1000
+mse_rf = mean_squared_error(y_test, y_pred_rf)/1000000
+mae_rf = mean_absolute_error(y_test, y_pred_rf)/1000
 r2_rf = r2_score(y_test, y_pred_rf)
 rf_model_score = rf_model.score(X_train, y_train)
 
 # Print out the metrics
 print(f"{Fore.BLUE}\nRandom Forest Regressor Performance:")
 print(f"The Model score is: {rf_model_score}")
-print(f"RMSE: {rmse_rf}")
-print(f"MSE: {mse_rf}")
-print(f"MAE: {mae_rf}")
+print(f"RMSE: {rmse_rf:.2f}kđ")
+print(f"MSE: {mse_rf:.2f}Mđ")
+print(f"MAE: {mae_rf:.2f}kđ")
 print(f"R^2 Score: {r2_rf}")
 print(f"{Fore.RED}\nSales Predict: {y_pred_rf}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
@@ -99,3 +99,4 @@ print(f"R2 Score: {r2_lr}")
 
 print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+
