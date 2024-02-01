@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 
@@ -49,7 +49,7 @@ print(f"Test Data Shape: {X_test.shape},{y_test.shape}")
 
 """"""""""""""""" RANDOM FOREST REGRESSOR """""""""""""""""
 # Defind the model
-rf_model = RandomForestRegressor()
+rf_model = RandomForestRegressor(n_estimators=300)
 
 # Train the model on the training data
 rf_model.fit(X_train, y_train)
@@ -93,10 +93,11 @@ linear_model_score = linear_model.score(X_train, y_train)
 print(f"{Fore.BLUE}\nLinear Regression Performance:")
 print(f'The Model score is: {linear_model_score}')
 print(f"RMSE: {rmse_lr:.2f}k đ")
-print(f"MSE: {mse_lr:.2f}k đ")
+print(f"MSE: {mse_lr:.2f}M đ")
 print(f"MAE: {mae_lr:.2f}k đ")
 print(f"R2 Score: {r2_lr}")
 
 print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+
 
