@@ -101,24 +101,3 @@ print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 # print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 
-# Replace 'your_api_key' with your actual API key
-api_key = '17a2af3a1cf36f4fe30ea1f9a07181d9'
-city_name = 'Ho Chi Minh'
-
-# Build the API URL
-url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={api_key}&units=metric"
-
-# Make a GET request to fetch the weather data
-response = requests.get(url)
-weather_data = response.json()
-
-# Check the response status code
-if response.status_code == 200:
-    # If the request was successful, parse the data
-    temperature = weather_data['main']['temp']
-    
-    # Print the weather information
-    print(f"Temperature: {temperature}")
-else:
-    # If the request failed, print an error message
-    print("Error fetching data from the OpenWeatherMap API.")
