@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score, root_mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 
 
 # Load dataframe for machine learning project
@@ -28,12 +28,11 @@ vn_holidays = holidays.VN()
 df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
 
 # Define final dataframe
-df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek_Monday', 'DayOfWeek_Tuesday', 'DayOfWeek_Wednesday', 'DayOfWeek_Thursday', 'DayOfWeek_Friday', 'DayOfWeek_Saturday', 'DayOfWeek_Sunday', 'Is_Holiday','Discount', 'Sales']]
+df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek_Monday', 'DayOfWeek_Tuesday', 'DayOfWeek_Wednesday', 'DayOfWeek_Thursday', 'DayOfWeek_Friday', 'DayOfWeek_Saturday', 'DayOfWeek_Sunday', 'Is_Holiday', 'Discount', 'Sales']]
 print(df)
 
 X = df.drop(['Sales'], axis=1)
 y = df['Sales']
-# print(df.isnull().sum())
 # Convert the pandas DataFrame and Series to NumPy arrays
 X = X.to_numpy()
 y = y.to_numpy()
@@ -48,33 +47,36 @@ rf_model = RandomForestRegressor()
 # Train the model on the training data
 rf_model.fit(X_train, y_train)
 # Make predictions on the test data
-y_pred = rf_model.predict(X_test)
+y_pred_rf = rf_model.predict(X_test)
 # Evaluate the rf_model
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-r2 = r2_score(y_test, y_pred)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+r2_rf = r2_score(y_test, y_pred_rf)
 rf_model_score = rf_model.score(X_train, y_train)
 # Print out the metrics
 print("\nRandom Forest Regressor Performance:")
 print(f"The Model score is: {rf_model_score}")
-print(f"RMSE: {rmse}")
-print(f"R^2 Score: {r2}")
+print(f"RMSE: {rmse_rf}")
+print(f"R^2 Score: {r2_rf}")
 
 
 """"""""""""""""" LINEAR REGRESSION """""""""""""""""
+# Define the model
 linear_model = LinearRegression()
 # Train the model on the training data
 linear_model.fit(X_train, y_train)
 # Make predictions on the test data
-y_pred = linear_model.predict(X_test)
-# linear_predictions = linear_model.predict(X_test)
-
-rmse = root_mean_squared_error(y_test, y_pred)
+y_pred_lr = linear_model.predict(X_test)
 # Evaluate the linear_model
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
+r2_lr = r2_score(y_test, y_pred_lr)
+mse = mean_squared_error(y_test, y_pred_lr)
+linear_model_score = linear_model.score(X_train, y_train)
+# Print out the metrics
 print("\nLinear Regression Performance:")
-print('The model score is:', linear_model.score(X_train, y_train))
-print("RMSE:", rmse)
-print("MSE:", mean_squared_error(y_test, y_pred))
-print("R2 Score:", r2_score(y_test, y_pred))
+print(f'The model score is: {linear_model_score}')
+print(f"RMSE: {rmse_lr}")
+print(f"MSE: {mse}")
+print(f"R2 Score: {r2_lr}")
 
-print(f"\nSales Predict:",y_pred)
-print(f"Sales Actual:",y_test)
+print(f"\nSales Predict: {y_pred_lr}")
+print(f"Sales Actual: {y_test}")
