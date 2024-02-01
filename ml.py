@@ -67,9 +67,9 @@ rf_model_score = rf_model.score(X_train, y_train)
 # Print out the metrics
 print(f"{Fore.BLUE}\nRandom Forest Regressor Performance:")
 print(f"The Model score is: {rf_model_score}")
-print(f"RMSE: {rmse_rf:.2f}kđ")
-print(f"MSE: {mse_rf:.2f}Mđ")
-print(f"MAE: {mae_rf:.2f}kđ")
+print(f"RMSE: {rmse_rf:.2f}k đ")
+print(f"MSE: {mse_rf:.2f}M đ")
+print(f"MAE: {mae_rf:.2f}k đ")
 print(f"R^2 Score: {r2_rf}")
 print(f"{Fore.RED}\nSales Predict: {y_pred_rf}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
@@ -84,17 +84,17 @@ linear_model.fit(X_train, y_train)
 # Make predictions on the test data
 y_pred_lr = linear_model.predict(X_test).astype(int)
 # Evaluate the linear_model
-rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
-mse_lr = mean_squared_error(y_test, y_pred_lr)
-mae_lr = mean_absolute_error(y_test, y_pred_lr)
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
+mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
+mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
 r2_lr = r2_score(y_test, y_pred_lr)
 linear_model_score = linear_model.score(X_train, y_train)
 # Print out the metrics
 print(f"{Fore.BLUE}\nLinear Regression Performance:")
 print(f'The Model score is: {linear_model_score}')
-print(f"RMSE: {rmse_lr}")
-print(f"MSE: {mse_lr}")
-print(f"MAE: {mae_lr}")
+print(f"RMSE: {rmse_lr:.2f}k đ")
+print(f"MSE: {mse_lr:.2f}k đ")
+print(f"MAE: {mae_lr:.2f}k đ")
 print(f"R2 Score: {r2_lr}")
 
 print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
