@@ -49,9 +49,7 @@ print(f"Test Data Shape: {X_test.shape},{y_test.shape}")
 
 """"""""""""""""" RANDOM FOREST REGRESSOR """""""""""""""""
 # Defind the model
-rf_model = RandomForestRegressor(n_estimators=300)
-
-# Train the model on the training data
+rf_model = RandomForestRegressor()
 rf_model.fit(X_train, y_train)
 
 # Make predictions on the test data
@@ -78,26 +76,57 @@ print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 """"""""""""""""" LINEAR REGRESSION """""""""""""""""
 # Define the model
-linear_model = LinearRegression()
-# Train the model on the training data
-linear_model.fit(X_train, y_train)
-# Make predictions on the test data
-y_pred_lr = linear_model.predict(X_test).astype(int)
-# Evaluate the linear_model
-rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
-mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
-mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
-r2_lr = r2_score(y_test, y_pred_lr)
-linear_model_score = linear_model.score(X_train, y_train)
+# linear_model = LinearRegression()
+# # Train the model on the training data
+# linear_model.fit(X_train, y_train)
+# # Make predictions on the test data
+# y_pred_lr = linear_model.predict(X_test).astype(int)
+# # Evaluate the linear_model
+# rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
+# mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
+# mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
+# r2_lr = r2_score(y_test, y_pred_lr)
+# linear_model_score = linear_model.score(X_train, y_train)
 # Print out the metrics
-print(f"{Fore.BLUE}\nLinear Regression Performance:")
-print(f'The Model score is: {linear_model_score}')
-print(f"RMSE: {rmse_lr:.2f}k đ")
-print(f"MSE: {mse_lr:.2f}M đ")
-print(f"MAE: {mae_lr:.2f}k đ")
-print(f"R2 Score: {r2_lr}")
+# print(f"{Fore.BLUE}\nLinear Regression Performance:")
+# print(f'The Model score is: {linear_model_score}')
+# print(f"RMSE: {rmse_lr:.2f}k đ")
+# print(f"MSE: {mse_lr:.2f}M đ")
+# print(f"MAE: {mae_lr:.2f}k đ")
+# print(f"R2 Score: {r2_lr}")
 
-print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
-print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+# print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
+# print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
+# Define the parameter grid for RandomizedSearchCV
+param_grid = {
+    'n_estimators': [100, 200, 500, 1000],
+    'max_depth': [None, 10, 20, 30, 40],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'bootstrap': [True, False]
+}
 
+# Initialize the Random Forest Regressor
+rf = RandomForestRegressor()
+
+# Initialize the RandomizedSearchCV object
+rf_random = RandomizedSearchCV(estimator=rf, param_distributions=param_grid, 
+                               n_iter=100, cv=5, verbose=2, random_state=42, n_jobs=-1)
+
+# Fit the model to the training data
+rf_random.fit(X_train, y_train)
+
+# Get the best parameters and estimator
+best_params = rf_random.best_params_
+best_rf_model = rf_random.best_estimator_
+
+print("Best Parameters:", best_params)
+
+# Evaluate the best_rf_model on the test set
+y_pred_rf = best_rf_model.predict(X_test).astype(int)
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))/1000
+# ... (continue with other metrics)
+
+print(f"RMSE: {rmse_rf:.2f}k đ")
+# ... (continue with printing other metrics)
