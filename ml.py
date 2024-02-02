@@ -34,9 +34,15 @@ df = pd.get_dummies(df, columns=['DayOfWeek'])
 vn_holidays = holidays.VN()
 df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
 
+# List of DayOfWeek columns
+day_of_week_columns = [col for col in df.columns if col.startswith('DayOfWeek')]
+
+# Replace True/False with 1/0 in all DayOfWeek columns
+df[day_of_week_columns] = df[day_of_week_columns].replace({True: 1, False: 0})
+
 # Define final dataframe
 df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek_Monday', 'DayOfWeek_Tuesday', 'DayOfWeek_Wednesday', 'DayOfWeek_Thursday', 'DayOfWeek_Friday', 'DayOfWeek_Saturday', 'DayOfWeek_Sunday', 'Is_Holiday', 'Discount', 'Sales']]
-print(df)
+print(df[df['Discount'] != 0])
 
 X = df.drop(['Sales'], axis=1)
 y = df['Sales']
@@ -78,26 +84,26 @@ print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 """"""""""""""""" LINEAR REGRESSION """""""""""""""""
 # Define the model
-# linear_model = LinearRegression()
-# # Train the model on the training data
-# linear_model.fit(X_train, y_train)
-# # Make predictions on the test data
-# y_pred_lr = linear_model.predict(X_test).astype(int)
-# # Evaluate the linear_model
-# rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
-# mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
-# mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
-# r2_lr = r2_score(y_test, y_pred_lr)
-# linear_model_score = linear_model.score(X_train, y_train)
+linear_model = LinearRegression()
+# Train the model on the training data
+linear_model.fit(X_train, y_train)
+# Make predictions on the test data
+y_pred_lr = linear_model.predict(X_test).astype(int)
+# Evaluate the linear_model
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
+mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
+mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
+r2_lr = r2_score(y_test, y_pred_lr)
+linear_model_score = linear_model.score(X_train, y_train)
 # Print out the metrics
-# print(f"{Fore.BLUE}\nLinear Regression Performance:")
-# print(f'The Model score is: {linear_model_score}')
-# print(f"RMSE: {rmse_lr:.2f}k đ")
-# print(f"MSE: {mse_lr:.2f}M đ")
-# print(f"MAE: {mae_lr:.2f}k đ")
-# print(f"R2 Score: {r2_lr}")
+print(f"{Fore.BLUE}\nLinear Regression Performance:")
+print(f'The Model score is: {linear_model_score}')
+print(f"RMSE: {rmse_lr:.2f}k đ")
+print(f"MSE: {mse_lr:.2f}M đ")
+print(f"MAE: {mae_lr:.2f}k đ")
+print(f"R2 Score: {r2_lr}")
 
-# print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
-# print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
+print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 
