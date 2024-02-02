@@ -34,17 +34,23 @@ vn_holidays = holidays.VN()
 df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
 df['Is_Holiday'] = df['Is_Holiday'].replace({True: 1, False: 0})
 
-def get_time_of_day(hour):
+# Define a function that returns the rate based on the hour
+def get_table_rate(hour):
     if 1 <= hour <= 6:
-        return 'Night'
+        return 85000
     elif 9 <= hour <= 12:
-        return 'Morning'
+        return 55000
     elif 13 <= hour <= 18:
-        return 'Afternoon'
-    elif 18 <= hour <= 23:
-        return 'Evening'
-# Assuming df is your DataFrame and it has an 'Hour' column with hours in 0-23 format
-df['TimeOfDay'] = df['Hour'].apply(get_time_of_day)
+        return 75000
+    elif hour == 0 or (18 <= hour <= 23):
+        return 95000
+    else:
+        # If the hour doesn't fall into any of the specified ranges,
+        # you can define a default rate or raise an error.
+        return None
+    
+# Apply this function to the 'Hour' column to create a new 'TableRate' column
+df['Table_Rate'] = df['Hour'].apply(get_table_rate)
 
 # Mapping from day name to numerical value where Monday is 0 and Sunday is 6
 day_mapping = {
@@ -60,8 +66,8 @@ day_mapping = {
 df['DayOfWeek'] = df['DayOfWeek'].apply(lambda x: day_mapping[x])
 
 # Define final dataframe
-df = df[['Year', 'Month', 'Day', 'Hour', 'TimeOfDay', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
-print(df)
+df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek', 'Table_Rate', 'Is_Holiday', 'Discount', 'Sales']]
+print(df.dtypes)
 
 X = df.drop(['Sales'], axis=1)
 y = df['Sales']
@@ -104,37 +110,37 @@ print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 
 
-""""""""""""""""" LINEAR REGRESSION """""""""""""""""
-# Define the model
-linear_model = LinearRegression()
-# Train the model on the training data
-linear_model.fit(X_train, y_train)
-# Make predictions on the test data
-y_pred_lr = linear_model.predict(X_test).astype(int)
-# Evaluate the linear_model
-rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
-mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
-mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
-r2_lr = r2_score(y_test, y_pred_lr)
-linear_model_score = linear_model.score(X_test, y_test)
-# Print out the metrics
-print(f"{Fore.BLUE}\nLinear Regression Performance:")
-print(f'The Model score is: {linear_model_score}')
-print(f"RMSE: {rmse_lr:.2f}k đ")
-print(f"MSE: {mse_lr:.2f}M đ")
-print(f"MAE: {mae_lr:.2f}k đ")
-print(f"R2 Score: {r2_lr}")
+# """"""""""""""""" LINEAR REGRESSION """""""""""""""""
+# # Define the model
+# linear_model = LinearRegression()
+# # Train the model on the training data
+# linear_model.fit(X_train, y_train)
+# # Make predictions on the test data
+# y_pred_lr = linear_model.predict(X_test).astype(int)
+# # Evaluate the linear_model
+# rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
+# mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
+# mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
+# r2_lr = r2_score(y_test, y_pred_lr)
+# linear_model_score = linear_model.score(X_test, y_test)
+# # Print out the metrics
+# print(f"{Fore.BLUE}\nLinear Regression Performance:")
+# print(f'The Model score is: {linear_model_score}')
+# print(f"RMSE: {rmse_lr:.2f}k đ")
+# print(f"MSE: {mse_lr:.2f}M đ")
+# print(f"MAE: {mae_lr:.2f}k đ")
+# print(f"R2 Score: {r2_lr}")
 
-print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
-print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+# print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
+# print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 
-correlation_matrix = df.corr()
-sales_correlation = correlation_matrix['Sales'].sort_values(ascending=False)
-print(f"Correlation: \n{sales_correlation}")
+# correlation_matrix = df.corr()
+# sales_correlation = correlation_matrix['Sales'].sort_values(ascending=False)
+# print(f"Correlation: \n{sales_correlation}")
 
-# Assuming `rf_model` is a fitted RandomForestRegressor
-importances = rf_model.feature_importances_
-feature_importances = pd.Series(importances, index=feature_names).sort_values(ascending=False)
+# # Assuming `rf_model` is a fitted RandomForestRegressor
+# importances = rf_model.feature_importances_
+# feature_importances = pd.Series(importances, index=feature_names).sort_values(ascending=False)
 
-print(f"Important Features: \n{feature_importances}")
+# print(f"Important Features: \n{feature_importances}")
