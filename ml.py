@@ -29,20 +29,39 @@ df['Year'] = df['PurchaseDate'].dt.year
 df['Month'] = df['PurchaseDate'].dt.month
 df['Day'] = df['PurchaseDate'].dt.day
 
-df = pd.get_dummies(df, columns=['DayOfWeek'])
 
 vn_holidays = holidays.VN()
 df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
 df['Is_Holiday'] = df['Is_Holiday'].replace({True: 1, False: 0})
 
-# List of DayOfWeek columns
-day_of_week_columns = [col for col in df.columns if col.startswith('DayOfWeek')]
-# Replace True/False with 1/0 in all DayOfWeek columns
-df[day_of_week_columns] = df[day_of_week_columns].replace({True: 1, False: 0})
+def get_time_of_day(hour):
+    if 1 <= hour <= 6:
+        return 'Night'
+    elif 9 <= hour <= 12:
+        return 'Morning'
+    elif 13 <= hour <= 18:
+        return 'Afternoon'
+    elif 18 <= hour <= 23:
+        return 'Evening'
+# Assuming df is your DataFrame and it has an 'Hour' column with hours in 0-23 format
+df['TimeOfDay'] = df['Hour'].apply(get_time_of_day)
+
+# Mapping from day name to numerical value where Monday is 0 and Sunday is 6
+day_mapping = {
+    'Monday': 0,
+    'Tuesday': 1,
+    'Wednesday': 2,
+    'Thursday': 3,
+    'Friday': 4,
+    'Saturday': 5,
+    'Sunday': 6
+}
+# Apply this mapping to the 'DayOfWeek' column
+df['DayOfWeek'] = df['DayOfWeek'].apply(lambda x: day_mapping[x])
 
 # Define final dataframe
-df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek_Monday', 'DayOfWeek_Tuesday', 'DayOfWeek_Wednesday', 'DayOfWeek_Thursday', 'DayOfWeek_Friday', 'DayOfWeek_Saturday', 'DayOfWeek_Sunday', 'Is_Holiday', 'Discount', 'Sales']]
-print(df[df['Discount'] != 0])
+df = df[['Year', 'Month', 'Day', 'Hour', 'TimeOfDay', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
+print(df)
 
 X = df.drop(['Sales'], axis=1)
 y = df['Sales']
