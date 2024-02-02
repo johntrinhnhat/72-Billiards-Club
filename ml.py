@@ -36,7 +36,6 @@ df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
 
 # List of DayOfWeek columns
 day_of_week_columns = [col for col in df.columns if col.startswith('DayOfWeek')]
-
 # Replace True/False with 1/0 in all DayOfWeek columns
 df[day_of_week_columns] = df[day_of_week_columns].replace({True: 1, False: 0})
 
