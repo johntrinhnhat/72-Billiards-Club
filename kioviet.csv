@@ -1,4 +1,9 @@
 Customer_Name,PurchaseDate,Hour,DayOfWeek,Discount,Sales,Status
+QUỐC ANH,2024-02-03,0,Saturday,10293.0,195572.0,Done
+Mai,2024-02-03,0,Saturday,22000.0,198000.0,Done
+Lành,2024-02-03,0,Saturday,18500.0,74000.0,Done
+khách lẻ,2024-02-03,0,Saturday,0.0,300865.0,Done
+Lành,2024-02-03,0,Saturday,111373.0,445492.0,Done
 khách lẻ,2024-02-02,23,Friday,0.0,142500.0,Done
 Mai,2024-02-02,23,Friday,14250.0,128250.0,Done
 khách lẻ,2024-02-02,23,Friday,0.0,385365.0,Done
