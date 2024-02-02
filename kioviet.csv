@@ -1,4 +1,10 @@
 Customer_Name,PurchaseDate,Hour,DayOfWeek,Discount,Sales,Status
+khách lẻ,2024-02-02,21,Friday,0.0,117500.0,Done
+hiếu,2024-02-02,21,Friday,6793.0,129072.0,Done
+khách lẻ,2024-02-02,21,Friday,0.0,220000.0,Done
+Chị Thư,2024-02-02,21,Friday,47173.0,188692.0,Done
+khách lẻ,2024-02-02,21,Friday,0.0,126635.0,Done
+khách lẻ,2024-02-02,21,Friday,0.0,188365.0,Done
 khách lẻ,2024-02-02,20,Friday,0.0,190865.0,Done
 Nho,2024-02-02,20,Friday,0.0,209000.0,Done
 Lành,2024-02-02,20,Friday,34178.0,136712.0,Done
