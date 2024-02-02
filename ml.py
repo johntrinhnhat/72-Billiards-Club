@@ -33,6 +33,7 @@ df = pd.get_dummies(df, columns=['DayOfWeek'])
 
 vn_holidays = holidays.VN()
 df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
+df['Is_Holiday'] = df['Is_Holiday'].replace({True: 1, False: 0})
 
 # List of DayOfWeek columns
 day_of_week_columns = [col for col in df.columns if col.startswith('DayOfWeek')]
@@ -45,6 +46,9 @@ print(df[df['Discount'] != 0])
 
 X = df.drop(['Sales'], axis=1)
 y = df['Sales']
+
+feature_names = X.columns
+
 # Convert the pandas DataFrame and Series to NumPy arrays
 X = X.to_numpy()
 y = y.to_numpy()
@@ -67,7 +71,7 @@ rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))/1000
 mse_rf = mean_squared_error(y_test, y_pred_rf)/1000000
 mae_rf = mean_absolute_error(y_test, y_pred_rf)/1000
 r2_rf = r2_score(y_test, y_pred_rf)
-rf_model_score = rf_model.score(X_train, y_train)
+rf_model_score = rf_model.score(X_test, y_test)
 
 # Print out the metrics
 print(f"{Fore.BLUE}\nRandom Forest Regressor Performance:")
@@ -93,7 +97,7 @@ rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
 mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
 mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
 r2_lr = r2_score(y_test, y_pred_lr)
-linear_model_score = linear_model.score(X_train, y_train)
+linear_model_score = linear_model.score(X_test, y_test)
 # Print out the metrics
 print(f"{Fore.BLUE}\nLinear Regression Performance:")
 print(f'The Model score is: {linear_model_score}')
@@ -106,3 +110,12 @@ print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
 
+correlation_matrix = df.corr()
+sales_correlation = correlation_matrix['Sales'].sort_values(ascending=False)
+print(f"Correlation: \n{sales_correlation}")
+
+# Assuming `rf_model` is a fitted RandomForestRegressor
+importances = rf_model.feature_importances_
+feature_importances = pd.Series(importances, index=feature_names).sort_values(ascending=False)
+
+print(f"Important Features: \n{feature_importances}")
