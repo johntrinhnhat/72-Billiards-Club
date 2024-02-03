@@ -233,7 +233,7 @@ replacement_dict = {
     # Add more mappings as needed
 }
 df_pool['Table_Id'] = df_pool['Table_Id'].replace(replacement_dict)
-df_pool['Table_Id'] = df_pool['Table_Id'] != 1000071
+df_pool = df_pool[df_pool['Table_Id'] != 1000071] 
 
 df_pool = df_pool.dropna(subset=['Table_Id'])
 df_pool = df_pool.sort_values(by='Table_Id', ascending=True)
