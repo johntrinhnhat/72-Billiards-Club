@@ -191,6 +191,7 @@ df['DayOfWeek'] = df['PurchaseDate'].dt.day_name()
 POOL_TALBE DATA PROCESS
 """
 df_pool = df.copy()
+print(f"df_pool: {df_pool}")
 df_pool = df_pool.rename(columns={"Hour": "ExitHour"})
 # Convert EntryHour and ExitHour to datetime, assuming they are strings in the format "HH:MM"
 df_pool['EntryHour'] = pd.to_datetime(df_pool['EntryHour'], format='%H:%M').dt.time
