@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
-
+github_csv_pool_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_pool.csv"
 # Streamlit Web App
 st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
@@ -23,9 +23,16 @@ def load_data():
 
 def load_customer_data():
     return pd.read_csv(github_csv_customer_url)
-df = load_data()
-df_customer = load_customer_data()
 
+def load_table_data():
+    return pd.read_csv(github_csv_pool_url)
+
+df = load_data()
+
+
+df_customer = load_customer_data()
+df_table = load_table_data
+print(df_table)
 # CSS styling
 st.markdown("""
 <style>
@@ -47,7 +54,7 @@ with st.sidebar:
     # st.title("🎱 DASHBOARD")
 
     df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-
+    # df['Hour'] = df['PurchaseDate'].dt.hour
     # Ensure there are no NaT values and find the minimum and maximum dates
     valid_dates = df['PurchaseDate'].dropna()
     min_date = valid_dates.min()
@@ -99,7 +106,7 @@ with st.sidebar:
 st.image('./logo.png')
 st.markdown("##")
 
-tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "ML"])
+tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
 
 with tab1:
     # TOP KPI's
@@ -285,6 +292,7 @@ with tab2:
 
 with tab3:
     st.divider()
+    # st.dataframe(df_table)
 
     
     

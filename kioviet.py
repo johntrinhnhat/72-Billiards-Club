@@ -9,6 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import base64
 
+
 # Load environment variables from .env file
 from dotenv import load_dotenv
 load_dotenv()
@@ -36,8 +37,7 @@ invoices_params = {
 response = requests.get(invoices_url, headers=invoices_headers, params=invoices_params)
 response_data = response.json()
 data = response_data["Data"]
-invoices = []
-
+all_data = []
 # Process each item in the response data
 for item in data:
 
@@ -46,33 +46,37 @@ for item in data:
     purchase_date = purchase_date_match.group(1) if purchase_date_match else None
     purchase_hour = purchase_date_match.group(2) if purchase_date_match else None
 
+    entry_date_match =re.search(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', item.get("EntryDate", ""))
+    entry_hour = entry_date_match.group(2) if entry_date_match else None
     # Define data schema for each invoice
     data_schema = {
         'Id': item["Id"],
-        'BranchId': item["BranchId"],
+        'Table_Id': item.get("TableId", None),
         'Customer_Name': item["CustomerName"],
         'PurchaseDate': purchase_date,
+        'EntryHour': entry_hour,
         'PurchaseHour': purchase_hour,
         'Discount': item["Discount"],
         'Total_Payment': item["TotalPayment"],
         'Status': item["StatusValue"],
     }
     # Add invoice to list if BranchId is not 0
-    if data_schema["BranchId"] != 0:
-        invoices.append(data_schema)
+    if data_schema["Id"] != -1:
+        all_data.append(data_schema)
     
-# Print total number of invoices processed
-print(f"Total Invoices: {len(invoices)}")
-
+# Print total number of all_data processed
+print(f"Total invoices: {len(all_data)}")
 # Define CSV field names
-fieldnames=['Id', 'BranchId', 'Customer_Name', 'PurchaseDate', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
+all_data_fieldnames=['Id', 'Table_Id', 'Customer_Name', 'PurchaseDate', 'EntryHour', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
 
 # Write invoices data to a CSV file
 with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
-    writer = csv.DictWriter(kioviet_file, fieldnames=fieldnames)
+    writer = csv.DictWriter(kioviet_file, fieldnames=all_data_fieldnames)
     writer.writeheader()
 
-    writer.writerows(invoices)
+    writer.writerows(all_data)
+
+
 
 """"""""""""""""""" CUSTOMERS DATA """""""""""""""""""
 
@@ -150,6 +154,7 @@ df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0
 # Ensure consistent formatting: ###-###-####
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
 
+
 """
 INVOICES DATA PROCESS
 """
@@ -174,7 +179,7 @@ df = df[df['Status'] != 'Đã hủy']
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 # Extract features from `PurchaseDate`
 df['DayOfWeek'] = df['PurchaseDate'].dt.day_name()
-df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
+# df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 # df['Hour'] = df['PurchaseDate'].dt.hour
 # df['Year'] = df['PurchaseDate'].dt.year
 # df['Month'] = df['PurchaseDate'].dt.month
@@ -182,16 +187,41 @@ df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 # Assuming 'purchasehour' is in 'HH:MM' format
 # Convert it to a datetime object and then extract the hour
 
-# The columns want to keep
-columns_to_keep = ['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']
-column_to_keep = ['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']
+"""
+POOL_TALBE DATA PROCESS
+"""
+df_pool = df.copy()
+df_pool = df_pool.rename(columns={"Hour": "ExitHour"})
+# Convert EntryHour and ExitHour to datetime, assuming they are strings in the format "HH:MM"
+df_pool['EntryHour'] = pd.to_datetime(df_pool['EntryHour'], format='%H:%M').dt.time
+df_pool['ExitHour'] = pd.to_datetime(df_pool['ExitHour'], format='%H:%M').dt.time
+
+# Function to calculate the duration in minutes
+def calculate_duration(entry, exit):
+    # Convert time objects back to strings
+    entry_str = entry.strftime('%H:%M')
+    exit_str = exit.strftime('%H:%M')
+    # Parse strings to datetime objects
+    entry_time = datetime.strptime(entry_str, '%H:%M')
+    exit_time = datetime.strptime(exit_str, '%H:%M')
+    # Calculate duration
+    duration = (exit_time - entry_time).total_seconds() / 60
+    # If duration is negative, assume ExitHour is on the next day and add 24 hours worth of minutes
+    return duration if duration >= 0 else duration + 24*60
+
+# Apply the function to calculate duration
+df_pool['Duration(min)'] = df_pool.apply(lambda row: calculate_duration(row['EntryHour'], row['ExitHour']), axis=1)
+
+df_pool = df_pool.dropna(subset=['Table_Id'])
+df_pool = df_pool.sort_values(by='Table_Id', ascending=True)
 # Select only the desired columns
-df = df[columns_to_keep]
-df_customer = df_customer[column_to_keep]
+df = df[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']]
+df_customer = df_customer[['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']]
+df_pool = df_pool[['Table_Id', 'PurchaseDate', 'EntryHour', 'ExitHour', 'Duration(min)']]
+df_pool.to_csv('kioviet_pool.csv', index=False)
 print(df, df.dtypes)
 print(df_customer, df_customer.dtypes)
-# print(df.head(), df.shape)
-# print(df_customer.head(), df_customer.shape)
+print(df_pool, df_pool.dtypes)
 
 # Save DataFrame to CSV file
 df.to_csv('kioviet.csv', index=False)
