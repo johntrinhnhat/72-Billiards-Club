@@ -33,7 +33,7 @@ print(df['Hour'].dtype)
 
 df_customer = load_customer_data()
 df_table = load_table_data()
-df_table['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
+df_table['Date'] = pd.to_datetime(df['Date']).dt.date
 df_table['EntryHour'] = pd.to_datetime(df_table['EntryHour'], format='mixed').dt.time
 df_table['ExitHour'] = pd.to_datetime(df_table['ExitHour'], format='mixed').dt.time
 
