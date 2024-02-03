@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -33,7 +33,7 @@ print(df['Hour'].dtype)
 
 df_customer = load_customer_data()
 df_table = load_table_data()
-print(df_table.dtypes)
+print(df_table)
 # CSS styling
 st.markdown("""
 <style>
@@ -55,7 +55,7 @@ with st.sidebar:
     # st.title("🎱 DASHBOARD")
 
     df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-    # df['Hour'] = df['PurchaseDate'].dt.hour
+    df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
     # Ensure there are no NaT values and find the minimum and maximum dates
     valid_dates = df['PurchaseDate'].dropna()
     min_date = valid_dates.min()
@@ -293,7 +293,7 @@ with tab2:
 
 with tab3:
     st.divider()
-    # st.dataframe(df_table)
+    st.dataframe(df_table)
 
     
     
