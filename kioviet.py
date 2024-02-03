@@ -236,7 +236,7 @@ df_pool['Table_Id'] = df_pool['Table_Id'].replace(replacement_dict)
 df_pool = df_pool[df_pool['Table_Id'] != 1000071] 
 
 df_pool = df_pool.dropna(subset=['Table_Id'])
-df_pool = df_pool.sort_values(by='Table_Id', ascending=True)
+df_pool = df_pool.sort_values(by='PurchaseDate', ascending=False)
 # Select only the desired columns
 df = df[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']]
 df_customer = df_customer[['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']]
