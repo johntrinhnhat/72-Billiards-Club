@@ -208,22 +208,26 @@ with tab3:
         # table_plot(df_table)
     
     # Make a copy of the dataframe
-    df_copy = df_table.copy()
-    df_copy['Check_In'] = pd.to_datetime(df_copy['Check_In'], format='%H:%M:%S')
-    df_copy['Hour'] = df_copy['Check_In'].dt.hour
+    df_occupancy = df_table.copy()
+    df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
+    df_occupancy['Hour'] = df_occupancy['Check_In'].dt.hour
     # Assuming 'total_tables' is the total number of tables at the pool hall
     total_tables = 17
-
     # Group the data by 'Date' and 'Hour' and count the number of occupied tables
-    df_copy = df_copy.groupby(['Date', 'Hour']).size().reset_index(name='Occupied_Tables')
-
+    df_occupancy = df_occupancy.groupby(['Date', 'Hour']).size().reset_index(name='Occupied_Tables')
     # Calculate the occupancy rate by dividing the occupied tables by the total number of tables
-    df_copy['Occupancy_Rate(%)'] = ((df_copy['Occupied_Tables'] / total_tables) * 100).round().astype(int)
-    df_copy = df_copy.sort_values(by=["Date"], ascending=False)
+    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Tables'] / total_tables) * 100).round().astype(int)
+    df_occupancy = df_occupancy.sort_values(by=["Date"], ascending=False)
+
     st.title('Occupancy Rate')
-    st.dataframe(df_copy, width=650)
-    # The result is a DataFrame with the occupancy rate for each hour and date
-    print(df_copy, df_copy.dtypes)
+    left_column, right_column = st.columns([3,2])
+    with left_column:
+        st.dataframe(df_occupancy, width=650)
+        # The result is a DataFrame with the occupancy rate for each hour and date
+        print(df_occupancy, df_occupancy.dtypes)
+    with right_column: 
+        desc_stats = df_occupancy['Rate (%)'].describe()
+        st.write(desc_stats)
                 
 
 
