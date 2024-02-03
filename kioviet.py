@@ -192,10 +192,10 @@ POOL_TALBE DATA PROCESS
 """
 df_pool = df.copy()
 print(f"df_pool: {df_pool}")
-df_pool = df_pool.rename(columns={"Hour": "ExitHour"})
-# Convert EntryHour and ExitHour to datetime, assuming they are strings in the format "HH:MM"
-df_pool['EntryHour'] = pd.to_datetime(df_pool['EntryHour'], format='%H:%M').dt.time
-df_pool['ExitHour'] = pd.to_datetime(df_pool['ExitHour'], format='%H:%M').dt.time
+df_pool = df_pool.rename(columns={"Hour": "Check_Out", "EntryHour": "Check_In", "PurchaseDate": "Date"})
+# Convert EntryHour and Check_Out to datetime, assuming they are strings in the format "HH:MM"
+df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M').dt.time
+df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='%H:%M').dt.time
 
 # Function to calculate the duration in minutes
 def calculate_duration(entry, exit):
@@ -211,7 +211,7 @@ def calculate_duration(entry, exit):
     return duration if duration >= 0 else duration + 24*60
 
 # Apply the function to calculate duration
-df_pool['Duration(min)'] = df_pool.apply(lambda row: calculate_duration(row['EntryHour'], row['ExitHour']), axis=1)
+df_pool['Duration(min)'] = df_pool.apply(lambda row: calculate_duration(row['Check_In'], row['Check_Out']), axis=1)
 df_pool = df_pool[~df_pool['Duration(min)'].isin([1437, 1438, 1439])]
 replacement_dict = {
     1000056: 1,
@@ -243,7 +243,7 @@ df_pool = df_pool.dropna(subset=['Table_Id'])
 # Select only the desired columns
 df = df[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']]
 df_customer = df_customer[['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']]
-df_pool = df_pool[['Table_Id', 'PurchaseDate', 'EntryHour', 'ExitHour', 'Duration(min)']]
+df_pool = df_pool[['Table_Id', 'Date', 'Check_In', 'Check_Out', 'Duration(min)']]
 
 # Print dataframes and their types
 print(df, df.dtypes)

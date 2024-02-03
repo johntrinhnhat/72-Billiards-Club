@@ -1,4 +1,5 @@
-Table_Id,PurchaseDate,EntryHour,ExitHour,Duration(min)
+Table_Id,Date,Check_In,Check_Out,Duration(min)
+5.0,2024-02-03,12:36:00,13:13:00,37.0
 2.0,2024-02-03,11:51:00,13:05:00,74.0
 6.0,2024-02-03,12:16:00,13:01:00,45.0
 3.0,2024-02-03,12:47:00,12:50:00,3.0
