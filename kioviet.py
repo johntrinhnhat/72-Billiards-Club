@@ -236,12 +236,15 @@ df_pool['Table_Id'] = df_pool['Table_Id'].replace(replacement_dict)
 df_pool = df_pool[df_pool['Table_Id'] != 1000071] 
 
 df_pool = df_pool.dropna(subset=['Table_Id'])
-df_pool = df_pool.sort_values(by='PurchaseDate', ascending=False)
+# df_pool = df_pool.sort_values(by=['PurchaseDate'], ascending=False)
+
+
 # Select only the desired columns
 df = df[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']]
 df_customer = df_customer[['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']]
 df_pool = df_pool[['Table_Id', 'PurchaseDate', 'EntryHour', 'ExitHour', 'Duration(min)']]
-df_pool.to_csv('kioviet_pool.csv', index=False)
+
+# Print dataframes and their types
 print(df, df.dtypes)
 print(df_customer, df_customer.dtypes)
 print(df_pool, df_pool.dtypes)
@@ -249,6 +252,7 @@ print(df_pool, df_pool.dtypes)
 # Save DataFrame to CSV file
 df.to_csv('kioviet.csv', index=False)
 df_customer.to_csv('kioviet_customer.csv', index=False)
+df_pool.to_csv('kioviet_pool.csv', index=False)
 
 
 """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""

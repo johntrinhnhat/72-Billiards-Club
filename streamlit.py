@@ -33,7 +33,7 @@ print(df['Hour'].dtype)
 
 df_customer = load_customer_data()
 df_table = load_table_data()
-print(df_table[df_table['Table_Id'] == 1000071])
+print(df_table)
 # CSS styling
 st.markdown("""
 <style>
