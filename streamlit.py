@@ -297,59 +297,75 @@ with tab2:
 
 with tab3:
     st.divider()
-    st.dataframe(df_table, width=650)
+    desc_stats = df_table['Duration(min)'].describe()
+    st.write(desc_stats)  # Display descriptive stats
     
+    st.dataframe(df_table, width=650)
     # Convert Check_In and Check_Out to minutes past midnight
     df_table['Check_In_Minutes'] = df_table['Check_In'].apply(lambda x: x.hour * 60 + x.minute)
     df_table['Check_Out_Minutes'] = df_table['Check_Out'].apply(lambda x: x.hour * 60 + x.minute)
 
-    if st.button('Show Plot', key='table'):
+    # if st.button('Show Plot', key='table'):
         # Descriptive statistics
-        desc_stats = df_table['Duration(min)'].describe()
-        st.write(desc_stats)  # Display descriptive stats
 
         # Histogram for Check-In times
-        plt.figure(figsize=(10, 4))
-        plt.hist(df_table['Check_In'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='skyblue', edgecolor='black')
-        plt.xlabel('Hour of the Day')
-        plt.ylabel('Frequency')
-        plt.title('Distribution of Check-In Times')
-        plt.xticks(range(0, 25))
-        st.pyplot(plt)
-        plt.clf()
+    # plt.figure(figsize=(10, 4))
+    # plt.hist(df_table['Check_In'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='skyblue', edgecolor='black')
+    # plt.xlabel('Hour of the Day')
+    # plt.ylabel('Frequency')
+    # plt.title('Distribution of Check-In Times')
+    # plt.xticks(range(0, 25))
+    # st.pyplot(plt)
+    # plt.clf()
 
-        # Histogram for Check-Out times
-        plt.figure(figsize=(10, 4))
-        plt.hist(df_table['Check_Out'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='salmon', edgecolor='black')
-        plt.xlabel('Hour of the Day')
-        plt.ylabel('Frequency')
-        plt.title('Distribution of Check-Out Times')
-        plt.xticks(range(0, 25))
-        st.pyplot(plt)
-        plt.clf()
+    # Histogram for Check-Out times
+    # plt.figure(figsize=(10, 4))
+    # plt.hist(df_table['Check_Out'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='salmon', edgecolor='black')
+    # plt.xlabel('Hour of the Day')
+    # plt.ylabel('Frequency')
+    # plt.title('Distribution of Check-Out Times')
+    # plt.xticks(range(0, 25))
+    # st.pyplot(plt)
+    # plt.clf()
 
-        # Boxplot for Duration times
-        plt.figure(figsize=(10, 4))
-        plt.boxplot(df_table['Duration(min)'], vert=False, patch_artist=True, meanline=True, showmeans=True)
-        plt.xlabel('Duration (min)')
-        plt.title('Boxplot of Duration Times')
-        st.pyplot(plt)
-        plt.clf()
+    # Boxplot for Duration times
+    # plt.figure(figsize=(10, 4))
+    # plt.boxplot(df_table['Duration(min)'], vert=False, patch_artist=True, meanline=True, showmeans=True)
+    # plt.xlabel('Duration (min)')
+    # plt.title('Boxplot of Duration Times')
+    # st.pyplot(plt)
+    # plt.clf()
 
-        # Scatter plot for Check-In and Check-Out Patterns
-        plt.figure(figsize=(12, 6))
-        plt.scatter(df_table.index, df_table['Check_In_Minutes'], alpha=0.6, label='Check-In', color='blue')
-        plt.scatter(df_table.index, df_table['Check_Out_Minutes'], alpha=0.6, label='Check-Out', color='red')
-        plt.xlabel('Index')
-        plt.ylabel('Minutes past midnight')
-        plt.title('Check-In and Check-Out Patterns')
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
-        plt.clf()
+    # Scatter plot for Check-In and Check-Out Patterns
+    # plt.figure(figsize=(12, 6))
+    # plt.scatter(df_table.index, df_table['Check_In_Minutes'], alpha=0.6, label='Check-In', color='blue')
+    # plt.scatter(df_table.index, df_table['Check_Out_Minutes'], alpha=0.6, label='Check-Out', color='red')
+    # plt.xlabel('Index')
+    # plt.ylabel('Minutes past midnight')
+    # plt.title('Check-In and Check-Out Patterns')
+    # plt.legend()
+    # plt.grid(True)
+    # st.pyplot(plt)
+    # plt.clf()
 
-            
+    # Convert the 'Check_In' and 'Check_Out' columns to datetime
+    df_table['Check_In'] = pd.to_datetime(df_table['Check_In'])
+    df_table['Check_Out'] = pd.to_datetime(df_table['Check_Out'])
+    # Define the total number of tables
+    total_tables = 17
 
+    # Create a new dataframe to store the occupancy rate per hour
+    df_occupancy_rate = pd.DataFrame(columns=['Hour', 'Occupancy_Rate'])
+
+    # Calculate the occupancy rate for each hour
+    for hour in range(24):
+    # For each hour, count the number of tables that are occupied
+    occupied_tables = df_table.apply(lambda x: x['Check_In'].hour <= hour < x['Check_Out'].hour, axis=1).sum()
+    # Calculate the occupancy rate
+    occupancy_rate = (occupied_tables / total_tables) * 100
+    # Append the hour and occupancy rate to the new dataframe
+    df_occupancy_rate = df_occupancy_rate.append({'Hour': hour, 'Occupancy_Rate': occupancy_rate}, ignore_index=True)
+    
                 
 
 
