@@ -1,4 +1,12 @@
 Customer_Name,PurchaseDate,Hour,DayOfWeek,Discount,Sales,Status
+QUỐC ANH,2024-02-04,01:55,Sunday,22957.0,436178.0,Done
+nhân,2024-02-04,01:50,Sunday,17025.0,323475.0,Done
+phi hùng,2024-02-04,01:46,Sunday,0.0,152170.0,Done
+Thành,2024-02-04,01:46,Sunday,0.0,306670.0,Done
+khách lẻ,2024-02-04,01:31,Sunday,0.0,337195.0,Done
+thế anh,2024-02-04,01:22,Sunday,8475.0,161025.0,Done
+khách lẻ,2024-02-04,01:20,Sunday,0.0,325865.0,Done
+Chị Thư,2024-02-04,01:19,Sunday,47161.0,188644.0,Done
 khách lẻ,2024-02-04,00:51,Sunday,0.0,125000.0,Done
 khách lẻ,2024-02-04,00:48,Sunday,0.0,197515.0,Done
 hiếu,2024-02-04,00:37,Sunday,5543.0,105322.0,Done

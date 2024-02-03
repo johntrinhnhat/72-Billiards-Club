@@ -297,10 +297,22 @@ with tab2:
 
 with tab3:
     st.divider()
-    desc_stats = df_table['Duration(min)'].describe()
-    st.write(desc_stats)  # Display descriptive stats
+    left_column, right_column = st.columns(2)
+    with left_column:
+        st.metric(label="Total Table", value=17)
+    with right_column:
+        st.metric(label="Metrics", value=None)
+        desc_stats = df_table['Duration(min)'].describe()
+        st.write(desc_stats)  # Display descriptive stats
     
-    st.dataframe(df_table, width=650)
+    def highlight_PS5(val):
+        color = 'grey' if val == 16 or val == 17 else ''
+        return f'background-color: {color}'
+    
+    df_table['Duration(min)'] = df_table['Duration(min)'].astype(int)
+    df_table['Table_Id'] = df_table['Table_Id'].astype(int)
+    df_table_style = df_table.style.map(highlight_PS5, subset=['Table_Id'])
+    st.dataframe(df_table_style, width=650)
     # Convert Check_In and Check_Out to minutes past midnight
     df_table['Check_In_Minutes'] = df_table['Check_In'].apply(lambda x: x.hour * 60 + x.minute)
     df_table['Check_Out_Minutes'] = df_table['Check_Out'].apply(lambda x: x.hour * 60 + x.minute)
@@ -347,25 +359,23 @@ with tab3:
     # plt.grid(True)
     # st.pyplot(plt)
     # plt.clf()
-
-    # Convert the 'Check_In' and 'Check_Out' columns to datetime
-    df_table['Check_In'] = pd.to_datetime(df_table['Check_In'])
-    df_table['Check_Out'] = pd.to_datetime(df_table['Check_Out'])
-    # Define the total number of tables
+    # Make a copy of the dataframe
+    df_copy = df_table.copy()
+    df_copy['Check_In'] = pd.to_datetime(df_copy['Check_In'], format='%H:%M:%S')
+    df_copy['Hour'] = df_copy['Check_In'].dt.hour
+    # Assuming 'total_tables' is the total number of tables at the pool hall
     total_tables = 17
 
-    # Create a new dataframe to store the occupancy rate per hour
-    df_occupancy_rate = pd.DataFrame(columns=['Hour', 'Occupancy_Rate'])
+    # Group the data by 'Date' and 'Hour' and count the number of occupied tables
+    df_copy = df_copy.groupby(['Date', 'Hour']).size().reset_index(name='Occupied_Tables')
 
-    # Calculate the occupancy rate for each hour
-    for hour in range(24):
-    # For each hour, count the number of tables that are occupied
-    occupied_tables = df_table.apply(lambda x: x['Check_In'].hour <= hour < x['Check_Out'].hour, axis=1).sum()
-    # Calculate the occupancy rate
-    occupancy_rate = (occupied_tables / total_tables) * 100
-    # Append the hour and occupancy rate to the new dataframe
-    df_occupancy_rate = df_occupancy_rate.append({'Hour': hour, 'Occupancy_Rate': occupancy_rate}, ignore_index=True)
-    
+    # Calculate the occupancy rate by dividing the occupied tables by the total number of tables
+    df_copy['Occupancy_Rate(%)'] = ((df_copy['Occupied_Tables'] / total_tables) * 100).round().astype(int)
+    df_copy = df_copy.sort_values(by=["Date"], ascending=False)
+    st.title('Occupancy Rate')
+    st.dataframe(df_copy, width=650)
+    # The result is a DataFrame with the occupancy rate for each hour and date
+    print(df_copy, df_copy.dtypes)
                 
 
 
