@@ -1,12 +1,12 @@
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from plots.sale_plot import sale_plot
+from plots.table_plot import table_plot
 import streamlit as st
 import base64
-import matplotlib.pyplot as plt
 import plotly.express as px
-from plotly.subplots import make_subplots
-import plotly.graph_objs as go
+
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
@@ -28,14 +28,19 @@ def load_table_data():
     return pd.read_csv(github_csv_pool_url)
 
 df = load_data()
-print(df['Hour'].dtype)
+df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
+df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 
 df_customer = load_customer_data()
+
+
 df_table = load_table_data()
 df_table['Date'] = pd.to_datetime(df_table['Date']).dt.date
 df_table['Check_In'] = pd.to_datetime(df_table['Check_In'], format='%H:%M:%S').dt.time
 df_table['Check_Out'] = pd.to_datetime(df_table['Check_Out'], format='mixed').dt.time
+df_table['Duration(min)'] = df_table['Duration(min)'].astype(int)
+df_table['Table_Id'] = df_table['Table_Id'].astype(int)
 
 print(df_table.dtypes)
 # CSS styling
@@ -49,17 +54,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-
 ## Side Bar
 with st.sidebar:
-    # st.title("🎱 DASHBOARD")
-
-    df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-    df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
     # Ensure there are no NaT values and find the minimum and maximum dates
     valid_dates = df['PurchaseDate'].dropna()
     min_date = valid_dates.min()
@@ -86,11 +84,7 @@ with st.sidebar:
         default=df['DayOfWeek'].unique()
     )
 
-
     df_selection = df.query(
-        # "Year >= @year[0] & Year <= @year[1] & "
-        # "Month >= @month[0] & Month <= @month[1] & "
-        # "Day >= @day[0] & Day <= @day[1] & "
         "Hour >= @hour[0] & Hour <= @hour[1] & "
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @date[0] & PurchaseDate <= @date[1]"
@@ -125,14 +119,10 @@ with tab1:
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
         st.metric(label="Total Sales", value=f"{total_sales:,} đ")
-        # delta=f"{delta_total_sales_percentage:+,.2f} %"
-
     with middle_column:
         st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
-        # delta=f"{delta_average_sale_per_transaction_percentage:+,.2f} %"
     with right_column:
         st.metric(label="Total Invoices", value=total_invoices)
-        # delta=f"{delta_total_invoices_percentage:+,.2f} %"
     st.divider()
 
     # Display Sale Dataframe
@@ -149,110 +139,8 @@ with tab1:
 
     #### Button Show Plots
     if st.button('Show Plots'):
-
-        ### Line Chart ( Peak Houly Sales Trend)
-        st.title('Sales Trend')
-
-         # Ensure 'Hour' and 'DayOfWeek' are in the correct format
-        df_selection['Hour'] = df_selection['Hour'].astype(int)
-        days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
-
-        # Aggregate sales by hour, day of the week, and purchase date
-        hourly_sales = df_selection.groupby('Hour')['Sales'].max().reset_index()
-        dayofweek_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
-        df_selection['PurchaseDate'] = pd.to_datetime(df_selection['PurchaseDate'])
-        purchasedate_sales = df_selection.groupby(df_selection['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
-        purchasedate_sales = purchasedate_sales.sort_values('PurchaseDate')
-        # hour_sale = df_selection[['Hour','Sales']]
-
-        # Create a subplot figure
-        fig = make_subplots(rows=3, cols=1, subplot_titles=("Peak Hourly Sales Trend", "Sales Trend by Day of the Week", "Sales Trend by Purchase Date"))
-
-        # Add Hourly Sales trace
-        fig.add_trace(
-            go.Scatter(x=hourly_sales['Hour'], y=hourly_sales['Sales'], name="Hourly Sales", marker_color='#FFA500'),
-            row=1, col=1,
-        )
-
-        # Add Day of Week Sales trace
-        fig.add_trace(
-            go.Scatter(x=dayofweek_sales['DayOfWeek'], y=dayofweek_sales['Sales'], name="Day of Week Sales", marker_color='#ED64A6'),
-            row=2, col=1,
-        )
-
-        # Add Purchase Date Sales trace
-        fig.add_trace(
-            go.Scatter(x=purchasedate_sales['PurchaseDate'], y=purchasedate_sales['Sales'], name="Purchase Date Sales", marker_color='#00BFFF'),
-            row=3, col=1,
-        )
-
-        # Update x-axis titles and y-axis titles
-        fig.update_xaxes(title_text="Hour", row=1, col=1)
-        fig.update_xaxes(title_text="Day of Week", row=2, col=1)
-        fig.update_xaxes(title_text="Purchase Date", row=3, col=1)
-
-        fig.update_yaxes(title_text="Sales", row=1, col=1)
-        fig.update_yaxes(title_text="Sales", row=2, col=1)
-        fig.update_yaxes(title_text="Sales", row=3, col=1)
-
-        # Update layout
-        fig.update_layout(height=900, showlegend=False)
-
-        # Display the figure in Streamlit
-        st.plotly_chart(fig)
-
-        ### Line Chart (Purchasing Pattern)
-        st.title("Purchasing Behavior of 'khách lẻ'")
-        # Filter transactions for 'khách lẻ'
-        df_guest = df_selection[df_selection['Customer_Name'] == 'khách lẻ'].copy()
-        # print(df_guest)
-
-        # Aggregate sales by purchase date, day of the week and hour
-        df_guest['DayOfWeek'] = pd.Categorical(df_guest['DayOfWeek'], categories=days_order, ordered=True)
-        hourly_sales_guest = df_guest.groupby('Hour')['Sales'].sum().reset_index()
-        dayofweek_sales_guest = df_guest.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
-        purchasedate_sales_guest = df_guest.groupby(df_guest['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
-
-        # Create a subplot figure
-        fig = make_subplots(rows=3, cols=1, subplot_titles=("Purchasing Behavior by Purchase Date", "Purchasing Behavior by Day of the Week", "Purchasing Behavior by Hour"))
-
-        # Add Purchase Date Sales trace
-        fig.add_trace(
-            go.Scatter(x=purchasedate_sales_guest['PurchaseDate'], y=purchasedate_sales_guest['Sales'], name="Purchase Date Sales", marker_color='#00BFFF'),
-            row=1, col=1,
-        )
-
-        # Add Day of Week Sales trace
-        fig.add_trace(
-            go.Scatter(x=dayofweek_sales_guest['DayOfWeek'], y=dayofweek_sales_guest['Sales'], name="Day of Week Sales", marker_color='#ED64A6'),
-            row=2, col=1,
-        )
-
-        # Add Hourly Sales trace
-        fig.add_trace(
-            go.Scatter(x=hourly_sales_guest['Hour'], y=hourly_sales_guest['Sales'], name="Hourly Sales", marker_color='#FFA500'),
-            row=3, col=1,
-        )
-
-        # Update x-axis titles
-        fig.update_xaxes(title_text="Purchase Date", row=1, col=1)
-        fig.update_xaxes(title_text="Day of the Week", row=2, col=1)
-        fig.update_xaxes(title_text="Hour", row=3, col=1)
-
-        # Update y-axis titles
-        fig.update_yaxes(title_text="Sales", row=1, col=1)
-        fig.update_yaxes(title_text="Sales", row=2, col=1)
-        fig.update_yaxes(title_text="Sales", row=3, col=1)
-
-        # Update layout
-        fig.update_layout(height=900, showlegend=False)
-
-        # Display the figure in Streamlit
-        st.plotly_chart(fig)
+        sale_plot(df_selection)
         
-
-
 with tab2:
     total_customer = len(df_customer)
     st.markdown("---")
@@ -262,8 +150,8 @@ with tab2:
     with right_column:
         st.metric(label="Top Membership", value=None)
         df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
-        df_customer_sorted = df_customer_sorted[['Name', 'Total_Revenue']]
         df_customer_sorted['Total_Revenue'] = df_customer_sorted['Total_Revenue'].apply(lambda x: f"{x:,}")
+        df_customer_sorted = df_customer_sorted[['Name', 'Total_Revenue']]
         # print(df_customer_sorted)
         st.dataframe(df_customer_sorted,
             column_order=("Name", "Total_Revenue"),
@@ -303,14 +191,12 @@ with tab3:
     with right_column:
         st.metric(label="Metrics", value=None)
         desc_stats = df_table['Duration(min)'].describe()
-        st.write(desc_stats)  # Display descriptive stats
+        st.write(desc_stats)
     
     def highlight_PS5(val):
         color = 'grey' if val == 16 or val == 17 else ''
         return f'background-color: {color}'
     
-    df_table['Duration(min)'] = df_table['Duration(min)'].astype(int)
-    df_table['Table_Id'] = df_table['Table_Id'].astype(int)
     df_table_style = df_table.style.map(highlight_PS5, subset=['Table_Id'])
     st.dataframe(df_table_style, width=650)
     # Convert Check_In and Check_Out to minutes past midnight
@@ -319,46 +205,8 @@ with tab3:
 
     # if st.button('Show Plot', key='table'):
         # Descriptive statistics
-
-        # Histogram for Check-In times
-    # plt.figure(figsize=(10, 4))
-    # plt.hist(df_table['Check_In'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='skyblue', edgecolor='black')
-    # plt.xlabel('Hour of the Day')
-    # plt.ylabel('Frequency')
-    # plt.title('Distribution of Check-In Times')
-    # plt.xticks(range(0, 25))
-    # st.pyplot(plt)
-    # plt.clf()
-
-    # Histogram for Check-Out times
-    # plt.figure(figsize=(10, 4))
-    # plt.hist(df_table['Check_Out'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='salmon', edgecolor='black')
-    # plt.xlabel('Hour of the Day')
-    # plt.ylabel('Frequency')
-    # plt.title('Distribution of Check-Out Times')
-    # plt.xticks(range(0, 25))
-    # st.pyplot(plt)
-    # plt.clf()
-
-    # Boxplot for Duration times
-    # plt.figure(figsize=(10, 4))
-    # plt.boxplot(df_table['Duration(min)'], vert=False, patch_artist=True, meanline=True, showmeans=True)
-    # plt.xlabel('Duration (min)')
-    # plt.title('Boxplot of Duration Times')
-    # st.pyplot(plt)
-    # plt.clf()
-
-    # Scatter plot for Check-In and Check-Out Patterns
-    # plt.figure(figsize=(12, 6))
-    # plt.scatter(df_table.index, df_table['Check_In_Minutes'], alpha=0.6, label='Check-In', color='blue')
-    # plt.scatter(df_table.index, df_table['Check_Out_Minutes'], alpha=0.6, label='Check-Out', color='red')
-    # plt.xlabel('Index')
-    # plt.ylabel('Minutes past midnight')
-    # plt.title('Check-In and Check-Out Patterns')
-    # plt.legend()
-    # plt.grid(True)
-    # st.pyplot(plt)
-    # plt.clf()
+        # table_plot(df_table)
+    
     # Make a copy of the dataframe
     df_copy = df_table.copy()
     df_copy['Check_In'] = pd.to_datetime(df_copy['Check_In'], format='%H:%M:%S')
