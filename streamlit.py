@@ -1,6 +1,8 @@
 from datetime import datetime
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from plots.sale_plot import sale_plot
 from plots.table_plot import table_plot
 import streamlit as st
@@ -228,8 +230,38 @@ with tab3:
     with right_column: 
         desc_stats = df_occupancy['Rate (%)'].describe()
         st.write(desc_stats)
-                
 
+
+    # if st.button('Show Plot', key='occupacy_rate'):
+    sns.set_theme(style="ticks")
+    # Pivot the table to get 'Hour' as columns and 'Date' as rows
+    occupancy_pivot = df_occupancy.pivot(index="Date", columns="Hour", values="Rate (%)")
+
+    # Plot the heatmap
+    fig, ax = plt.subplots(figsize=(20, 10))
+    # Set the color of the figure background
+    fig.patch.set_facecolor('grey')
+    # Set the color of the axes background
+    ax.set_facecolor('0E1117')
+    # Rotate the yticks with a 35-degree angle
+    plt.yticks(rotation=35)
+    # Create the heatmap with annotations in white color
+    sns.heatmap(occupancy_pivot, annot=True, annot_kws={"size": 6, "color": "white"}, fmt=".0f", cmap="Oranges", ax=ax)
+
+    # Set the title and labels with white color for visibility on a dark background
+    ax.set_title("Occupancy Rate Heatmap", color='white')
+    ax.set_xlabel("Hour", color='white')
+    ax.set_ylabel("Date", color='white')
+
+    # Change tick colors to white for visibility on a dark background
+    ax.tick_params(colors='white', axis='both')
+
+    # Hide the spines
+    for _, spine in ax.spines.items():
+        spine.set_visible(False)
+
+    # Show the plot in Streamlit
+    st.pyplot(fig)
 
         
 
