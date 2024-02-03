@@ -211,7 +211,7 @@ def calculate_duration(entry, exit):
 
 # Apply the function to calculate duration
 df_pool['Duration(min)'] = df_pool.apply(lambda row: calculate_duration(row['EntryHour'], row['ExitHour']), axis=1)
-
+df_pool = df_pool[~df_pool['Duration(min)'].isin([1437, 1438, 1439])]
 replacement_dict = {
     1010514: 16,
     1010515: 17,

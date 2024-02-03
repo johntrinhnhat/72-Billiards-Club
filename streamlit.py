@@ -33,9 +33,10 @@ print(df['Hour'].dtype)
 
 df_customer = load_customer_data()
 df_table = load_table_data()
-df_table['PurchaseDate'] = pd.to_datetime(df_table['PurchaseDate'], format='%Y-%m-%d')
-df_table['EntryHour'] = pd.to_datetime(df_table['EntryHour'], format='%H:%M:%S').dt.time
-df_table['ExitHour'] = pd.to_datetime(df_table['ExitHour'], format='%H:%M:%S').dt.time
+df_table['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
+df_table['EntryHour'] = pd.to_datetime(df_table['EntryHour'], format='mixed').dt.time
+df_table['ExitHour'] = pd.to_datetime(df_table['ExitHour'], format='mixed').dt.time
+
 print(df_table.dtypes)
 # CSS styling
 st.markdown("""
@@ -297,8 +298,10 @@ with tab2:
 with tab3:
     st.divider()
     st.dataframe(df_table, width=650)
-
-    
+    # Perform basic EDA
+    # Descriptive statistics
+    desc_stats = df_table['Duration(min)'].describe()
+    print(desc_stats)
     
 
 
