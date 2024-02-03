@@ -212,6 +212,29 @@ def calculate_duration(entry, exit):
 # Apply the function to calculate duration
 df_pool['Duration(min)'] = df_pool.apply(lambda row: calculate_duration(row['EntryHour'], row['ExitHour']), axis=1)
 
+replacement_dict = {
+    1010514: 16,
+    1010515: 17,
+    1000056: 1,
+    1000057: 2,
+    1000058: 3,
+    1000059: 4,
+    1000060: 5,
+    1000061: 6,
+    1000062: 7,
+    1000063: 8,
+    1000064: 9,
+    1000065:10,
+    1000066:11,
+    1000067:12,
+    1000068:13,
+    1000069:14,
+    1000070:15,
+    # Add more mappings as needed
+}
+df_pool['Table_Id'] = df_pool['Table_Id'].replace(replacement_dict)
+# df_pool['Duration(min)'] = df_pool[~df_pool['Duration(min)'].isin([1437, 1438, 1439])]
+
 df_pool = df_pool.dropna(subset=['Table_Id'])
 df_pool = df_pool.sort_values(by='Table_Id', ascending=True)
 # Select only the desired columns
