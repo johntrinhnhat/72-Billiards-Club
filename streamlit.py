@@ -28,11 +28,12 @@ def load_table_data():
     return pd.read_csv(github_csv_pool_url)
 
 df = load_data()
+print(df['Hour'].dtype)
 
 
 df_customer = load_customer_data()
-df_table = load_table_data
-print(df_table)
+df_table = load_table_data()
+print(df_table.dtypes)
 # CSS styling
 st.markdown("""
 <style>
