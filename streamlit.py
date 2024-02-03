@@ -34,7 +34,7 @@ print(df['Hour'].dtype)
 df_customer = load_customer_data()
 df_table = load_table_data()
 df_table['Date'] = pd.to_datetime(df_table['Date']).dt.date
-df_table['Check_In'] = pd.to_datetime(df_table['Check_In'], format='mixed').dt.time
+df_table['Check_In'] = pd.to_datetime(df_table['Check_In'], format='%H:%M:%S').dt.time
 df_table['Check_Out'] = pd.to_datetime(df_table['Check_Out'], format='mixed').dt.time
 
 print(df_table.dtypes)
@@ -300,9 +300,44 @@ with tab3:
     st.dataframe(df_table, width=650)
     # Perform basic EDA
     # Descriptive statistics
-    desc_stats = df_table['Duration(min)'].describe()
-    print(desc_stats)
-    
+    if st.button('Show Plot', key='table'):
+        st.title('Distribution')
+        desc_stats = df_table['Duration(min)'].describe()
+        print(desc_stats)
+        # Histogram for Check-In times
+        plt.figure(figsize=(10, 4))
+        plt.hist(df_table['Check_In'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='skyblue', edgecolor='black')
+        plt.xlabel('Hour of the Day')
+        plt.ylabel('Frequency')
+        plt.title('Distribution of Check-In Times')
+        plt.xticks(range(0, 25))
+        plt.grid(axis='y', alpha=0.75)
+        st.pyplot(plt)
+
+        # Histogram for Check-Out times
+        plt.figure(figsize=(10, 4))
+        plt.hist(df_table['Check_Out'].apply(lambda x: x.hour), bins=24, range=(0, 24), color='salmon', edgecolor='black')
+        plt.xlabel('Hour of the Day')
+        plt.ylabel('Frequency')
+        plt.title('Distribution of Check-Out Times')
+        plt.xticks(range(0, 25))
+        plt.grid(axis='y', alpha=0.75)
+        st.pyplot(plt)  # Show the histogram in Streamlit
+
+        # Histogram for Duration times
+        fig, ax = plt.subplots(figsize=(10, 4))
+        check_in_hours = [datetime.strptime(time, '%H:%M:%S').hour for time in df_table['Duration(min)'].astype(str)]
+        ax.hist(check_in_hours, bins=24, range=(0, 24), color='skyblue', edgecolor='black')
+        ax.set_xlabel('Hour of the Day')
+        ax.set_ylabel('Frequency')
+        ax.set_title('Distribution of Duration')
+        ax.set_xticks(range(0, 25))
+        ax.grid(axis='y', alpha=0.75)
+        st.pyplot(fig)
+
+       
+
+        
 
 
         
