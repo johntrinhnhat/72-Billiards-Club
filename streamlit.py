@@ -191,7 +191,7 @@ with tab3:
     with left_column:
         st.metric(label="Total Table", value=17)
     with right_column:
-        st.metric(label="Metrics", value=None)
+        st.metric(label="Metric", value=None)
         desc_stats = df_table['Duration(min)'].describe()
         st.write(desc_stats)
     
@@ -224,44 +224,46 @@ with tab3:
     st.title('Occupancy Rate')
     left_column, right_column = st.columns([3,2])
     with left_column:
-        st.dataframe(df_occupancy, width=650)
         # The result is a DataFrame with the occupancy rate for each hour and date
-        print(df_occupancy, df_occupancy.dtypes)
+        st.dataframe(df_occupancy, width=650)
+        # print(df_occupancy, df_occupancy.dtypes)
     with right_column: 
+        st.metric(label="Metric", value='')
         desc_stats = df_occupancy['Rate (%)'].describe()
         st.write(desc_stats)
 
 
-    # if st.button('Show Plot', key='occupacy_rate'):
-    sns.set_theme(style="ticks")
-    # Pivot the table to get 'Hour' as columns and 'Date' as rows
-    occupancy_pivot = df_occupancy.pivot(index="Date", columns="Hour", values="Rate (%)")
+    # Initialize the session state variable if it's not already set
+    if 'show_plot' not in st.session_state:
+        st.session_state.show_plot = False
 
-    # Plot the heatmap
-    fig, ax = plt.subplots(figsize=(20, 10))
-    # Set the color of the figure background
-    fig.patch.set_facecolor('grey')
-    # Set the color of the axes background
-    ax.set_facecolor('0E1117')
-    # Rotate the yticks with a 35-degree angle
-    plt.yticks(rotation=35)
-    # Create the heatmap with annotations in white color
-    sns.heatmap(occupancy_pivot, annot=True, annot_kws={"size": 6, "color": "white"}, fmt=".0f", cmap="Oranges", ax=ax)
+    # Define a button and its callback function to toggle the plot visibility
+    if st.button('Show/Hide Plot', key='occupacy_rate'):
+        # Toggle the boolean value
+        st.session_state.show_plot = not st.session_state.show_plot
 
-    # Set the title and labels with white color for visibility on a dark background
-    ax.set_title("Occupancy Rate Heatmap", color='white')
-    ax.set_xlabel("Hour", color='white')
-    ax.set_ylabel("Date", color='white')
+    # Check the state variable and display the plot accordingly
+    if st.session_state.show_plot:
+        sns.set_theme()
+        # Pivot the table to get 'Hour' as columns and 'Date' as rows
+        occupancy_pivot = df_occupancy.pivot(index="Date", columns="Hour", values="Rate (%)")
 
-    # Change tick colors to white for visibility on a dark background
-    ax.tick_params(colors='white', axis='both')
+        # Plot the heatmap
+        fig, ax = plt.subplots(figsize=(20, 10))
+        # Set the color of the figure background
+        fig.patch.set_facecolor('#FFFAF0')
+        # Set the color of the axes background
+        ax.set_facecolor('#FFFAF0')
+        # Rotate the yticks with a 35-degree angle
+        plt.yticks(rotation=35)
+        # Create the heatmap with annotations in white color
+        sns.heatmap(occupancy_pivot, annot=True, annot_kws={"size": 6, "color": "white"}, fmt=".0f", cmap="Oranges", ax=ax)
 
-    # Hide the spines
-    for _, spine in ax.spines.items():
-        spine.set_visible(False)
-
-    # Show the plot in Streamlit
-    st.pyplot(fig)
+        # Set the title and labels with white color for visibility on a dark background
+        ax.set_title("Occupancy Rate Heatmap")
+        ax.set_xlabel("Hour")
+        ax.set_ylabel("Date")
+        st.pyplot(fig)
 
         
 
