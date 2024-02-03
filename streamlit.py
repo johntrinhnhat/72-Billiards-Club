@@ -33,7 +33,10 @@ print(df['Hour'].dtype)
 
 df_customer = load_customer_data()
 df_table = load_table_data()
-print(df_table)
+df_table['PurchaseDate'] = pd.to_datetime(df_table['PurchaseDate'], format='%Y-%m-%d')
+df_table['EntryHour'] = pd.to_datetime(df_table['EntryHour'], format='%H:%M:%S').dt.time
+df_table['ExitHour'] = pd.to_datetime(df_table['ExitHour'], format='%H:%M:%S').dt.time
+print(df_table.dtypes)
 # CSS styling
 st.markdown("""
 <style>
