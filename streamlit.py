@@ -293,7 +293,7 @@ with tab2:
 
 with tab3:
     st.divider()
-    st.dataframe(df_table)
+    st.dataframe(df_table, width=650)
 
     
     
