@@ -73,13 +73,15 @@ print(f"Test Data Shape: {X_test.shape},{y_test.shape}")
 
 """"""""""""""""" RANDOM FOREST REGRESSOR """""""""""""""""
 # Defind the model
-rf_model = RandomForestRegressor()
+rf_model = RandomForestRegressor(n_estimators=100, min_samples_split=2, min_samples_leaf=1, max_depth=40, bootstrap=True)
+
+# Train the model
 rf_model.fit(X_train, y_train)
 
 # Make predictions on the test data
 y_pred_rf = rf_model.predict(X_test).astype(int)
 
-# Evaluate the rf_model
+# Evaluate the random forest regressor model
 rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))/1000
 mse_rf = mean_squared_error(y_test, y_pred_rf)/1000000
 mae_rf = mean_absolute_error(y_test, y_pred_rf)/1000
@@ -87,13 +89,63 @@ r2_rf = r2_score(y_test, y_pred_rf)
 rf_model_score = rf_model.score(X_test, y_test)
 
 # Print out the metrics
-print(f"{Fore.BLUE}\nRandom Forest Regressor Performance:")
-print(f"The Model score is: {rf_model_score}")
+print(f"{Fore.BLUE}\nRandom Forest Regressor Model Performance:")
+print(f"R^2 Score: {r2_rf}")
 print(f"RMSE: {rmse_rf:.2f}k đ")
 print(f"MSE: {mse_rf:.2f}M đ")
 print(f"MAE: {mae_rf:.2f}k đ")
-print(f"R^2 Score: {r2_rf}")
 print(f"{Fore.RED}\nSales Predict: {y_pred_rf}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
+# """
+# RandomizedSearchCV
+# """
 
+# # Define the parameter grid
+# param_grid = {
+#     'n_estimators': [100, 200, 300, 400, 500],
+#     'max_depth': [None, 10, 20, 30, 40, 50],
+#     'min_samples_split': [2, 5, 10],
+#     'min_samples_leaf': [1, 2, 4],
+#     'bootstrap': [True, False]
+# }
+
+# # Create a base model
+# rf = RandomForestRegressor(random_state=42)
+
+# # Instantiate the random search and fit it like a GridSearchCV
+# random_search = RandomizedSearchCV(estimator=rf, param_distributions=param_grid,
+#                                    n_iter=100, cv=3, verbose=2, random_state=42, n_jobs=-1)
+
+# # Assuming X_train and y_train are available from your dataset
+# random_search.fit(X_train, y_train)
+
+# # The best parameters from fitting the random search:
+# best_params = random_search.best_params_
+# print("Best parameters:", best_params)
+
+""""""""""""""""" LINEAR REGRESSION """""""""""""""""
+# Defind the model
+lr_model = LinearRegression()
+
+# Train the model
+lr_model.fit(X_train, y_train)
+
+# Make predictions on the test data
+y_pred_lr = lr_model.predict(X_test).astype(int)
+
+# Evaluate the linear regression model
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
+mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
+mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
+r2_lr = r2_score(y_test, y_pred_lr)
+lr_model_score = lr_model.score(X_test, y_test)
+
+# Print out the metrics
+print(f"{Fore.BLUE}\nLinear Regression Model Performance:")
+print(f"R^2 Score: {r2_lr}")
+print(f"RMSE: {rmse_lr:.2f}k đ")
+print(f"MSE: {mse_lr:.2f}M đ")
+print(f"MAE: {mae_lr:.2f}k đ")
+print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
+print(f"{Fore.YELLOW}Sales Actual: {y_test}")

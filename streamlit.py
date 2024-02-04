@@ -211,6 +211,7 @@ with tab3:
     
     # Make a copy of the dataframe
     df_occupancy = df_table.copy()
+    print(df_occupancy)
     df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
     df_occupancy['Hour'] = df_occupancy['Check_In'].dt.hour
     # Assuming 'total_tables' is the total number of tables at the pool hall
