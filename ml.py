@@ -28,6 +28,7 @@ df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 df['Year'] = df['PurchaseDate'].dt.year 
 df['Month'] = df['PurchaseDate'].dt.month
 df['Day'] = df['PurchaseDate'].dt.day
+df['Hour'] = df['PurchaseDate'].dt.hour
 
 
 vn_holidays = holidays.VN()

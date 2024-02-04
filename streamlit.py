@@ -18,14 +18,14 @@ st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
                 layout="wide")
 
-# @st.cache_data
 # Load data
+@st.cache_data
 def load_data():
     return pd.read_csv(github_csv_url)
-
+@st.cache_data
 def load_customer_data():
     return pd.read_csv(github_csv_customer_url)
-
+@st.cache_data
 def load_table_data():
     return pd.read_csv(github_csv_pool_url)
 
