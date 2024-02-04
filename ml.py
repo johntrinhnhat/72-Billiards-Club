@@ -41,9 +41,9 @@ def get_table_rate(hour):
         return 85000
     elif 9 <= hour <= 12:
         return 55000
-    elif 13 <= hour <= 18:
+    elif 13 <= hour <= 17:
         return 75000
-    elif hour == 0 or (18 <= hour <= 23):
+    elif hour == 0 or 18 <= hour <= 23:
         return 95000
     else:
         # If the hour doesn't fall into any of the specified ranges,
@@ -68,7 +68,7 @@ df['DayOfWeek'] = df['DayOfWeek'].apply(lambda x: day_mapping[x])
 
 # Define final dataframe
 df = df[['Year', 'Month', 'Day', 'Hour', 'DayOfWeek', 'Table_Rate', 'Is_Holiday', 'Discount', 'Sales']]
-print(df.dtypes)
+print(df, df.dtypes)
 
 X = df.drop(['Sales'], axis=1)
 y = df['Sales']
@@ -80,7 +80,7 @@ X = X.to_numpy()
 y = y.to_numpy()
 
 # Split data into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 print(f"Train Data Shape: {X_train.shape},{y_train.shape}")
 print(f"Test Data Shape: {X_test.shape},{y_test.shape}")
 
