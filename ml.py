@@ -157,7 +157,7 @@ y_pred_lr = lr_model.predict(X_test).astype(int)
 
 # Evaluate the linear regression model
 rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
-mse_lr = mean_squared_error(y_test, y_pred_lr)/1000
+mse_lr = mean_squared_error(y_test, y_pred_lr)
 mae_lr = mean_absolute_error(y_test, y_pred_lr)
 r2_lr = r2_score(y_test, y_pred_lr)
 lr_model_score = lr_model.score(X_test, y_test)
