@@ -218,10 +218,10 @@ with tab3:
     total_tables = 17
 
     # Group the data by 'Date' and count the number of occupied tables
-    df_occupancy = df_occupancy.groupby(['Date']).size().reset_index(name='Occupied_Table')
+    df_occupancy = df_occupancy.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
 
     # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
-    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table'] / (total_tables * 22)) * 100).round().astype(int)
+    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 22)) * 100).round().astype(int)
 
     # Sort by date in descending order
     df_occupancy = df_occupancy.sort_values(by=["Date"], ascending=False)
