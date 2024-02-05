@@ -201,8 +201,8 @@ with tab3:
         st.write(desc_stats)
     
     def highlight_PS5(val):
-        color = 'grey' if val == 16 or val == 17 else ''
-        return f'background-color: {color}'
+        color = '#FFA7FD' if val == 16 or val == 17 else ''
+        return f'color: {color}'
     
     df_table_style = df_table.style.map(highlight_PS5, subset=['Table_Id'])
     st.dataframe(df_table_style, width=650)
@@ -227,7 +227,7 @@ with tab3:
     df_occupancy = df_occupancy.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
 
     # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
-    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 22)) * 100).round().astype(int)
+    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 18)) * 100).round().astype(int)
 
     # Sort by date in descending order
     df_occupancy = df_occupancy.sort_values(by=["Date"], ascending=False)
