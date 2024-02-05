@@ -72,7 +72,7 @@ df_copy['Day'] = df_copy['PurchaseDate'].dt.day
 
 # Define final Ddataframe
 df_copy = df_copy[['Year', 'Month', 'Day', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
-df_pool = df_pool[['Year', 'Month', 'Day', 'Rate(%)']]
+df_pool = df_pool[['Year', 'Month', 'Day', 'Occupied_Rate(%)']]
 df_merged = pd.merge(df_copy, df_pool, on=['Year', 'Month', 'Day'])
 df_merged = df_merged[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
 
@@ -170,3 +170,13 @@ print(f"MSE: {mse_lr:.2f}")
 print(f"MAE: {mae_lr:.2f}")
 print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+
+# Visualization
+plt.figure(figsize=(10, 6))
+plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
+plt.scatter(range(len(y_pred_lr)), y_pred_lr, color='yellow', label='Predicted Sales', alpha=0.5)
+plt.title('Linear Regression Model: Actual vs Predicted Sales')
+plt.xlabel('Data Point Index')
+plt.ylabel('Sales')
+plt.legend()
+plt.show()
