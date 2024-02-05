@@ -191,7 +191,7 @@ with tab3:
     with left_column:
         st.metric(label="Total Table", value=17)
     with right_column:
-        st.metric(label="Metric", value=None)
+        st.metric(label="Metric", value="")
         desc_stats = df_table['Duration(min)'].describe()
         st.write(desc_stats)
     
@@ -211,60 +211,70 @@ with tab3:
     
     # Make a copy of the dataframe
     df_occupancy = df_table.copy()
-    print(df_occupancy)
     df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
     df_occupancy['Hour'] = df_occupancy['Check_In'].dt.hour
+    
     # Assuming 'total_tables' is the total number of tables at the pool hall
     total_tables = 17
-    # Group the data by 'Date' and 'Hour' and count the number of occupied tables
-    df_occupancy = df_occupancy.groupby(['Date', 'Hour']).size().reset_index(name='Occupied_Tables')
-    # Calculate the occupancy rate by dividing the occupied tables by the total number of tables
-    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Tables'] / total_tables) * 100).round().astype(int)
+
+    # Group the data by 'Date' and count the number of occupied tables
+    df_occupancy = df_occupancy.groupby(['Date']).size().reset_index(name='Occupied_Table')
+
+    # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
+    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table'] / (total_tables * 22)) * 100).round().astype(int)
+
+    # Sort by date in descending order
     df_occupancy = df_occupancy.sort_values(by=["Date"], ascending=False)
+
+    # Print the resulting dataframe and datatypes
+    print(df_occupancy)
+    print(df_occupancy.dtypes)
+
 
     st.title('Occupancy Rate')
     left_column, right_column = st.columns([3,2])
     with left_column:
-        # The result is a DataFrame with the occupancy rate for each hour and date
+        # The result is a DataFrame with the occupancy rate for each day
         st.dataframe(df_occupancy, width=650)
-        # print(df_occupancy, df_occupancy.dtypes)
     with right_column: 
-        st.metric(label="Metric", value='')
+        # Display a metric, for example the average occupancy rate
+        st.metric(label="Metric", value="")
+        # Display descriptive statistics for the occupancy rate
         desc_stats = df_occupancy['Rate (%)'].describe()
         st.write(desc_stats)
 
 
-    # Initialize the session state variable if it's not already set
-    if 'show_plot' not in st.session_state:
-        st.session_state.show_plot = False
+    # # Initialize the session state variable if it's not already set
+    # if 'show_plot' not in st.session_state:
+    #     st.session_state.show_plot = False
 
-    # Define a button and its callback function to toggle the plot visibility
-    if st.button('Show/Hide Plot', key='occupacy_rate'):
-        # Toggle the boolean value
-        st.session_state.show_plot = not st.session_state.show_plot
+    # # Define a button and its callback function to toggle the plot visibility
+    # if st.button('Show/Hide Plot', key='occupacy_rate'):
+    #     # Toggle the boolean value
+    #     st.session_state.show_plot = not st.session_state.show_plot
 
-    # Check the state variable and display the plot accordingly
-    if st.session_state.show_plot:
-        sns.set_theme()
-        # Pivot the table to get 'Hour' as columns and 'Date' as rows
-        occupancy_pivot = df_occupancy.pivot(index="Date", columns="Hour", values="Rate (%)")
+    # # Check the state variable and display the plot accordingly
+    # if st.session_state.show_plot:
+    #     sns.set_theme()
+    #     # Pivot the table to get 'Hour' as columns and 'Date' as rows
+    #     occupancy_pivot = df_occupancy.pivot(index="Date", columns="Hour", values="Rate (%)")
 
-        # Plot the heatmap
-        fig, ax = plt.subplots(figsize=(20, 10))
-        # Set the color of the figure background
-        fig.patch.set_facecolor('#FFFAF0')
-        # Set the color of the axes background
-        ax.set_facecolor('#FFFAF0')
-        # Rotate the yticks with a 35-degree angle
-        plt.yticks(rotation=35)
-        # Create the heatmap with annotations in white color
-        sns.heatmap(occupancy_pivot, annot=True, annot_kws={"size": 6, "color": "white"}, fmt=".0f", cmap="Oranges", ax=ax)
+    #     # Plot the heatmap
+    #     fig, ax = plt.subplots(figsize=(20, 10))
+    #     # Set the color of the figure background
+    #     fig.patch.set_facecolor('#FFFAF0')
+    #     # Set the color of the axes background
+    #     ax.set_facecolor('#FFFAF0')
+    #     # Rotate the yticks with a 35-degree angle
+    #     plt.yticks(rotation=35)
+    #     # Create the heatmap with annotations in white color
+    #     sns.heatmap(occupancy_pivot, annot=True, annot_kws={"size": 6, "color": "white"}, fmt=".0f", cmap="Oranges", ax=ax)
 
-        # Set the title and labels with white color for visibility on a dark background
-        ax.set_title("Occupancy Rate Heatmap")
-        ax.set_xlabel("Hour")
-        ax.set_ylabel("Date")
-        st.pyplot(fig)
+    #     # Set the title and labels with white color for visibility on a dark background
+    #     ax.set_title("Occupancy Rate Heatmap")
+    #     ax.set_xlabel("Hour")
+    #     ax.set_ylabel("Date")
+    #     st.pyplot(fig)
 
         
 
