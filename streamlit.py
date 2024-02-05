@@ -212,8 +212,8 @@ with tab3:
 # ----------------- OCCUPANCY RATE -----------------
 
     # Convert Check_In and Check_Out to minutes past midnight
-    df_table['Check_In_Minutes'] = df_table['Check_In'].apply(lambda x: x.hour * 60 + x.minute)
-    df_table['Check_Out_Minutes'] = df_table['Check_Out'].apply(lambda x: x.hour * 60 + x.minute)
+    # df_table['Check_In_Minutes'] = df_table['Check_In'].apply(lambda x: x.hour * 60 + x.minute)
+    # df_table['Check_Out_Minutes'] = df_table['Check_Out'].apply(lambda x: x.hour * 60 + x.minute)
     
     # Make a copy of the dataframe
     df_occupancy = df_table.copy()

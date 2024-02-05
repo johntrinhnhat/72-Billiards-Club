@@ -67,16 +67,16 @@ df_agg['Year'] = df_agg['PurchaseDate'].dt.year
 df_agg['Month'] = df_agg['PurchaseDate'].dt.month
 df_agg['Day'] = df_agg['PurchaseDate'].dt.day
 
+
 # Define final Ddataframe
 df_agg = df_agg[['Year', 'Month', 'Day', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
 df_pool = df_pool[['Year', 'Month', 'Day', 'Occupied_Rate(%)']]
 df_merged = pd.merge(df_agg, df_pool, on=['Year', 'Month', 'Day'])
 df_merged = df_merged[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
 
-df_merged['Discount_Member']
 
 # print(df, df.dtypes)
-print(df_merged[df_merged['Discount'] == 0])
+print(df_merged)
 
 X = df_merged.drop(['Sales'], axis=1)
 y = df_merged['Sales']
@@ -157,7 +157,7 @@ y_pred_lr = lr_model.predict(X_test).astype(int)
 
 # Evaluate the linear regression model
 rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
-mse_lr = mean_squared_error(y_test, y_pred_lr)
+mse_lr = mean_squared_error(y_test, y_pred_lr)/1000
 mae_lr = mean_absolute_error(y_test, y_pred_lr)
 r2_lr = r2_score(y_test, y_pred_lr)
 lr_model_score = lr_model.score(X_test, y_test)
