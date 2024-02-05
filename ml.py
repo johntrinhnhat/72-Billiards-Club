@@ -15,22 +15,24 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 
 # Load dataframe for machine learning project
+df = pd.read_csv('kioviet.csv')
 df_pool = pd.read_csv('kioviet_pool.csv')
+
+"""
+DATA PROCESS
+"""
 df_pool['Table_Id'] = df_pool['Table_Id'].astype(int)
 df_pool['Date'] = pd.to_datetime(df_pool['Date'])
-df_pool['Year'] = df_pool['Date'].dt.year 
-df_pool['Month'] = df_pool['Date'].dt.month
-df_pool['Day'] = df_pool['Date'].dt.day
-df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M:%S').dt.time
-df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='mixed').dt.time
+# df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M:%S').dt.time
+# df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='mixed').dt.time
 df_pool['Duration(min)'] = df_pool['Duration(min)'].astype(int)
 # Group the data by 'Date' and count the number of occupied tables
 df_pool = df_pool.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
 # Calculate the pool rate by dividing the occupied table hours by the total potential table hours in a day
-df_pool['Rate (%)'] = ((df_pool['Occupied_Table_Hours'] / (17 * 22)) * 100).round().astype(int)
-# Sort by date in descending order
-df_pool = df_pool.sort_values(by=["Date"], ascending=False)
-df = pd.read_csv('kioviet.csv')
+df_pool['Occupied_Rate(%)'] = ((df_pool['Occupied_Table_Hours'] / (17 * 22)) * 100).round().astype(int)
+df_pool['Year'] = df_pool['Date'].dt.year 
+df_pool['Month'] = df_pool['Date'].dt.month
+df_pool['Day'] = df_pool['Date'].dt.day
 # Drop unnecessary feature variable 
 df = df.drop(['Customer_Name'], axis=1)
 # # Extract features variables from 'PurchaseDate'
@@ -70,12 +72,15 @@ df_copy['Day'] = df_copy['PurchaseDate'].dt.day
 
 # Define final Ddataframe
 df_copy = df_copy[['Year', 'Month', 'Day', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
-df_pool = df_pool[['Year']]
-# print(df, df.dtypes)
-print(df_pool, df_copy, df_copy.dtypes)
+df_pool = df_pool[['Year', 'Month', 'Day', 'Rate(%)']]
+df_merged = pd.merge(df_copy, df_pool, on=['Year', 'Month', 'Day'])
+df_merged = df_merged[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
 
-X = df_copy.drop(['Sales'], axis=1)
-y = df_copy['Sales']
+# print(df, df.dtypes)
+print(df_merged)
+
+X = df_merged.drop(['Sales'], axis=1)
+y = df_merged['Sales']
 
 # Convert the pandas DataFrame and Series to NumPy arrays
 X = X.to_numpy()
@@ -151,17 +156,17 @@ lr_model.fit(X_train, y_train)
 y_pred_lr = lr_model.predict(X_test).astype(int)
 
 # Evaluate the linear regression model
-rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))/1000
-mse_lr = mean_squared_error(y_test, y_pred_lr)/1000000
-mae_lr = mean_absolute_error(y_test, y_pred_lr)/1000
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
+mse_lr = mean_squared_error(y_test, y_pred_lr)
+mae_lr = mean_absolute_error(y_test, y_pred_lr)
 r2_lr = r2_score(y_test, y_pred_lr)
 lr_model_score = lr_model.score(X_test, y_test)
 
 # Print out the metrics
 print(f"{Fore.BLUE}\nLinear Regression Model Performance:")
 print(f"R^2 Score: {r2_lr}")
-print(f"RMSE: {rmse_lr:.2f}k đ")
-print(f"MSE: {mse_lr:.2f}M đ")
-print(f"MAE: {mae_lr:.2f}k đ")
+print(f"RMSE: {rmse_lr:.2f}")
+print(f"MSE: {mse_lr:.2f}")
+print(f"MAE: {mae_lr:.2f}")
 print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
