@@ -73,8 +73,10 @@ df_pool = df_pool[['Year', 'Month', 'Day', 'Occupied_Rate(%)']]
 df_merged = pd.merge(df_agg, df_pool, on=['Year', 'Month', 'Day'])
 df_merged = df_merged[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
 
+df_merged['Discount_Member']
+
 # print(df, df.dtypes)
-print(df_merged)
+print(df_merged[df_merged['Discount'] == 0])
 
 X = df_merged.drop(['Sales'], axis=1)
 y = df_merged['Sales']
@@ -112,9 +114,10 @@ print(f"R^2 Score: {r2_rf}")
 print(f"RMSE: {rmse_rf:.2f}")
 print(f"MSE: {mse_rf:.2f}")
 print(f"MAE: {mae_rf:.2f}")
-print(f"{Fore.RED}\nSales Predict: {y_pred_rf}")
-print(f"{Fore.YELLOW}Sales Actual: {y_test}")
-
+# print(f"{Fore.RED}\nSales Predict: {y_pred_rf}")
+# print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+prediction_rf = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_rf})
+print(prediction_rf)
 # """
 # RandomizedSearchCV
 # """
@@ -142,7 +145,7 @@ print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 # best_params = random_search.best_params_
 # print("Best parameters:", best_params)
 
-""""""""""""""""" LINEAR REGRESSION """""""""""""""""
+""""""""""""""""" MULTIPLE LINEAR REGRESSION """""""""""""""""
 # Defind the model
 lr_model = LinearRegression()
 
@@ -160,15 +163,17 @@ r2_lr = r2_score(y_test, y_pred_lr)
 lr_model_score = lr_model.score(X_test, y_test)
 
 # Print out the metrics
-print(f"{Fore.BLUE}\nLinear Regression Model Performance:")
+print(f"{Fore.BLUE}\nMultiple Linear Regression Model Performance:")
 print(f"R^2 Score: {r2_lr}")
 print(f"RMSE: {rmse_lr:.2f}")
 print(f"MSE: {mse_lr:.2f}")
 print(f"MAE: {mae_lr:.2f}")
-print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
-print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+# print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
+# print(f"{Fore.YELLOW}Sales Actual: {y_test}")
+prediction_lr = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_lr})
+print(prediction_lr)
 
-# # Visualization
+# Visualization
 # plt.figure(figsize=(10, 6))
 # plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
 # plt.scatter(range(len(y_pred_lr)), y_pred_lr, color='yellow', label='Predicted Sales', alpha=0.5)
