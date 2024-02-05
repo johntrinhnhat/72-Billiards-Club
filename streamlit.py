@@ -1,8 +1,5 @@
 from datetime import datetime
 import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 from plots.sale_plot import sale_plot
 from plots.table_plot import table_plot
 import streamlit as st
@@ -13,12 +10,14 @@ import plotly.express as px
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
 github_csv_pool_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_pool.csv"
-# Streamlit Web App
+# ----------------- STREAMLIT APP -----------------
+
 st.set_page_config(page_title="72 Billiards Club",
                 page_icon="🎱",
                 layout="wide")
 
-# Load data
+# ----------------- LOAD DATA -----------------
+
 def load_data():
     return pd.read_csv(github_csv_url)
 def load_customer_data():
@@ -27,22 +26,23 @@ def load_table_data():
     return pd.read_csv(github_csv_pool_url)
 
 df = load_data()
+df_table = load_table_data()
+df_customer = load_customer_data()
+
+# ----------------- PROCESS DATA -----------------
+
+# SALE DATA
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
-
-df_customer = load_customer_data()
-
-
-df_table = load_table_data()
+# TABLE DATA
 df_table['Date'] = pd.to_datetime(df_table['Date']).dt.date
 df_table['Check_In'] = pd.to_datetime(df_table['Check_In'], format='%H:%M:%S').dt.time
 df_table['Check_Out'] = pd.to_datetime(df_table['Check_Out'], format='mixed').dt.time
 df_table['Duration(min)'] = df_table['Duration(min)'].astype(int)
 df_table['Table_Id'] = df_table['Table_Id'].astype(int)
 
-print(df_table.dtypes)
-# CSS styling
+# ----------------- CSS STYLE -----------------
 st.markdown("""
 <style>
 
@@ -55,7 +55,9 @@ st.markdown("""
 
 with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-## Side Bar
+
+# ----------------- SIDEBAR -----------------
+
 with st.sidebar:
     # Ensure there are no NaT values and find the minimum and maximum dates
     valid_dates = df['PurchaseDate'].dropna()
@@ -100,12 +102,16 @@ with st.sidebar:
     styled_df_selection = df_selection.style.format({"Sales": "{:,.0f} đ"}).map(highlight_sales, subset=['Sales'])
 
 
-## ---- MAIN PAGE ----
+# ----------------- MAIN PAGE -----------------
+    
+# LOGO
 st.image('./logo.png')
 st.markdown("##")
 
+# TAB
 tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
 
+# TAB_1
 with tab1:
     # TOP KPI's
     st.divider()
@@ -139,7 +145,8 @@ with tab1:
     #### Button Show Plots
     if st.button('Show Plots'):
         sale_plot(df_selection)
-        
+
+# TAB_2
 with tab2:
     total_customer = len(df_customer)
     st.markdown("---")
@@ -182,6 +189,7 @@ with tab2:
                     hover_data=['Membership', 'Count'], color='Count')
         st.plotly_chart(fig)
 
+# TAB_3
 with tab3:
     st.divider()
     left_column, right_column = st.columns(2)
@@ -198,13 +206,14 @@ with tab3:
     
     df_table_style = df_table.style.map(highlight_PS5, subset=['Table_Id'])
     st.dataframe(df_table_style, width=650)
+
+
+
+# ----------------- OCCUPANCY RATE -----------------
+
     # Convert Check_In and Check_Out to minutes past midnight
     df_table['Check_In_Minutes'] = df_table['Check_In'].apply(lambda x: x.hour * 60 + x.minute)
     df_table['Check_Out_Minutes'] = df_table['Check_Out'].apply(lambda x: x.hour * 60 + x.minute)
-
-    # if st.button('Show Plot', key='table'):
-        # Descriptive statistics
-        # table_plot(df_table)
     
     # Make a copy of the dataframe
     df_occupancy = df_table.copy()
@@ -224,9 +233,7 @@ with tab3:
     df_occupancy = df_occupancy.sort_values(by=["Date"], ascending=False)
 
     # Print the resulting dataframe and datatypes
-    print(df_occupancy)
-    print(df_occupancy.dtypes)
-
+    print(df_occupancy, df_occupancy.dtypes)
 
     st.title('Occupancy Rate')
     left_column, right_column = st.columns([3,2])

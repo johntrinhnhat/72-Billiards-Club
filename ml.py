@@ -18,62 +18,61 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 df = pd.read_csv('kioviet.csv')
 df_pool = pd.read_csv('kioviet_pool.csv')
 
-"""
-DATA PROCESS
-"""
-df_pool['Table_Id'] = df_pool['Table_Id'].astype(int)
-df_pool['Date'] = pd.to_datetime(df_pool['Date'])
-# df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M:%S').dt.time
-# df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='mixed').dt.time
-df_pool['Duration(min)'] = df_pool['Duration(min)'].astype(int)
-# Group the data by 'Date' and count the number of occupied tables
-df_pool = df_pool.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
-# Calculate the pool rate by dividing the occupied table hours by the total potential table hours in a day
-df_pool['Occupied_Rate(%)'] = ((df_pool['Occupied_Table_Hours'] / (17 * 22)) * 100).round().astype(int)
-df_pool['Year'] = df_pool['Date'].dt.year 
-df_pool['Month'] = df_pool['Date'].dt.month
-df_pool['Day'] = df_pool['Date'].dt.day
-# Drop unnecessary feature variable 
-df = df.drop(['Customer_Name'], axis=1)
-# # Extract features variables from 'PurchaseDate'
-df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
-# df['Year'] = df['PurchaseDate'].dt.year 
-# df['Month'] = df['PurchaseDate'].dt.month
-# df['Day'] = df['PurchaseDate'].dt.day
-df['Hour'] = df['PurchaseDate'].dt.hour
+""""""""""""""""" DATA PROCESS """""""""""""""""
+def sale_data_process():
+    # Drop unnecessary feature variable 
+    df = df.drop(['Customer_Name'], axis=1)
+    # Extract features variables from 'PurchaseDate'
+    df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
+    df['Year'] = df['PurchaseDate'].dt.year 
+    df['Month'] = df['PurchaseDate'].dt.month
+    df['Day'] = df['PurchaseDate'].dt.day
+    df['Hour'] = df['PurchaseDate'].dt.hour
+    # Aggrerate Dataframe
+    df = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
+                                            'Discount': 'sum', 
+                                            'DayOfWeek': 'first'}).reset_index()
 
-# Aggrerate Dataframe
-df_copy = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
-                                          'Discount': 'sum', 
-                                          'DayOfWeek': 'first'}).reset_index()
+    vn_holidays = holidays.VN()
+    df['Is_Holiday'] = df['PurchaseDate'].apply(lambda x: x in vn_holidays)
+    df['Is_Holiday'] = df['Is_Holiday'].replace({True: 1, False: 0})
+    # Mapping from day name to numerical value where Monday is 0 and Sunday is 6
+    day_mapping = {
+        'Monday': 0,
+        'Tuesday': 1,
+        'Wednesday': 2,
+        'Thursday': 3,
+        'Friday': 4,
+        'Saturday': 5,
+        'Sunday': 6
+    }
+    # Apply this mapping to the 'DayOfWeek' column
+    df['DayOfWeek'] = df['DayOfWeek'].apply(lambda x: day_mapping[x])
+    return df
+sale_data_process()
 
-vn_holidays = holidays.VN()
-df_copy['Is_Holiday'] = df_copy['PurchaseDate'].apply(lambda x: x in vn_holidays)
+def table_data_process():
+    df_pool['Table_Id'] = df_pool['Table_Id'].astype(int)
+    df_pool['Date'] = pd.to_datetime(df_pool['Date'])
+    # df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M:%S').dt.time
+    # df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='mixed').dt.time
+    df_pool['Duration(min)'] = df_pool['Duration(min)'].astype(int)
+    # Group the data by 'Date' and count the number of occupied tables
+    df_pool = df_pool.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
+    # Calculate the pool rate by dividing the occupied table hours by the total potential table hours in a day
+    df_pool['Occupied_Rate(%)'] = ((df_pool['Occupied_Table_Hours'] / (17 * 22)) * 100).round().astype(int)
+    df_pool['Year'] = df_pool['Date'].dt.year 
+    df_pool['Month'] = df_pool['Date'].dt.month
+    df_pool['Day'] = df_pool['Date'].dt.day
+    return df_pool
+table_data_process()
 
-df_copy['Is_Holiday'] = df_copy['Is_Holiday'].replace({True: 1, False: 0})
 
-
-# Mapping from day name to numerical value where Monday is 0 and Sunday is 6
-day_mapping = {
-    'Monday': 0,
-    'Tuesday': 1,
-    'Wednesday': 2,
-    'Thursday': 3,
-    'Friday': 4,
-    'Saturday': 5,
-    'Sunday': 6
-}
-# Apply this mapping to the 'DayOfWeek' column
-df_copy['DayOfWeek'] = df_copy['DayOfWeek'].apply(lambda x: day_mapping[x])
-
-df_copy['Year'] = df_copy['PurchaseDate'].dt.year 
-df_copy['Month'] = df_copy['PurchaseDate'].dt.month
-df_copy['Day'] = df_copy['PurchaseDate'].dt.day
 
 # Define final Ddataframe
-df_copy = df_copy[['Year', 'Month', 'Day', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
+df = df[['Year', 'Month', 'Day', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
 df_pool = df_pool[['Year', 'Month', 'Day', 'Occupied_Rate(%)']]
-df_merged = pd.merge(df_copy, df_pool, on=['Year', 'Month', 'Day'])
+df_merged = pd.merge(df, df_pool, on=['Year', 'Month', 'Day'])
 df_merged = df_merged[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
 
 # print(df, df.dtypes)
@@ -171,12 +170,12 @@ print(f"MAE: {mae_lr:.2f}")
 print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 
-# Visualization
-plt.figure(figsize=(10, 6))
-plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
-plt.scatter(range(len(y_pred_lr)), y_pred_lr, color='yellow', label='Predicted Sales', alpha=0.5)
-plt.title('Linear Regression Model: Actual vs Predicted Sales')
-plt.xlabel('Data Point Index')
-plt.ylabel('Sales')
-plt.legend()
-plt.show()
+# # Visualization
+# plt.figure(figsize=(10, 6))
+# plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
+# plt.scatter(range(len(y_pred_lr)), y_pred_lr, color='yellow', label='Predicted Sales', alpha=0.5)
+# plt.title('Linear Regression Model: Actual vs Predicted Sales')
+# plt.xlabel('Data Point Index')
+# plt.ylabel('Sales')
+# plt.legend()
+# plt.show()
