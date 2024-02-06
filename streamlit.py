@@ -22,25 +22,20 @@ def load_data():
     return pd.read_csv(github_csv_url)
 def load_customer_data():
     return pd.read_csv(github_csv_customer_url)
-def load_table_data():
-    return pd.read_csv(github_csv_pool_url)
 
 df = load_data()
-df_table = load_table_data()
 df_customer = load_customer_data()
 
 # ----------------- PROCESS DATA -----------------
 
 # SALE DATA
-# df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-# df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
-
-# TABLE DATA
-df_table['Date'] = pd.to_datetime(df_table['Date']).dt.date
-df_table['Check_In'] = pd.to_datetime(df_table['Check_In'], format='%H:%M:%S').dt.time
-df_table['Check_Out'] = pd.to_datetime(df_table['Check_Out'], format='mixed').dt.time
-df_table['Duration(min)'] = df_table['Duration(min)'].astype(int)
-df_table['Table_Id'] = df_table['Table_Id'].astype(int)
+df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
+df['Check_In'] = pd.to_datetime(df['Check_In'], format='%H:%M:%S').dt.hour
+df['Check_Out'] = pd.to_datetime(df['Check_Out'], format='%H:%M:%S').dt.hour
+df['Table_Id'] = df['Table_Id'].fillna(0).astype(int)
+df['Duration(min)'] = df['Duration(min)'].astype(int)
+df['Discount'] = df['Discount'].astype(int)
+df['Sales'] = df['Sales'].astype(int)
 
 # ----------------- CSS STYLE -----------------
 st.markdown("""
@@ -86,14 +81,11 @@ with st.sidebar:
     )
 
     df_selection = df.query(
-        "Hour >= @hour[0] & Hour <= @hour[1] & "
+        "Check_In >= @hour[0] & Check_In <= @hour[1] & "
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @date[0] & PurchaseDate <= @date[1]"
     )
-    
-    # PROCESS SALE DATAFRAME 
-    df_selection = df_selection[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Sales', 'Status']]
-    df_selection['Sales'] = df_selection['Sales'].astype(int)
+    df_selection = df_selection[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_In', 'Check_Out', 'Duration(min)', 'Discount', 'Sales', 'Status']]
 
     def highlight_sales(val):
         color = 'green' if val > 360000 else ''
@@ -131,7 +123,7 @@ with tab1:
     st.divider()
 
     # Display Sale Dataframe
-    st.dataframe(styled_df_selection, width=650)
+    st.dataframe(styled_df_selection, width=850)
     
     # Download data
     def filedownload(df_selection):
@@ -197,40 +189,36 @@ with tab3:
         st.metric(label="Total Table", value=17)
     with right_column:
         st.metric(label="Metric", value="")
-        desc_stats = df_table['Duration(min)'].describe()
+        desc_stats = df['Duration(min)'].describe()
         st.write(desc_stats)
     
     def highlight_PS5(val):
         color = '#FFA7FD' if val == 16 or val == 17 else ''
         return f'color: {color}'
     
-    df_table_style = df_table.style.map(highlight_PS5, subset=['Table_Id'])
-    st.dataframe(df_table_style, width=650)
+    df_table_style = df.style.map(highlight_PS5, subset=['Table_Id'])
+    # st.dataframe(df_table_style, width=650)
 
 
 
 # ----------------- OCCUPANCY RATE -----------------
-
-    # Convert Check_In and Check_Out to minutes past midnight
-    # df_table['Check_In_Minutes'] = df_table['Check_In'].apply(lambda x: x.hour * 60 + x.minute)
-    # df_table['Check_Out_Minutes'] = df_table['Check_Out'].apply(lambda x: x.hour * 60 + x.minute)
     
     # Make a copy of the dataframe
-    df_occupancy = df_table.copy()
-    df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
-    df_occupancy['Hour'] = df_occupancy['Check_In'].dt.hour
+    df_occupancy = df.copy()
+    # df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
+    df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In']).dt.hour
     
     # Assuming 'total_tables' is the total number of tables at the pool hall
     total_tables = 17
 
     # Group the data by 'Date' and count the number of occupied tables
-    df_occupancy = df_occupancy.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
+    df_occupancy = df_occupancy.groupby(['PurchaseDate']).size().reset_index(name='Occupied_Table_Hours')
 
     # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
     df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 18)) * 100).round().astype(int)
 
     # Sort by date in descending order
-    df_occupancy = df_occupancy.sort_values(by=["Date"], ascending=False)
+    df_occupancy = df_occupancy.sort_values(by=["PurchaseDate"], ascending=False)
 
     # Print the resulting dataframe and datatypes
     print(df_occupancy, df_occupancy.dtypes)
