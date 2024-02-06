@@ -123,22 +123,14 @@ with tab1:
 
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        st.metric(label="Total Sale", value=f"{total_sales:,} đ")
+        st.metric(label="Total Sales", value=f"{total_sales:,} đ")
     with middle_column:
-        st.metric(label="Average Monthly Sale", value=f"{average_sale_per_transaction:,} đ")
+        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
     with right_column:
         st.metric(label="Total Invoices", value=total_invoices)
     st.divider()
 
-    sale_frame_column, metric_column = st.columns([4,2])
-    with sale_frame_column:
-        st.dataframe(df_summary, width=650)
-    with metric_column:
-        summary_stats = df_summary.describe().astype(int)
-        print(summary_stats)
-        st.write(summary_stats)
 
-    st.divider()
     # Display Sale Dataframe
     st.dataframe(styled_df_selection, width=850)
     
@@ -154,6 +146,15 @@ with tab1:
     #### Button Show Plots
     if st.button('Show Plots'):
         sale_plot(df_selection)
+    st.divider()
+    sale_frame_column, metric_column = st.columns([4,2])
+    with sale_frame_column:
+        st.dataframe(df_summary, width=650)
+    with metric_column:
+        summary_stats = df_summary.describe().astype(int)
+        print(summary_stats)
+        st.write(summary_stats)
+    st.divider()
 
 # TAB_2
 with tab2:
