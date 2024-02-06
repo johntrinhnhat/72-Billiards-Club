@@ -122,6 +122,7 @@ with tab1:
         st.metric(label="Total Invoices", value=total_invoices)
     st.divider()
 
+     
     # Display Sale Dataframe
     st.dataframe(styled_df_selection, width=850)
     
@@ -196,8 +197,8 @@ with tab3:
         color = '#FFA7FD' if val == 16 or val == 17 else ''
         return f'color: {color}'
     
-    df_table_style = df.style.map(highlight_PS5, subset=['Table_Id'])
-    # st.dataframe(df_table_style, width=650)
+    df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
+    # st.dataframe(df_style, width=650)
 
 
 
