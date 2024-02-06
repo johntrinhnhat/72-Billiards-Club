@@ -32,8 +32,8 @@ df_customer = load_customer_data()
 # ----------------- PROCESS DATA -----------------
 
 # SALE DATA
-df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
+# df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
+# df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
 
 # TABLE DATA
 df_table['Date'] = pd.to_datetime(df_table['Date']).dt.date
@@ -74,9 +74,9 @@ with st.sidebar:
 
     hour = st.sidebar.slider(
         "Hour:",
-        min_value=int(min(df['Hour'].unique())),
-        max_value=int(max(df['Hour'].unique())),
-        value=(int(min(df['Hour'].unique())), int(max(df['Hour'].unique())))
+        min_value=int(min(df['Check_In'].unique())),
+        max_value=int(max(df['Check_In'].unique())),
+        value=(int(min(df['Check_In'].unique())), int(max(df['Check_In'].unique())))
     )
 
     dayofweek = st.sidebar.multiselect(

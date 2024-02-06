@@ -158,12 +158,13 @@ df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[
 """
 INVOICES DATA PROCESS
 """
+all_data_fieldnames=['Id', 'Table_Id', 'Customer_Name', 'PurchaseDate', 'EntryHour', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
+
 # Load data into a DataFrame
 df = pd.read_csv('kioviet.csv')
-# Change column name `Total_Payment` to `Sales`
-df.rename(columns={'Total_Payment': 'Sales', 'PurchaseHour': 'Hour'}, inplace=True)
-# 
-# df['Discount'] = df['Discount'].replace(0, None)
+# Change column name 
+df.rename(columns={'EntryHour':'Check_In', 'PurchaseHour': 'Check_Out', 'Total_Payment': 'Sales'}, inplace=True)
+
 # Replace missing values in 'Customer_Name' with 'khách lẻ'
 df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
 # Change value of `Status` from `hoàn thành` to `done`
@@ -179,23 +180,54 @@ df = df[df['Status'] != 'Đã hủy']
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
 # Extract features from `PurchaseDate`
 df['DayOfWeek'] = df['PurchaseDate'].dt.day_name()
-# df['Hour'] = df['Hour'].apply(lambda x: datetime.strptime(x, '%H:%M').hour)
-# df['Hour'] = df['PurchaseDate'].dt.hour
-# df['Year'] = df['PurchaseDate'].dt.year
-# df['Month'] = df['PurchaseDate'].dt.month
-# df['Day'] = df['PurchaseDate'].dt.day
-# Assuming 'purchasehour' is in 'HH:MM' format
-# Convert it to a datetime object and then extract the hour
+replacement_dict = {
+    1000056: 1,
+    1000057: 2,
+    1000058: 3,
+    1000059: 4,
+    1000060: 5,
+    1000061: 6,
+    1000062: 7,
+    1000063: 8,
+    1000064: 9,
+    1000065:10,
+    1000066:11,
+    1000067:12,
+    1000068:13,
+    1000069:14,
+    1000070:15,
+    1010514: 16,
+    1010515: 17,
+    # Add more mappings as needed
+}
+df['Table_Id'] = df['Table_Id'].replace(replacement_dict)
+df['Check_In'] = pd.to_datetime(df['Check_In'], format='%H:%M').dt.time
+df['Check_Out'] = pd.to_datetime(df['Check_Out'], format='%H:%M').dt.time
+
+# Function to calculate the duration in minutes
+def calculate_duration(entry, exit):
+    # Convert time objects back to strings
+    entry_str = entry.strftime('%H:%M')
+    exit_str = exit.strftime('%H:%M')
+    # Parse strings to datetime objects
+    entry_time = datetime.strptime(entry_str, '%H:%M')
+    exit_time = datetime.strptime(exit_str, '%H:%M')
+    # Calculate duration
+    duration = (exit_time - entry_time).total_seconds() / 60
+    # If duration is negative, assume ExitHour is on the next day and add 24 hours worth of minutes
+    return duration if duration >= 0 else duration + 24*60
+
+# Apply the function to calculate duration
+df['Duration(min)'] = df.apply(lambda row: calculate_duration(row['Check_In'], row['Check_Out']), axis=1)
 
 """
 POOL_TALBE DATA PROCESS
 """
 df_pool = df.copy()
-print(f"df_pool: {df_pool}")
 df_pool = df_pool.rename(columns={"Hour": "Check_Out", "EntryHour": "Check_In", "PurchaseDate": "Date"})
 # Convert EntryHour and Check_Out to datetime, assuming they are strings in the format "HH:MM"
-df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M').dt.time
-df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='%H:%M').dt.time
+# df_pool['Check_In'] = pd.to_datetime(df_pool['Check_In'], format='%H:%M').dt.time
+# df_pool['Check_Out'] = pd.to_datetime(df_pool['Check_Out'], format='%H:%M').dt.time
 
 # Function to calculate the duration in minutes
 def calculate_duration(entry, exit):
@@ -241,7 +273,7 @@ df_pool = df_pool.dropna(subset=['Table_Id'])
 
 
 # Select only the desired columns
-df = df[['Customer_Name', 'PurchaseDate', 'Hour', 'DayOfWeek', 'Discount', 'Sales', 'Status']]
+df = df[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_In', 'Check_Out', 'Duration(min)', 'Discount', 'Sales', 'Status']]
 df_customer = df_customer[['Name', 'Contact_Number', 'Membership', 'Created_Date', 'Debt', 'Total_Revenue', 'Last_Trading_Date']]
 df_pool = df_pool[['Table_Id', 'Date', 'Check_In', 'Check_Out', 'Duration(min)']]
 
