@@ -37,6 +37,14 @@ df['Duration(min)'] = df['Duration(min)'].astype(int)
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
 
+# SUMMARY DATAFRAME
+df_summary = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
+                                          'Discount': 'sum', 
+                                          'DayOfWeek': 'first'}).reset_index()
+df_summary.rename(columns={"PurchaseDate": "Date", "Sales": "Total_Sale"}, inplace=True)
+df_summary = df_summary[["Date", "DayOfWeek", "Discount", "Total_Sale"]]
+df_summary = df_summary.sort_values(by="Date", ascending=False)
+print(df_summary)
 # ----------------- CSS STYLE -----------------
 st.markdown("""
 <style>
@@ -115,14 +123,22 @@ with tab1:
 
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        st.metric(label="Total Sales", value=f"{total_sales:,} đ")
+        st.metric(label="Total Sale", value=f"{total_sales:,} đ")
     with middle_column:
-        st.metric(label="Average Sales", value=f"{average_sale_per_transaction:,} đ")
+        st.metric(label="Average Monthly Sale", value=f"{average_sale_per_transaction:,} đ")
     with right_column:
         st.metric(label="Total Invoices", value=total_invoices)
     st.divider()
 
-     
+    sale_frame_column, metric_column = st.columns([4,2])
+    with sale_frame_column:
+        st.dataframe(df_summary, width=650)
+    with metric_column:
+        summary_stats = df_summary.describe().astype(int)
+        print(summary_stats)
+        st.write(summary_stats)
+
+    st.divider()
     # Display Sale Dataframe
     st.dataframe(styled_df_selection, width=850)
     
