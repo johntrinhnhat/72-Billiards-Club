@@ -44,6 +44,7 @@ df_summary = df.groupby('PurchaseDate').agg({'Sales': 'sum',
 df_summary.rename(columns={"PurchaseDate": "Date", "Sales": "Total_Sale"}, inplace=True)
 df_summary = df_summary[["Date", "DayOfWeek", "Discount", "Total_Sale"]]
 df_summary = df_summary.sort_values(by="Date", ascending=False)
+df_summary['Total_Sale'] = df_summary['Total_Sale'].astype(int)
 print(df_summary)
 # ----------------- CSS STYLE -----------------
 st.markdown("""
@@ -120,6 +121,7 @@ with tab1:
     total_sales = int(df_selection['Sales'].sum())  
     average_sale_per_transaction = round(df_selection['Sales'].mean(), 2)
     total_invoices = len(df_selection)
+    average_monthly_sale = round(df_summary['Total_Sale'].mean(), 2)
 
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
@@ -146,7 +148,10 @@ with tab1:
     #### Button Show Plots
     if st.button('Show Plots'):
         sale_plot(df_selection)
+
     st.divider()
+
+    st.metric(label="Monthly Sale", value=f"{average_monthly_sale:,} đ")
     sale_frame_column, metric_column = st.columns([4,2])
     with sale_frame_column:
         st.dataframe(df_summary, width=650)
