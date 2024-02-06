@@ -48,8 +48,9 @@ for item in data:
 
     entry_date_match =re.search(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', item.get("EntryDate", ""))
     entry_hour = entry_date_match.group(2) if entry_date_match else None
+    
     # Define data schema for each invoice
-    data_schema = {
+    invoice_schema = {
         'Id': item["Id"],
         'Table_Id': item.get("TableId", None),
         'Customer_Name': item["CustomerName"],
@@ -61,8 +62,8 @@ for item in data:
         'Status': item["StatusValue"],
     }
     # Add invoice to list if BranchId is not 0
-    if data_schema["Id"] != -1:
-        all_data.append(data_schema)
+    if invoice_schema["Id"] != -1:
+        all_data.append(invoice_schema)
     
 # Print total number of all_data processed
 print(f"Total invoices: {len(all_data)}")

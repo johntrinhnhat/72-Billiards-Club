@@ -49,23 +49,11 @@ df_agg['Is_Holiday'] = df_agg['PurchaseDate'].apply(lambda x: x in vn_holidays)
 
 df_agg['Is_Holiday'] = df_agg['Is_Holiday'].replace({True: 1, False: 0})
 
-
-# Mapping from day name to numerical value where Monday is 0 and Sunday is 6
-day_mapping = {
-    'Monday': 0,
-    'Tuesday': 1,
-    'Wednesday': 2,
-    'Thursday': 3,
-    'Friday': 4,
-    'Saturday': 5,
-    'Sunday': 6
-}
 # Apply this mapping to the 'DayOfWeek' column
-df_agg['DayOfWeek'] = df_agg['DayOfWeek'].apply(lambda x: day_mapping[x])
-
 df_agg['Year'] = df_agg['PurchaseDate'].dt.year 
 df_agg['Month'] = df_agg['PurchaseDate'].dt.month
 df_agg['Day'] = df_agg['PurchaseDate'].dt.day
+df_agg['DayOfWeek'] = df_agg['PurchaseDate'].dt.dayofweek
 
 
 # Define final Ddataframe

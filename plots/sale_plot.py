@@ -9,12 +9,12 @@ def sale_plot(df_selection):
         st.title('Sales Trend')
 
          # Ensure 'Hour' and 'DayOfWeek' are in the correct format
-        df_selection['Hour'] = df_selection['Hour'].astype(int)
+        df_selection['Check_Out'] = df_selection['Check_Out'].astype(int)
         days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         df_selection['DayOfWeek'] = pd.Categorical(df_selection['DayOfWeek'], categories=days_order, ordered=True)
 
         # Aggregate sales by hour, day of the week, and purchase date
-        hourly_sales = df_selection.groupby('Hour')['Sales'].max().reset_index()
+        hourly_sales = df_selection.groupby('Check_Out')['Sales'].max().reset_index()
         dayofweek_sales = df_selection.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
         df_selection['PurchaseDate'] = pd.to_datetime(df_selection['PurchaseDate'])
         purchasedate_sales = df_selection.groupby(df_selection['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
@@ -26,7 +26,7 @@ def sale_plot(df_selection):
 
         # Add Hourly Sales trace
         fig.add_trace(
-            go.Scatter(x=hourly_sales['Hour'], y=hourly_sales['Sales'], name="Hourly Sales", marker_color='#FFA500'),
+            go.Scatter(x=hourly_sales['Check_Out'], y=hourly_sales['Sales'], name="Hourly Sales", marker_color='#FFA500'),
             row=1, col=1,
         )
 
@@ -65,7 +65,7 @@ def sale_plot(df_selection):
 
         # Aggregate sales by purchase date, day of the week and hour
         df_guest['DayOfWeek'] = pd.Categorical(df_guest['DayOfWeek'], categories=days_order, ordered=True)
-        hourly_sales_guest = df_guest.groupby('Hour')['Sales'].sum().reset_index()
+        hourly_sales_guest = df_guest.groupby('Check_Out')['Sales'].sum().reset_index()
         dayofweek_sales_guest = df_guest.groupby('DayOfWeek', observed=True)['Sales'].sum().reset_index()
         purchasedate_sales_guest = df_guest.groupby(df_guest['PurchaseDate'].dt.date)['Sales'].sum().reset_index()
 
@@ -86,7 +86,7 @@ def sale_plot(df_selection):
 
         # Add Hourly Sales trace
         fig.add_trace(
-            go.Scatter(x=hourly_sales_guest['Hour'], y=hourly_sales_guest['Sales'], name="Hourly Sales", marker_color='#FFA500'),
+            go.Scatter(x=hourly_sales_guest['Check_Out'], y=hourly_sales_guest['Sales'], name="Hourly Sales", marker_color='#FFA500'),
             row=3, col=1,
         )
 
