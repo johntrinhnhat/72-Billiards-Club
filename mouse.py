@@ -19,9 +19,13 @@ y = df['Size']
 
 X_train, X_test, y_train, y_test = train_test_split(X , y, test_size=0.2, random_state=42)
 
-print(f"\nData Shape:")
-print(f"Train Data: {X_train, y_train}")
-print(f"Test Data: {X_test, y_test}")
+
+# train_shape = pd.DataFrame({'Train_X': X_train, 'Train_y': y_train})
+# test_shape = pd.DataFrame({'Test_X': X_test, 'Test_y': y_test})
+
+print(X_train)
+print(y_train)
+
 
 # Defind the model
 model = LinearRegression()
@@ -32,5 +36,7 @@ model.fit(X_train, y_train)
 # Train on test data
 y_predict = model.predict(X_test)
 
+prediction_mouse = pd.DataFrame({'Size_Test': y_test, 'Size_Predict': y_predict})
+print(prediction_mouse)
 # print(f"Test Size: {y_test}")
 # print(f"Predict Size: {y_predict}")
