@@ -151,7 +151,6 @@ with tab1:
 
     st.divider()
 
-    st.metric(label="Monthly Sale", value=f"{average_monthly_sale:,} đ")
     sale_frame_column, metric_column = st.columns([4,2])
     with sale_frame_column:
         st.dataframe(df_summary, width=650)
