@@ -161,12 +161,20 @@ with tab1:
         st.write(summary_stats)
     st.divider()
 
-    df = pd.DataFrame(
-    np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-    columns=['lat', 'lon'])
+    df_location = pd.DataFrame({
+    "col1": np.random.randn(1000) / 50 + 37.76,
+    "col2": np.random.randn(1000) / 50 + -122.4,
+    "col3": np.random.randn(1000) * 100,
+    "col4": np.random.rand(1000, 4).tolist(),
+})
 
-    st.map(df)
+st.map(
+    latitude='106.70433736611663',
+    longitude='10.811293631152909',
+    color='#FFA7FD')
 
+    # 11.018773788546344, 106.72890236693854
+    # 10.811293631152909, 106.70433736611663
 # TAB_2
 with tab2:
     total_customer = len(df_customer)
