@@ -75,6 +75,15 @@ y = y.to_numpy()
 
 # # Split data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+plt.figure(figsize=[10,6])
+plt.scatter(X_train, y_train, color='blue')
+plt.title('Train test Datas')
+plt.xlabel('Feature variables')
+plt.ylabel('Sale')
+plt.show()
+
+
 print("\nData Shape:")
 print(f"Train Data Shape: {X_train.shape},{y_train.shape}")
 print(f"Test Data Shape: {X_test.shape},{y_test.shape}")
