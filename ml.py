@@ -76,13 +76,6 @@ y = y.to_numpy()
 # # Split data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-plt.figure(figsize=[10,6])
-plt.scatter(X_train, y_train, color='blue')
-plt.title('Train test Datas')
-plt.xlabel('Feature variables')
-plt.ylabel('Sale')
-plt.show()
-
 
 print("\nData Shape:")
 print(f"Train Data Shape: {X_train.shape},{y_train.shape}")
@@ -113,7 +106,7 @@ print(f"MSE: {mse_rf:.2f}")
 print(f"MAE: {mae_rf:.2f}")
 # print(f"{Fore.RED}\nSales Predict: {y_pred_rf}")
 # print(f"{Fore.YELLOW}Sales Actual: {y_test}")
-prediction_rf = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_rf})
+prediction_rf = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_rf, 'Difference': y_test-y_pred_rf})
 print(prediction_rf)
 # """
 # RandomizedSearchCV
@@ -167,7 +160,7 @@ print(f"MSE: {mse_lr:.2f}")
 print(f"MAE: {mae_lr:.2f}")
 # print(f"{Fore.RED}\nSales Predict: {y_pred_lr}")
 # print(f"{Fore.YELLOW}Sales Actual: {y_test}")
-prediction_lr = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_lr})
+prediction_lr = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_lr, 'Difference': y_test-y_pred_lr})
 print(prediction_lr)
 
 # # Visualization
