@@ -1,5 +1,7 @@
 from datetime import datetime
+import time
 import pandas as pd
+import numpy as np
 from plots.sale_plot import sale_plot
 from plots.table_plot import table_plot
 import streamlit as st
@@ -17,7 +19,7 @@ st.set_page_config(page_title="72 Billiards Club",
                 layout="wide")
 
 # ----------------- LOAD DATA -----------------
-
+@st.cache_data
 def load_data():
     return pd.read_csv(github_csv_url)
 def load_customer_data():
@@ -115,7 +117,6 @@ tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
 # TAB_1
 with tab1:
     # TOP KPI's
-    st.divider()
 
     # Calculate current period KPIs
     total_sales = int(df_selection['Sales'].sum())  
@@ -123,6 +124,7 @@ with tab1:
     total_invoices = len(df_selection)
     average_monthly_sale = round(df_summary['Total_Sale'].mean(), 2)
 
+    st.divider()
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
         st.metric(label="Total Sales", value=f"{total_sales:,} đ")
@@ -135,7 +137,6 @@ with tab1:
 
     # Display Sale Dataframe
     st.dataframe(styled_df_selection, width=850)
-    
     # Download data
     def filedownload(df_selection):
         csv = df_selection.to_csv(index=False)
@@ -159,6 +160,12 @@ with tab1:
         print(summary_stats)
         st.write(summary_stats)
     st.divider()
+
+    df = pd.DataFrame(
+    np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
+    columns=['lat', 'lon'])
+
+    st.map(df)
 
 # TAB_2
 with tab2:
