@@ -70,12 +70,12 @@ with st.sidebar:
     min_date = valid_dates.min()
     max_date = valid_dates.max()
 
-    # Create the datetime slider
-    date = st.sidebar.slider(
-        "Date:",
+    # Replace the datetime slider with a date input for selecting a range of dates
+    start_date, end_date = st.sidebar.date_input(
+        "Date range:",
+        value=(min_date, max_date),
         min_value=min_date,
         max_value=max_date,
-        value=(min_date, max_date),
     )
 
     hour = st.sidebar.slider(
@@ -94,7 +94,7 @@ with st.sidebar:
     df_selection = df.query(
         "Check_In >= @hour[0] & Check_In <= @hour[1] & "
         "DayOfWeek == @dayofweek &"
-        "PurchaseDate >= @date[0] & PurchaseDate <= @date[1]"
+        "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
     df_selection = df_selection[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_In', 'Check_Out', 'Duration(min)', 'Discount', 'Sales', 'Status']]
 
@@ -146,7 +146,7 @@ with tab1:
     # Display the download link
     st.markdown(filedownload(df_selection), unsafe_allow_html=True)
 
-    #### Button Show Plots
+    ## Button Show Plots
     if st.button('Show Plots'):
         sale_plot(df_selection)
 
@@ -161,20 +161,6 @@ with tab1:
         st.write(summary_stats)
     st.divider()
 
-#     df_location = pd.DataFrame({
-#     "col1": np.random.randn(1000) / 50 + 37.76,
-#     "col2": np.random.randn(1000) / 50 + -122.4,
-#     "col3": np.random.randn(1000) * 100,
-#     "col4": np.random.rand(1000, 4).tolist(),
-# })
-
-# st.map(
-#     latitude='106.70433736611663',
-#     longitude='10.811293631152909',
-#     color='#FFA7FD')
-
-    # 11.018773788546344, 106.72890236693854
-    # 10.811293631152909, 106.70433736611663
 # TAB_2
 with tab2:
     total_customer = len(df_customer)
