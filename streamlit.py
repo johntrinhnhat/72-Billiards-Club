@@ -71,9 +71,16 @@ with st.sidebar:
     max_date = valid_dates.max()
 
     # Replace the datetime slider with a date input for selecting a range of dates
-    start_date, end_date = st.sidebar.date_input(
-        "Date range:",
-        value=(min_date, max_date),
+    start_date = st.sidebar.date_input(
+        "From:",
+        value = min_date,
+        min_value = min_date,
+        max_value = max_date,
+    )
+
+    end_date = st.sidebar.date_input(
+        "To:",
+        value= max_date,
         min_value=min_date,
         max_value=max_date,
     )
