@@ -5,6 +5,7 @@ import re
 import requests
 import csv
 import gspread
+from gspread_dataframe import set_with_dataframe  # This is a handy tool for transferring dataframes to sheets
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
@@ -141,16 +142,17 @@ all_data_fieldnames=['Id', 'Table_Id', 'Customer_Name', 'PurchaseDate', 'EntryHo
 # Load data into a DataFrame
 df = pd.read_csv('kioviet.csv')
 # Change column name 
-df.rename(columns={'EntryHour':'Check_In', 'PurchaseHour': 'Check_Out', 'Total_Payment': 'Sales'}, inplace=True)
+df.rename(columns={
+    'EntryHour':'Check_In',
+    'PurchaseHour': 'Check_Out',
+    'Total_Payment': 'Sales'},
+    inplace=True)
 # Replace missing values in 'Customer_Name' with 'khách lẻ'
-df['Customer_Name'] = df['Customer_Name'].fillna('khách lẻ')
+df['Customer_Name'].fillna('khách lẻ', inplace=True)
 # Change value of `Status` from `hoàn thành` to `done`
-df.loc[df['Status'] == 'Hoàn thành', 'Status'] = 'Done'
+df['Status'].replace({'Hoàn thành': 'Done'}, inplace=True)
 # Drop bias value 
-df = df[df['Sales'] != 6555000]
-df = df[df['Sales'] != 2836000]
-# Remove 0 Sales
-df = df[df['Sales'] != 0]
+df = df[~df['Sales'].isin([6555000, 2836000, 0])]
 # Drop any column that have `status` values `Đã hủy`
 df = df[df['Status'] != 'Đã hủy']
 # Convert `PurchaseDate` to datetime object
@@ -177,7 +179,7 @@ replacement_dict = {
     1010515: 17,
     # Add more mappings as needed
 }
-df['Table_Id'] = df['Table_Id'].replace(replacement_dict)
+df['Table_Id'] = df['Table_Id'].replace(replacement_dict).fillna('Unknown')
 df['Check_In'] = pd.to_datetime(df['Check_In'], format='%H:%M').dt.time
 df['Check_Out'] = pd.to_datetime(df['Check_Out'], format='%H:%M').dt.time
 
@@ -203,16 +205,13 @@ CUSTOMERS DATA PROCESS
 # Load data into a DataFrame
 df_customer = pd.read_csv('kioviet_customer.csv')
 # Replace missing value in debt with
-df_customer['Debt'] = df_customer['Debt'].fillna('None')
-df_customer['Membership'] = df_customer['Membership'].fillna('None')
-df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
-df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
-# First ensure that the 'contact_number' column is treated as strings
-df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str)
-# Remove any '.0' that comes from floating point representation
-df_customer['Contact_Number'] = df_customer['Contact_Number'].str.replace('.0', '', regex=False)
-# Now add the leading '0' if it's not already there
-df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x if not x.startswith('0') else x)
+columns_to_fill = ['Debt', 'Membership', 'Last_Trading_Date']
+df_customer[columns_to_fill] = df_customer[columns_to_fill].fillna('None')
+# Replace 0 in 'Debt' with 'None' using a vectorized operation
+df_customer['Debt'] = df_customer['Debt'].replace({0: 'None'})
+# Ensure 'Contact_Number' is treated as strings, remove any '.0', and add leading '0' if not present
+df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str).str.replace('.0', '', regex=False)
+df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x.lstrip('0'))
 # Ensure consistent formatting: ###-###-####
 df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
 
@@ -244,22 +243,20 @@ sheet = client.open('72BilliardsClub')
 # Get sheets
 sheet_1 = sheet.get_worksheet(0)
 sheet_2= sheet.get_worksheet(1)
-# Convert api dataframe to a list of lists
-df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
-data_sheet = df.values.tolist()
-customer_data_sheet = df_customer.values.tolist()
-# Include the header
-header = df.columns.tolist()
-customer_data_header = df_customer.columns.tolist()
-# Insert header
-data_sheet.insert(0, header)
-customer_data_sheet.insert(0,customer_data_header)
 
+
+# Convert 'Check_In' and 'Check_Out' from time to string format to avoid serialization issues
+df['Check_In'] = df['Check_In'].apply(lambda x: x.strftime('%H:%M') if not pd.isnull(x) else None)
+df['Check_Out'] = df['Check_Out'].apply(lambda x: x.strftime('%H:%M') if not pd.isnull(x) else None)
+# Convert api dataframe to a list of lists, ensuring dates are in string format for serialization
+df['PurchaseDate'] = df['PurchaseDate'].dt.strftime('%Y-%m-%d')
+
+# Use 'set_with_dataframe' for a direct transfer
 try:
-    # Update the first worksheet starting at the first cell
-    sheet_1_updated = sheet_1.update(values=data_sheet, range_name='A1')
-    # Update the second worksheet starting at the first cell
-    sheet_2_updated = sheet_2.update(values=customer_data_sheet, range_name='A1')
+    # Update the first worksheet with df
+    set_with_dataframe(sheet_1, df, include_column_header=True, resize=False)
+    # Update the second worksheet with df_customer
+    set_with_dataframe(sheet_2, df_customer, include_column_header=True, resize=True)
     print("\nSuccessfully imported data to Google Sheets ✅\n")
 except gspread.exceptions.APIError as e:
     print(f"Failed to update Google Sheets due to an API error: {e}")
