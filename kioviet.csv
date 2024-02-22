@@ -1,4 +1,6 @@
 Table_Id,Customer_Name,PurchaseDate,DayOfWeek,Check_In,Check_Out,Duration(min),Discount,Sales,Status
+10.0,Ngân,2024-02-22,Thursday,15:05:00,16:42:00,97.0,0.0,125025.0,Done
+1.0,khách lẻ,2024-02-22,Thursday,14:19:00,16:40:00,141.0,0.0,237500.0,Done
 6.0,khách lẻ,2024-02-22,Thursday,15:01:00,16:29:00,88.0,0.0,112500.0,Done
 4.0,Khang,2024-02-22,Thursday,14:20:00,16:24:00,124.0,0.0,376525.0,Done
 3.0,khách lẻ,2024-02-22,Thursday,14:20:00,15:50:00,90.0,0.0,125025.0,Done

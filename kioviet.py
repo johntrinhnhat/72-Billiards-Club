@@ -134,27 +134,6 @@ with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_fi
 
     writer.writerows(customers)
 
-
-"""
-CUSTOMERS DATA PROCESS
-"""
-# Load data into a DataFrame
-df_customer = pd.read_csv('kioviet_customer.csv')
-# Replace missing value in debt with
-df_customer['Debt'] = df_customer['Debt'].fillna('None')
-df_customer['Membership'] = df_customer['Membership'].fillna('None')
-df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
-df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
-# First ensure that the 'contact_number' column is treated as strings
-df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str)
-# Remove any '.0' that comes from floating point representation
-df_customer['Contact_Number'] = df_customer['Contact_Number'].str.replace('.0', '', regex=False)
-# Now add the leading '0' if it's not already there
-df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x if not x.startswith('0') else x)
-# Ensure consistent formatting: ###-###-####
-df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
-
-
 """
 INVOICES DATA PROCESS
 """
@@ -217,6 +196,27 @@ def calculate_duration(entry, exit):
 
 # Apply the function to calculate duration
 df['Duration(min)'] = df.apply(lambda row: calculate_duration(row['Check_In'], row['Check_Out']), axis=1)
+
+"""
+CUSTOMERS DATA PROCESS
+"""
+# Load data into a DataFrame
+df_customer = pd.read_csv('kioviet_customer.csv')
+# Replace missing value in debt with
+df_customer['Debt'] = df_customer['Debt'].fillna('None')
+df_customer['Membership'] = df_customer['Membership'].fillna('None')
+df_customer['Debt'] = df_customer['Debt'].replace(0,'None')
+df_customer['Last_Trading_Date'] = df_customer['Last_Trading_Date'].fillna('None')
+# First ensure that the 'contact_number' column is treated as strings
+df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str)
+# Remove any '.0' that comes from floating point representation
+df_customer['Contact_Number'] = df_customer['Contact_Number'].str.replace('.0', '', regex=False)
+# Now add the leading '0' if it's not already there
+df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x if not x.startswith('0') else x)
+# Ensure consistent formatting: ###-###-####
+df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
+
+
 
 # Select only the desired columns
 df = df[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_In', 'Check_Out', 'Duration(min)', 'Discount', 'Sales', 'Status']]
