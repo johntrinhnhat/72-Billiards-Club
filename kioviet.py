@@ -7,7 +7,6 @@ import csv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
-import base64
 
 
 # Load environment variables from .env file
