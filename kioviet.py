@@ -5,39 +5,116 @@ import re
 import requests
 import csv
 import gspread
-from gspread_dataframe import set_with_dataframe  # This is a handy tool for transferring dataframes to sheets
+from gspread_dataframe import set_with_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
+from dotenv import load_dotenv
 import pandas as pd
 
-
-# Load environment variables from .env file
-from dotenv import load_dotenv
+# Load environment variables from .env file to ensure sensitive information is not hard-coded into the script
 load_dotenv()
-Retailer  = os.getenv('Retailer')
+Retailer = os.getenv('Retailer')
 access_token = os.getenv('access_token')
-url = os.getenv('url')
-url_customer=os.getenv('url_customer')
+url_invoices = os.getenv('url')
+url_customer = os.getenv('url_customer')
+url_invoice = os.getenv('url_invoice')
 
+# def get_api_data(url, headers):
+#     """Perform an API request to the specified URL with given headers and return the 'Data' part of the JSON response."""
+#     response = requests.get(url, headers=headers)
+#     response.raise_for_status()  # Raise an exception for HTTP error responses
+#     return response.json()["Data"]
+
+# def get_api_data_each_invoice(url, headers):
+
+#     response = requests.get(url_invoice, headers=headers)
+#     response.raise_for_status()
+#     return response.json()["Data"]
+
+# def process_invoices_data(data):
+#     """
+#     Process the raw invoices data into a structured pandas DataFrame.
+
+#     - Renames columns for better readability.
+#     - Handles missing values and data transformations.
+#     - Extracts additional date/time features from existing columns.
+#     """
+#     # Convert raw data into a pandas DataFrame
+#     df = pd.DataFrame(data)
+#     # Rename columns for clarity
+#     df = df.rename(columns={
+#         'TableId': 'Table_Id',
+#         'CustomerName': 'Customer_Name',
+#         'EntryDate': 'Check_In',
+#         'TotalPayment': 'Sales',
+#         'StatusValue': 'Status'
+#     })
+
+#     # Replace missing customer names with a default value
+#     df['Customer_Name'] = df['Customer_Name'].replace('', 'khách lẻ')
+#     # Normalize status values
+#     df['Status'] = df['Status'].replace({'Hoàn thành': 'Done'})
+
+#     # Map numerical table IDs to a more readable format
+#     replacement_dict = {
+#         # Mapping from original ID to a more friendly identifier
+#         # Add more mappings as needed
+#     }
+#     df['Table_Id'] = df['Table_Id'].replace(replacement_dict).fillna('Unknown')
+
+#     # Convert dates to datetime objects for easier manipulation
+#     df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
+#     df['DayOfWeek'] = df['PurchaseDate'].dt.day_name()
+#     df['Check_In'] = pd.to_datetime(df['Check_In']).dt.strftime('%H:%M:%S')
+#     df['Check_Out'] = pd.to_datetime(df['PurchaseDate']).dt.strftime('%H:%M:%S')
+#     df['PurchaseDate'] = df['PurchaseDate'].dt.date
+
+#     # Categorize data based on the day of the week
+#     df['TimeOfWeek'] = df['DayOfWeek'].apply(lambda x: 'Weekend' if x in ['Saturday', 'Sunday'] else 'Weekday')
+#     # Categorize data based on the time of day
+#     df['HourOfDay'] = df['Check_Out'].apply(lambda x: 'Morning' if 9 <= pd.to_datetime(x).hour <= 12 else ('Evening' if 13 <= pd.to_datetime(x).hour <= 18 else ('Noon' if 19 <= pd.to_datetime(x).hour <= 23 or 0 <= pd.to_datetime(x).hour <= 6 else 'unknown')))
+#     # Exclude outlier sales values
+#     df = df[~df['Sales'].isin([6555000, 2836000, 0])]
+
+#     # Finalize the DataFrame structure
+#     df = df[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'TimeOfWeek', 'HourOfDay', 'Check_In', 'Check_Out', 'Discount', 'Sales']]
+#     return df
+
+
+# def main():
+#     headers = {'Retailer': Retailer, 'Authorization': f'Bearer {access_token}'}
+#     # fetch Invoices & Customers data
+#     invoices_data = get_api_data(url_invoices, headers)
+#     each_invoice_data = get_api_data_each_invoice(url_invoice, headers)
+#     customers_data = get_api_data(url_customer, headers)
+
+#     # process invoices data
+#     df = process_invoices_data(invoices_data)
+#     df_invoice = pd.DataFrame(each_invoice_data)
+#     df_invoice = df_invoice[['InvoiceId', 'CategoryTree', 'ProductName', 'Note', 'Quantity', 'Price',]]
+
+#     print(df_invoice)
+#     print(df_invoice.columns)
+
+#     # print(df)
+
+
+# if __name__ == "__main__":
+#     main()
 
 """"""""""""""""""" INVOICES DATA """""""""""""""""""
 
 # Set up API request details
-invoices_url = url
+invoices_url = url_invoices
 invoices_headers = {
     'Retailer': f'{Retailer}', 
     'Authorization': f'Bearer {access_token}',
 }
 
-invoices_params = {
-    'PurchaseDate': 'datetime',
-    'ToDate': 'datetime'
-}
-
 # Perform the API request
-response = requests.get(invoices_url, headers=invoices_headers, params=invoices_params)
+response = requests.get(invoices_url, headers=invoices_headers)
 response_data = response.json()
 data = response_data["Data"]
-all_data = []
+invoice_data = []
 # Process each item in the response data
 for item in data:
 
@@ -63,19 +140,19 @@ for item in data:
     }
     # Add invoice to list if BranchId is not 0
     if invoice_schema["Id"] != -1:
-        all_data.append(invoice_schema)
+        invoice_data.append(invoice_schema)
     
-# Print total number of all_data processed
-print(f"Total invoices: {len(all_data)}")
+# Print total number of invoice_data processed
+print(f"Total invoices: {len(invoice_data)}")
 # Define CSV field names
-all_data_fieldnames=['Id', 'Table_Id', 'Customer_Name', 'PurchaseDate', 'EntryHour', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
+invoice_data_fieldnames=['Id', 'Table_Id', 'Customer_Name', 'PurchaseDate', 'EntryHour', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
 
 # Write invoices data to a CSV file
 with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
-    writer = csv.DictWriter(kioviet_file, fieldnames=all_data_fieldnames)
+    writer = csv.DictWriter(kioviet_file, fieldnames=invoice_data_fieldnames)
     writer.writeheader()
 
-    writer.writerows(all_data)
+    writer.writerows(invoice_data)
 
 
 
@@ -88,13 +165,8 @@ customers_headers = {
     'Authorization': f'Bearer {access_token}',
 }
 
-customers_params = {
-    'name': 'string',
-    'contactNumber': 'string',
-}
-
 # Perform the API request
-response = requests.get(customers_url, headers=customers_headers, params=customers_params)
+response = requests.get(customers_url, headers=customers_headers)
 response_data = response.json()
 customers_data = response_data["Data"]
 

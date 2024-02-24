@@ -1,9 +1,6 @@
-from datetime import datetime
-import time
 import pandas as pd
 import numpy as np
 from plots.sale_plot import sale_plot
-from plots.table_plot import table_plot
 import streamlit as st
 import base64
 import plotly.express as px
@@ -34,7 +31,7 @@ df_customer = load_customer_data()
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 df['Check_In'] = pd.to_datetime(df['Check_In'], format='%H:%M:%S').dt.hour
 df['Check_Out'] = pd.to_datetime(df['Check_Out'], format='%H:%M:%S').dt.hour
-df['Table_Id'] = df['Table_Id'].fillna(0).astype(int)
+df['Table_Id'] = df['Table_Id'].fillna(0).round
 df['Duration(min)'] = df['Duration(min)'].astype(int)
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
@@ -104,6 +101,7 @@ with st.sidebar:
         "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
     df_selection = df_selection[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_In', 'Check_Out', 'Duration(min)', 'Discount', 'Sales', 'Status']]
+
 
     def highlight_sales(val):
         color = 'green' if val > 360000 else ''
