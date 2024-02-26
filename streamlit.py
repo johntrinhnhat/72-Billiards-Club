@@ -31,7 +31,7 @@ df_customer = load_customer_data()
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 df['Check_In'] = pd.to_datetime(df['Check_In'], format='%H:%M:%S').dt.hour
 df['Check_Out'] = pd.to_datetime(df['Check_Out'], format='%H:%M:%S').dt.hour
-df['Table_Id'] = df['Table_Id'].fillna(0).round
+df['Table_Id'] = df['Table_Id'].fillna(0).round(1)
 df['Duration(min)'] = df['Duration(min)'].astype(int)
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
