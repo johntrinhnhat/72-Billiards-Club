@@ -84,7 +84,6 @@ with st.sidebar:
         max_value=max_date,
     )
 
-    btn = st.button('Reset')
 
     hour = st.sidebar.slider(
         "Hour:",
