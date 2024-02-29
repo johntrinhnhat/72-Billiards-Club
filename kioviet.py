@@ -77,13 +77,16 @@ url_invoice = os.getenv('url_invoice')
 
 #     # Finalize the DataFrame structure
 #     df = df[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'TimeOfWeek', 'HourOfDay', 'Check_In', 'Check_Out', 'Discount', 'Sales']]
-#     return df
+   
 
+#     return df
 
 # def main():
 #     headers = {'Retailer': Retailer, 'Authorization': f'Bearer {access_token}'}
 #     # fetch Invoices & Customers data
 #     invoices_data = get_api_data(url_invoices, headers)
+
+    
 #     each_invoice_data = get_api_data_each_invoice(url_invoice, headers)
 #     customers_data = get_api_data(url_customer, headers)
 
@@ -115,6 +118,7 @@ response = requests.get(invoices_url, headers=invoices_headers)
 response_data = response.json()
 data = response_data["Data"]
 invoice_data = []
+invoice_id=[]
 # Process each item in the response data
 for item in data:
 
@@ -138,11 +142,15 @@ for item in data:
         'Total_Payment': item["TotalPayment"],
         'Status': item["StatusValue"],
     }
+
+    id_schema = item["Id"]
     # Add invoice to list if BranchId is not 0
     if invoice_schema["Id"] != -1:
         invoice_data.append(invoice_schema)
+        invoice_id.append(id_schema)
     
 # Print total number of invoice_data processed
+print(f"Invoice_ID: {invoice_id}")
 print(f"Total invoices: {len(invoice_data)}")
 # Define CSV field names
 invoice_data_fieldnames=['Id', 'Table_Id', 'Customer_Name', 'PurchaseDate', 'EntryHour', 'PurchaseHour', 'Discount', 'Total_Payment', 'Status']
