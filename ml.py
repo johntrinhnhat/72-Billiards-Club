@@ -16,21 +16,6 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 
 # Load dataframe for machine learning project
 df = pd.read_csv('kioviet.csv')
-df_pool = pd.read_csv('kioviet_pool.csv')
-
-"""
-TABLE DATA PROCESS
-"""
-df_pool['Table_Id'] = df_pool['Table_Id'].astype(int)
-df_pool['Date'] = pd.to_datetime(df_pool['Date'])
-df_pool['Duration(min)'] = df_pool['Duration(min)'].astype(int)
-# Group the data by 'Date' and count the number of occupied tables
-df_pool = df_pool.groupby(['Date']).size().reset_index(name='Occupied_Table_Hours')
-# Calculate the pool rate by dividing the occupied table hours by the total potential table hours in a day
-df_pool['Occupied_Rate(%)'] = ((df_pool['Occupied_Table_Hours'] / (17 * 22)) * 100).round().astype(int)
-df_pool['Year'] = df_pool['Date'].dt.year 
-df_pool['Month'] = df_pool['Date'].dt.month
-df_pool['Day'] = df_pool['Date'].dt.day
 
 """
 SALE DATA PROCESS
@@ -38,12 +23,14 @@ SALE DATA PROCESS
 # Drop unnecessary feature variable 
 df = df.drop(['Customer_Name'], axis=1)
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate'])
-
+df['Occupied_Table_Hours'] = df['Duration(min)'] / 60
 # Aggrerate Dataframe
 df_agg = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
                                           'Discount': 'sum', 
-                                          'DayOfWeek': 'first'}).reset_index()
+                                          'DayOfWeek': 'first',
+                                          'Occupied_Table_Hours': 'size'}).reset_index()
 
+df_agg['Occupied_Rate(%)'] = ((df_agg['Occupied_Table_Hours'] / (17 * 20)) * 100).round().astype(int)
 vn_holidays = holidays.VN()
 df_agg['Is_Holiday'] = df_agg['PurchaseDate'].apply(lambda x: x in vn_holidays)
 
@@ -57,17 +44,13 @@ df_agg['DayOfWeek'] = df_agg['PurchaseDate'].dt.dayofweek
 
 
 # Define final Ddataframe
-df_agg = df_agg[['Year', 'Month', 'Day', 'DayOfWeek', 'Is_Holiday', 'Discount', 'Sales']]
-df_pool = df_pool[['Year', 'Month', 'Day', 'Occupied_Rate(%)']]
-df_merged = pd.merge(df_agg, df_pool, on=['Year', 'Month', 'Day'])
-df_merged = df_merged[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
+df_agg = df_agg[['Year', 'Month', 'Day', 'DayOfWeek', 'Occupied_Rate(%)', 'Is_Holiday', 'Discount', 'Sales']]
 
 
-# print(df, df.dtypes)
-print(df_merged)
+print(df_agg, df_agg.dtypes)
 
-X = df_merged.drop(['Sales'], axis=1)
-y = df_merged['Sales']
+X = df_agg.drop(['Sales'], axis=1)
+y = df_agg['Sales']
 
 # Convert the pandas DataFrame and Series to NumPy arrays
 X = X.to_numpy()
@@ -108,6 +91,18 @@ print(f"MAE: {mae_rf:.2f}")
 # print(f"{Fore.YELLOW}Sales Actual: {y_test}")
 prediction_rf = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_rf, 'Difference': y_test-y_pred_rf})
 print(prediction_rf)
+
+# Visualization
+plt.figure(figsize=(10, 6))
+plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
+plt.scatter(range(len(y_pred_rf)), y_pred_rf, color='yellow', label='Predicted Sales', alpha=0.5)
+plt.title('Random Forest Regressor Model: Actual vs Predicted Sales')
+plt.xlabel('Data Point Index')
+plt.ylabel('Sales')
+plt.legend()
+plt.show()
+
+
 # """
 # RandomizedSearchCV
 # """
