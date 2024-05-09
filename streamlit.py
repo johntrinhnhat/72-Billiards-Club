@@ -25,16 +25,18 @@ df = load_data()
 df_customer = load_customer_data()
 
 # ----------------- PROCESS DATA -----------------
+pd.set_option('display.float_format', '{:.2f}'.format)
 # SALE DATA
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 df['Id'] = df['Id'].fillna(0)
-# df['Time'] = df['Time'].astype(int)
+# df['Duration(hour)'] = df['Duration(hour)'].astype(int)
+# df['Duration(hour)'] = df['Duration(hour)'].apply(lambda x: f"{x:.2f}")
 df['Time'] = df['Time'].apply(lambda x: int(x.split(':')[0]) if isinstance(x, str) and ':' in x else 0)
 
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
 
-df = df.sort_values(by='PurchaseDate', ascending=False) 
+df = df.sort_values(by='PurchaseDate', ascending=True) 
 
 # SUMMARY DATAFRAME
 df_summary = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
@@ -44,7 +46,7 @@ df_summary.rename(columns={"PurchaseDate": "Date", "Sales": "Total_Sale"}, inpla
 df_summary = df_summary[["Date", "DayOfWeek", "Discount", "Total_Sale"]]
 df_summary = df_summary.sort_values(by="Date", ascending=False)
 df_summary['Total_Sale'] = df_summary['Total_Sale'].astype(int)
-print(df_summary)
+# print(df_summary)
 # ----------------- CSS STYLE -----------------
 st.markdown("""
 <style>
@@ -101,14 +103,15 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
-    df_selection = df_selection[['Id', 'Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Time', 'Duration(hour)', 'Discount', 'Sales', 'Status']]
+    df_selection['Time'] = 
+    df_selection = df_selection[['Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Time', 'Duration(hour)', 'Sales','Discount', 'Status']]
     print(df_selection)
 
     def highlight_sales(val):
         color = 'green' if val > 360000 else ''
         return f'background-color: {color}'
     
-    styled_df_selection = df_selection.style.format({"Sales": "{:,.0f} đ"}).map(highlight_sales, subset=['Sales'])
+    styled_df_selection = df_selection.style.format({"Sales": "{:,.0f} đ", "Duration(hour)": "{:.2f}"}).map(highlight_sales, subset=['Sales', 'Duration(hour)'])
 
 
 # ----------------- MAIN PAGE -----------------
@@ -118,7 +121,7 @@ st.image('./logo.png')
 st.markdown("##")
 
 # TAB
-tab1, tab2 = st.tabs(["SALE", "MEMBERSHIP"])
+tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
 
 # TAB_1
 with tab1:
@@ -163,7 +166,7 @@ with tab1:
         st.dataframe(df_summary, width=650)
     with metric_column:
         summary_stats = df_summary.describe().astype(int)
-        print(summary_stats)
+        # print(summary_stats)
         st.write(summary_stats)
     st.divider()
 
@@ -197,7 +200,7 @@ with tab2:
                 }
             )
     st.markdown("---")
-    st.dataframe(df_customer)
+    st.dataframe(df_customer[['Name', 'Gender', 'Contact_Number', 'Created_Date', 'Debt']])
 
     # # Button Show Plots
     # if st.button('Show Plot'):
@@ -211,58 +214,58 @@ with tab2:
     #     st.plotly_chart(fig)
 
 # TAB_3
-# with tab3:
-#     st.divider()
-#     left_column, right_column = st.columns(2)
-#     with left_column:
-#         st.metric(label="Total Table", value=17)
-#     with right_column:
-#         st.metric(label="Metric", value="")
-#         desc_stats = df['Duration(min)'].describe()
-#         st.write(desc_stats)
+with tab3:
+    st.divider()
+    left_column, right_column = st.columns(2)
+    with left_column:
+        st.metric(label="Total Table", value=15)
+    with right_column:
+        st.metric(label="Metric", value="")
+        desc_stats = df['Duration(hour)'].describe()
+        st.write(desc_stats)
     
-#     def highlight_PS5(val):
-#         color = '#FFA7FD' if val == 16 or val == 17 else ''
-#         return f'color: {color}'
+    def highlight_PS5(val):
+        color = '#FFA7FD' if val == 16 or val == 17 else ''
+        return f'color: {color}'
     
-#     df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
-#     # st.dataframe(df_style, width=650)
+    df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
+    # st.dataframe(df_style, width=650)
 
 
 
-# # ----------------- OCCUPANCY RATE -----------------
+# ----------------- OCCUPANCY RATE -----------------
     
-#     # Make a copy of the dataframe
-#     df_occupancy = df.copy()
-#     # df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
-#     df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In']).dt.hour
+    # Make a copy of the dataframe
+    df_occupancy = df.copy()
+    # df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
+    # df_occupancy['Duration(hour)'] = pd.to_datetime(df_occupancy['Duration(hour)']).dt.hour
     
-#     # Assuming 'total_tables' is the total number of tables at the pool hall
-#     total_tables = 17
+    # Assuming 'total_tables' is the total number of tables at the pool hall
+    total_tables = 15
 
-#     # Group the data by 'Date' and count the number of occupied tables
-#     df_occupancy = df_occupancy.groupby(['PurchaseDate']).size().reset_index(name='Occupied_Table_Hours')
+    # Group the data by 'Date' and count the number of occupied tables
+    df_occupancy = df_occupancy.groupby(['PurchaseDate']).size().reset_index(name='Occupied_Table_Hours')
 
-#     # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
-#     df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 18)) * 100).round().astype(int)
+    # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
+    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 18)) * 100).round().astype(int)
 
-#     # Sort by date in descending order
-#     df_occupancy = df_occupancy.sort_values(by=["PurchaseDate"], ascending=False)
+    # Sort by date in descending order
+    df_occupancy = df_occupancy.sort_values(by=["PurchaseDate"], ascending=False)
 
-#     # Print the resulting dataframe and datatypes
-#     print(df_occupancy, df_occupancy.dtypes)
+    # Print the resulting dataframe and datatypes
+    # print(df_occupancy, df_occupancy.dtypes)
 
-#     st.title('Occupancy Rate')
-#     left_column, right_column = st.columns([3,2])
-#     with left_column:
-#         # The result is a DataFrame with the occupancy rate for each day
-#         st.dataframe(df_occupancy, width=650)
-#     with right_column: 
-#         # Display a metric, for example the average occupancy rate
-#         st.metric(label="Metric", value="")
-#         # Display descriptive statistics for the occupancy rate
-#         desc_stats = df_occupancy['Rate (%)'].describe()
-#         st.write(desc_stats)
+    st.title('Occupancy Rate')
+    left_column, right_column = st.columns([3,2])
+    with left_column:
+        # The result is a DataFrame with the occupancy rate for each day
+        st.dataframe(df_occupancy, width=650)
+    with right_column: 
+        # Display a metric, for example the average occupancy rate
+        st.metric(label="Metric", value="")
+        # Display descriptive statistics for the occupancy rate
+        desc_stats = df_occupancy['Rate (%)'].describe()
+        st.write(desc_stats)
 
 
     # # Initialize the session state variable if it's not already set
