@@ -27,15 +27,13 @@ df_customer = load_customer_data()
 # ----------------- PROCESS DATA -----------------
 pd.set_option('display.float_format', '{:.2f}'.format)
 # SALE DATA
-df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 df['Id'] = df['Id'].fillna(0)
-
-df['Time'] = df['Time'].apply(lambda x: int(x.split(':')[0]) if isinstance(x, str) and ':' in x else 0)
-
+df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
+df['Check_Out'] = df['Check_Out'].apply(lambda x: int(x.split(':')[0]) if isinstance(x, str) and ':' in x else 0)
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
 
-df = df.sort_values(by='PurchaseDate', ascending=True) 
+df = df.sort_values(by='PurchaseDate', ascending=False) 
 
 # SUMMARY DATAFRAME
 df_summary = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
@@ -86,9 +84,9 @@ with st.sidebar:
 
     hour = st.sidebar.slider(
         "Hour:",
-        min_value=int(min(df['Time'].unique())),
-        max_value=int(max(df['Time'].unique())),
-        value=(int(min(df['Time'].unique())), int(max(df['Time'].unique())))
+        min_value=int(min(df['Check_Out'].unique())),
+        max_value=int(max(df['Check_Out'].unique())),
+        value=(int(min(df['Check_Out'].unique())), int(max(df['Check_Out'].unique())))
     )
 
     dayofweek = st.sidebar.multiselect(
@@ -98,12 +96,12 @@ with st.sidebar:
     )
 
     df_selection = df.query(
-        "Time >= @hour[0] & Time <= @hour[1] & "
+        "Check_Out >= @hour[0] & Check_Out <= @hour[1] & "
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
 
-    df_selection = df_selection[['Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Time', 'Duration(hour)', 'Sales','Discount', 'Status']]
+    df_selection = df_selection[['Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_Out', 'Duration(hour)', 'Sales','Discount', 'Status']]
     # df_selection['Time'] = df_selection['Time'].apply(lambda x: f"{int(x):02d}:{int((x-int(x))*60):02d}")
 
     print(df_selection)

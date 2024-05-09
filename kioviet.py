@@ -69,6 +69,7 @@ def process_invoices_data(invoices_data):
             duration = detail.get('quantity', '')
             discount = detail.get('discount', '')
             food = detail.get('productName','' )
+            note = detail.get('note','')
 
         # Extract date and hour using regular expression
         purchase_date_match = re.search(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', invoice.get("purchaseDate", ""))
@@ -78,30 +79,30 @@ def process_invoices_data(invoices_data):
         #Define data schema for each invoice
         invoice_schema = {
             'Id': invoice["id"],
-            'Cashier': invoice["soldByName"],
             'Customer_Name': invoice["customerName"],
             'PurchaseDate': purchase_date,
-            'Time': purchase_hour,
+            'Check_Out': purchase_hour,
             'Duration(hour)': duration,
             'Discount': discount,
+            'Service': food,
+            'Note': note,
             'Payment': invoice["totalPayment"],
             'Status': invoice["statusValue"],
-            'Service': food,
         }
         # Add invoice to list if BranchId is not 0
         if invoice_schema["Id"] != -1:
             df_invoice.append(invoice_schema)
     # """"""""""""""""""" CSV EXPORT_1 """""""""""""""""""
      # Define CSV field names
-    invoices_schema=['Id', 'Cashier', 'Customer_Name', 'PurchaseDate', 'Time', 'Service', 'Duration(hour)', 'Discount', 'Payment', 'Status']
+    invoices_schema=['Id', 'Customer_Name', 'PurchaseDate', 'Check_Out', 'Service', 'Note', 'Duration(hour)', 'Discount', 'Payment', 'Status']
     # Write invoices data to a CSV file
-    with open ('kioviet1.csv', 'w', encoding='utf-8') as kioviet_file:
+    with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
         writer = csv.DictWriter(kioviet_file, fieldnames=invoices_schema)
         writer.writeheader()
         writer.writerows(df_invoice)
     
     # """"""""""""""""""" CSV IMPORT """""""""""""""""""
-    df_invoice = pd.read_csv('kioviet1.csv')
+    df_invoice = pd.read_csv('kioviet.csv')
     # Change column name 
     df_invoice.rename(columns={'Payment': 'Sales'},
         inplace=True)
@@ -117,10 +118,11 @@ def process_invoices_data(invoices_data):
     df_invoice['PurchaseDate'] = pd.to_datetime(df_invoice['PurchaseDate'])
     # # Extract features from `PurchaseDate`
     df_invoice['DayOfWeek'] = df_invoice['PurchaseDate'].dt.day_name()
-
+    df_invoice = df_invoice.sort_values(by='PurchaseDate', ascending=False)
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
-    df_invoice = df_invoice[['Id', 'Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Time', 'Duration(hour)', 'Service', 'Discount', 'Sales', 'Status']]
+    df_invoice = df_invoice[['Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_Out', 'Duration(hour)', 'Service', 'Note', 'Discount', 'Sales', 'Status']]
     df_invoice.to_csv('kioviet.csv', index=False)
+
     return df_invoice
 
 def fetch_customers(page, page_size):
@@ -176,14 +178,14 @@ def process_customers_data(customers_data):
     # Define CSV field names
     customer_schema=['Id', 'Name', 'Gender', 'Contact_Number', 'Created_Date', 'Debt']
     # Write customers data to a CSV file
-    with open ('kioviet_customer1.csv', 'w', encoding='utf-8') as kioviet_customer_file:
+    with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_file:
         writer = csv.DictWriter(kioviet_customer_file, fieldnames=customer_schema)
         writer.writeheader()
         writer.writerows(df_customer)
 
     # """"""""""""""""""" CSV IMPORT """""""""""""""""""
     # Load data into a DataFrame
-    df_customer = pd.read_csv('kioviet_customer1.csv')
+    df_customer = pd.read_csv('kioviet_customer.csv')
     # Replace missing value in debt with
     df_customer['Debt'] = df_customer['Debt'].fillna('None')
     # Replace 0 in 'Debt' with 'None' using a vectorized operation
