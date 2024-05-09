@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from plots.sale_plot import sale_plot
 import streamlit as st
 import base64
@@ -29,11 +28,10 @@ df_customer = load_customer_data()
 
 # SALE DATA
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-df['Check_In'] = pd.to_datetime(df['Check_In'], format='%H:%M:%S').dt.hour
-df['Check_Out'] = pd.to_datetime(df['Check_Out'], format='%H:%M:%S').dt.hour
-df['Table_Id'] = df['Table_Id'].fillna(0)
+
+df['Id'] = df['Id'].fillna(0)
 # df['Table_']
-df['Duration(min)'] = df['Duration(min)'].astype(int)
+df['Duration(hour)'] = df['Duration(hour)'].astype(int)
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
 
@@ -104,7 +102,7 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
-    df_selection = df_selection[['Table_Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_In', 'Check_Out', 'Duration(min)', 'Discount', 'Sales', 'Status']]
+    df_selection = df_selection[['Id', 'Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Duration(hour)', 'Discount', 'Sales', 'Status']]
 
 
     def highlight_sales(val):
@@ -121,7 +119,7 @@ st.image('./logo.png')
 st.markdown("##")
 
 # TAB
-tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
+tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP"])
 
 # TAB_1
 with tab1:
@@ -178,21 +176,21 @@ with tab2:
     with left_column:
         st.metric(label="Total Membership", value=f"{total_customer}")
     with right_column:
-        st.metric(label="Top Membership", value=None)
-        df_customer_sorted = df_customer.sort_values(by='Total_Revenue',ascending=False)
-        df_customer_sorted['Total_Revenue'] = df_customer_sorted['Total_Revenue'].apply(lambda x: f"{x:,}")
-        df_customer_sorted = df_customer_sorted[['Name', 'Total_Revenue']]
+        st.metric(label="Top Debt", value=None)
+        df_customer_sorted = df_customer.sort_values(by='Debt',ascending=False)
+        df_customer_sorted['Debt'] = df_customer_sorted['Debt'].apply(lambda x: f"{x:,}")
+        df_customer_sorted = df_customer_sorted[['Name', 'Debt']]
         # print(df_customer_sorted)
         st.dataframe(df_customer_sorted,
-            column_order=("Name", "Total_Revenue"),
+            column_order=("Name", "Debt"),
             hide_index=True,
             width=None,
             column_config={
                 "Name": st.column_config.TextColumn(
                     "Name",
                 ),
-                "Total_Revenue": st.column_config.ProgressColumn(
-                    "Total_Revenue",
+                "Debt": st.column_config.ProgressColumn(
+                    "Debt",
                     format="%d đ",
                     min_value=0,
                     max_value=int(max(df_customer.Total_Revenue)),
@@ -202,70 +200,70 @@ with tab2:
     st.markdown("---")
     st.dataframe(df_customer)
 
-    # Button Show Plots
-    if st.button('Show Plot'):
-        # Bar Chart (Number of Membership)
-        st.title('Number of Membership')
-        membership_counts = df_customer['Membership'].value_counts(dropna=False).reset_index()
-        membership_counts.columns = ['Membership', 'Count']
-        membership_counts['Membership'] = membership_counts['Membership'].fillna('None')
-        fig = px.bar(membership_counts, x='Membership', y='Count', 
-                    hover_data=['Membership', 'Count'], color='Count')
-        st.plotly_chart(fig)
+    # # Button Show Plots
+    # if st.button('Show Plot'):
+    #     # Bar Chart (Number of Membership)
+    #     st.title('Number of Membership')
+    #     membership_counts = df_customer['Membership'].value_counts(dropna=False).reset_index()
+    #     membership_counts.columns = ['Membership', 'Count']
+    #     membership_counts['Membership'] = membership_counts['Membership'].fillna('None')
+    #     fig = px.bar(membership_counts, x='Membership', y='Count', 
+    #                 hover_data=['Membership', 'Count'], color='Count')
+    #     st.plotly_chart(fig)
 
 # TAB_3
-with tab3:
-    st.divider()
-    left_column, right_column = st.columns(2)
-    with left_column:
-        st.metric(label="Total Table", value=17)
-    with right_column:
-        st.metric(label="Metric", value="")
-        desc_stats = df['Duration(min)'].describe()
-        st.write(desc_stats)
+# with tab3:
+#     st.divider()
+#     left_column, right_column = st.columns(2)
+#     with left_column:
+#         st.metric(label="Total Table", value=17)
+#     with right_column:
+#         st.metric(label="Metric", value="")
+#         desc_stats = df['Duration(min)'].describe()
+#         st.write(desc_stats)
     
-    def highlight_PS5(val):
-        color = '#FFA7FD' if val == 16 or val == 17 else ''
-        return f'color: {color}'
+#     def highlight_PS5(val):
+#         color = '#FFA7FD' if val == 16 or val == 17 else ''
+#         return f'color: {color}'
     
-    df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
-    # st.dataframe(df_style, width=650)
+#     df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
+#     # st.dataframe(df_style, width=650)
 
 
 
-# ----------------- OCCUPANCY RATE -----------------
+# # ----------------- OCCUPANCY RATE -----------------
     
-    # Make a copy of the dataframe
-    df_occupancy = df.copy()
-    # df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
-    df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In']).dt.hour
+#     # Make a copy of the dataframe
+#     df_occupancy = df.copy()
+#     # df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In'], format='%H:%M:%S')
+#     df_occupancy['Check_In'] = pd.to_datetime(df_occupancy['Check_In']).dt.hour
     
-    # Assuming 'total_tables' is the total number of tables at the pool hall
-    total_tables = 17
+#     # Assuming 'total_tables' is the total number of tables at the pool hall
+#     total_tables = 17
 
-    # Group the data by 'Date' and count the number of occupied tables
-    df_occupancy = df_occupancy.groupby(['PurchaseDate']).size().reset_index(name='Occupied_Table_Hours')
+#     # Group the data by 'Date' and count the number of occupied tables
+#     df_occupancy = df_occupancy.groupby(['PurchaseDate']).size().reset_index(name='Occupied_Table_Hours')
 
-    # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
-    df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 18)) * 100).round().astype(int)
+#     # Calculate the occupancy rate by dividing the occupied table hours by the total potential table hours in a day
+#     df_occupancy['Rate (%)'] = ((df_occupancy['Occupied_Table_Hours'] / (total_tables * 18)) * 100).round().astype(int)
 
-    # Sort by date in descending order
-    df_occupancy = df_occupancy.sort_values(by=["PurchaseDate"], ascending=False)
+#     # Sort by date in descending order
+#     df_occupancy = df_occupancy.sort_values(by=["PurchaseDate"], ascending=False)
 
-    # Print the resulting dataframe and datatypes
-    print(df_occupancy, df_occupancy.dtypes)
+#     # Print the resulting dataframe and datatypes
+#     print(df_occupancy, df_occupancy.dtypes)
 
-    st.title('Occupancy Rate')
-    left_column, right_column = st.columns([3,2])
-    with left_column:
-        # The result is a DataFrame with the occupancy rate for each day
-        st.dataframe(df_occupancy, width=650)
-    with right_column: 
-        # Display a metric, for example the average occupancy rate
-        st.metric(label="Metric", value="")
-        # Display descriptive statistics for the occupancy rate
-        desc_stats = df_occupancy['Rate (%)'].describe()
-        st.write(desc_stats)
+#     st.title('Occupancy Rate')
+#     left_column, right_column = st.columns([3,2])
+#     with left_column:
+#         # The result is a DataFrame with the occupancy rate for each day
+#         st.dataframe(df_occupancy, width=650)
+#     with right_column: 
+#         # Display a metric, for example the average occupancy rate
+#         st.metric(label="Metric", value="")
+#         # Display descriptive statistics for the occupancy rate
+#         desc_stats = df_occupancy['Rate (%)'].describe()
+#         st.write(desc_stats)
 
 
     # # Initialize the session state variable if it's not already set

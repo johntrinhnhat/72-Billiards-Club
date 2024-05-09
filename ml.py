@@ -159,11 +159,11 @@ prediction_lr = pd.DataFrame({'Sale_Test': y_test, 'Sale_Predict': y_pred_lr, 'D
 print(prediction_lr)
 
 # Visualization
-plt.figure(figsize=(10, 6))
-plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
-plt.scatter(range(len(y_pred_lr)), y_pred_lr, color='yellow', label='Predicted Sales', alpha=0.5)
-plt.title('Multiple Linear Regression Model: Actual vs Predicted Sales')
-plt.xlabel('Data Point Index')
-plt.ylabel('Sales')
-plt.legend()
-plt.show()
+# plt.figure(figsize=(10, 6))
+# plt.scatter(range(len(y_test)), y_test, color='blue', label='Actual Sales', alpha=0.5)
+# plt.scatter(range(len(y_pred_lr)), y_pred_lr, color='yellow', label='Predicted Sales', alpha=0.5)
+# plt.title('Multiple Linear Regression Model: Actual vs Predicted Sales')
+# plt.xlabel('Data Point Index')
+# plt.ylabel('Sales')~
+# plt.legend()
+# plt.show()
