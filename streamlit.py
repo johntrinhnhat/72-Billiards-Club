@@ -25,15 +25,16 @@ df = load_data()
 df_customer = load_customer_data()
 
 # ----------------- PROCESS DATA -----------------
-
 # SALE DATA
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
-
 df['Id'] = df['Id'].fillna(0)
-# df['Table_']
-df['Duration(hour)'] = df['Duration(hour)'].astype(int)
+# df['Time'] = df['Time'].astype(int)
+df['Time'] = df['Time'].apply(lambda x: int(x.split(':')[0]) if isinstance(x, str) and ':' in x else 0)
+
 df['Discount'] = df['Discount'].astype(int)
 df['Sales'] = df['Sales'].astype(int)
+
+df = df.sort_values(by='PurchaseDate', ascending=False) 
 
 # SUMMARY DATAFRAME
 df_summary = df.groupby('PurchaseDate').agg({'Sales': 'sum', 
@@ -59,8 +60,6 @@ with open('style.css') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # ----------------- SIDEBAR -----------------
-    
-
 
 with st.sidebar:
     # Ensure there are no NaT values and find the minimum and maximum dates
@@ -86,9 +85,9 @@ with st.sidebar:
 
     hour = st.sidebar.slider(
         "Hour:",
-        min_value=int(min(df['Check_In'].unique())),
-        max_value=int(max(df['Check_In'].unique())),
-        value=(int(min(df['Check_In'].unique())), int(max(df['Check_In'].unique())))
+        min_value=int(min(df['Time'].unique())),
+        max_value=int(max(df['Time'].unique())),
+        value=(int(min(df['Time'].unique())), int(max(df['Time'].unique())))
     )
 
     dayofweek = st.sidebar.multiselect(
@@ -98,12 +97,12 @@ with st.sidebar:
     )
 
     df_selection = df.query(
-        "Check_In >= @hour[0] & Check_In <= @hour[1] & "
+        "Time >= @hour[0] & Time <= @hour[1] & "
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
-    df_selection = df_selection[['Id', 'Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Duration(hour)', 'Discount', 'Sales', 'Status']]
-
+    df_selection = df_selection[['Id', 'Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Time', 'Duration(hour)', 'Discount', 'Sales', 'Status']]
+    print(df_selection)
 
     def highlight_sales(val):
         color = 'green' if val > 360000 else ''
@@ -119,7 +118,7 @@ st.image('./logo.png')
 st.markdown("##")
 
 # TAB
-tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP"])
+tab1, tab2 = st.tabs(["SALE", "MEMBERSHIP"])
 
 # TAB_1
 with tab1:
@@ -193,7 +192,7 @@ with tab2:
                     "Debt",
                     format="%d đ",
                     min_value=0,
-                    max_value=int(max(df_customer.Total_Revenue)),
+                    max_value=int(max(df_customer.Debt)),
                 ),
                 }
             )
