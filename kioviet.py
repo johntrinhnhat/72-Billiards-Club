@@ -262,7 +262,7 @@ def main():
     print(f"{Fore.BLUE}Total_Invoices: {len(df_invoice)}")
 
 # """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
-    # google_sheet_import(df_invoice, df_customer)
+    google_sheet_import(df_invoice, df_customer)
 
     """"""""""""""""""" AUTOMATION GITHUB UPDATE """""""""""""""""""
     def run_git_commands():
