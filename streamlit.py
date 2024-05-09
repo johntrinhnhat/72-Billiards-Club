@@ -29,8 +29,7 @@ pd.set_option('display.float_format', '{:.2f}'.format)
 # SALE DATA
 df['PurchaseDate'] = pd.to_datetime(df['PurchaseDate']).dt.date
 df['Id'] = df['Id'].fillna(0)
-# df['Duration(hour)'] = df['Duration(hour)'].astype(int)
-# df['Duration(hour)'] = df['Duration(hour)'].apply(lambda x: f"{x:.2f}")
+
 df['Time'] = df['Time'].apply(lambda x: int(x.split(':')[0]) if isinstance(x, str) and ':' in x else 0)
 
 df['Discount'] = df['Discount'].astype(int)
@@ -103,8 +102,10 @@ with st.sidebar:
         "DayOfWeek == @dayofweek &"
         "PurchaseDate >= @start_date & PurchaseDate <= @end_date"
     )
-    df_selection['Time'] = 
+
     df_selection = df_selection[['Cashier', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Time', 'Duration(hour)', 'Sales','Discount', 'Status']]
+    # df_selection['Time'] = df_selection['Time'].apply(lambda x: f"{int(x):02d}:{int((x-int(x))*60):02d}")
+
     print(df_selection)
 
     def highlight_sales(val):
