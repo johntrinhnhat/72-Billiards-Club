@@ -61,73 +61,99 @@ def fetch_invoices(page, page_size):
     print(f'Fetching {page_size} invoices in page: {page} ...')
     return data
 
+def process_invoice_detail_data(invoices_data):
+    df_invoice_detail = []
+    for invoice in invoices_data:
+        # Extract date and hour using regular expression
+        purchase_date_match = re.search(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', invoice.get("purchaseDate", ""))
+        purchase_date = purchase_date_match.group(1) if purchase_date_match else None
+
+        # Iterate over each item in the invoice details
+        for detail in invoice.get('invoiceDetails', []):
+            quantity = detail.get('quantity', '-')
+            price = detail.get('price', '-')
+            discount = detail.get('discount', '-')
+
+            detail_invoice_schema = {
+                'id': invoice["id"],
+                'product_Name': detail.get('productName', '-'),
+                'purchase_Date': purchase_date,
+                'quantity': quantity,
+                'discount': discount,
+                'price': (price * quantity) - discount,
+                # 'Status': invoice["statusValue"],
+            }
+            
+            df_invoice_detail.append(detail_invoice_schema)
+
+
+    detail_invoices_schema=['id', 'purchase_Date', 'product_Name', 'quantity', 'discount', 'price']
+    # Write invoices data to a CSV file
+    with open('goods.csv', 'w', newline='', encoding='utf-8') as detail_invoices_file:
+        writer = csv.DictWriter(detail_invoices_file, fieldnames=detail_invoices_schema)
+        writer.writeheader()
+        writer.writerows(df_invoice_detail)
+
+    df_invoice_details = pd.read_csv('goods.csv')
+    df_invoice_details['discount'].replace({0: '-'}, inplace=True) 
+    df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=True) 
+
+    # df_invoice_details = df_invoice_details[~df_invoice_details['price'].isin([2836000, 2660000, 0])]
+ 
+    df_invoice_details.to_csv('goods.csv', index=False)
+
+    return df_invoice_details
+
 def process_invoices_data(invoices_data):
     # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
     df_invoice = []
     for invoice in invoices_data:
-        for detail in invoice['invoiceDetails']:
-            duration = detail.get('quantity', '')
-            discount = detail.get('discount', '')
-            food = detail.get('productName','' )
-            note = detail.get('note','')
-
         # Extract date and hour using regular expression
         purchase_date_match = re.search(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})', invoice.get("purchaseDate", ""))
         purchase_date = purchase_date_match.group(1) if purchase_date_match else None
         purchase_hour = purchase_date_match.group(2) if purchase_date_match else None
-        
-        #Define data schema for each invoice
+
         invoice_schema = {
-            'Id': invoice["id"],
-            'Customer_Name': invoice["customerName"],
-            'PurchaseDate': purchase_date,
-            'Check_Out': purchase_hour,
-            'Duration(hour)': duration,
-            'Discount': discount,
-            'Service': food,
-            'Note': note,
-            'Payment': invoice["totalPayment"],
-            'Status': invoice["statusValue"],
-        }
-        # Add invoice to list if BranchId is not 0
-        if invoice_schema["Id"] != -1:
+                'id': invoice["id"],
+                'customer_Name': invoice.get("customerName", "Khách lẻ").title(),
+                'purchase_Date': purchase_date,
+                'check_Out': purchase_hour,
+                'revenue': invoice.get("totalPayment", ""),
+                'status': invoice.get("status", "")
+                # 'Details': product_name,
+                # 'Discount': discount,
+            }
+        if invoice_schema["id"] != -1:
             df_invoice.append(invoice_schema)
+
     # """"""""""""""""""" CSV EXPORT_1 """""""""""""""""""
-     # Define CSV field names
-    invoices_schema=['Id', 'Customer_Name', 'PurchaseDate', 'Check_Out', 'Service', 'Note', 'Duration(hour)', 'Discount', 'Payment', 'Status']
+    
+    invoice_schema = ['id', 'customer_Name', 'purchase_Date', 'check_Out', 'revenue', 'status']
     # Write invoices data to a CSV file
-    with open ('kioviet.csv', 'w', encoding='utf-8') as kioviet_file:
-        writer = csv.DictWriter(kioviet_file, fieldnames=invoices_schema)
+    with open ('invoices.csv', 'w', newline='', encoding='utf-8') as invoices_file:
+        writer = csv.DictWriter(invoices_file, fieldnames=invoice_schema)
         writer.writeheader()
         writer.writerows(df_invoice)
     
-    # """"""""""""""""""" CSV IMPORT """""""""""""""""""
-    df_invoice = pd.read_csv('kioviet.csv')
-    # Change column name 
-    df_invoice.rename(columns={'Payment': 'Sales'},
-        inplace=True)
-    # Replace missing values in 'Customer_Name' with 'khách lẻ'
-    df_invoice['Customer_Name'] = df_invoice['Customer_Name'].fillna('khách lẻ')
-    # Change value of `Status` from `hoàn thành` to `done`
-    df_invoice['Status'].replace({'Hoàn thành': 'Done'}, inplace=True)
-    # # Drop bias value 
-    df_invoice = df_invoice[~df_invoice['Sales'].isin([2836000, 0])]
-    # Drop any column that have `status` values `Đã hủy`
-    df_invoice = df_invoice[df_invoice['Status'] != 'Đã hủy']
-    # Convert `PurchaseDate` to datetime object
-    df_invoice['PurchaseDate'] = pd.to_datetime(df_invoice['PurchaseDate'])
-    # # Extract features from `PurchaseDate`
-    df_invoice['DayOfWeek'] = df_invoice['PurchaseDate'].dt.day_name()
-    df_invoice = df_invoice.sort_values(by='PurchaseDate', ascending=False)
+    # """"""""""""""""""" PROCESS DATAFRAME """""""""""""""""""
+    df_invoice = pd.read_csv('invoices.csv')
+    df_invoice['customer_Name'] = df_invoice['customer_Name'].fillna('khách lẻ')
+    # df_invoice = df_invoice[~df_invoice['revenue'].isin([2836000, 2660000, 0])]
+    df_invoice['status'].replace({1: 'Done'}, inplace=True)
+    df_invoice = df_invoice[df_invoice['status'] != 'Đã hủy']
+    df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
+    df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
+    df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=True) 
+
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
-    df_invoice = df_invoice[['Id', 'Customer_Name', 'PurchaseDate', 'DayOfWeek', 'Check_Out', 'Duration(hour)', 'Service', 'Note', 'Discount', 'Sales', 'Status']]
-    df_invoice.to_csv('kioviet.csv', index=False)
+    df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_Out', 'revenue', 'status']]
+    df_invoice.to_csv('invoices.csv', index=False)
 
     return df_invoice
 
 def fetch_customers(page, page_size):
     headers = {
-        'Retailer': retailer, 
+        'Retailer': retailer,   
         'Authorization': f'Bearer {get_access_token()}',
     }
     params = {
@@ -156,7 +182,7 @@ def process_customers_data(customers_data):
         elif gender_bool is False:
             gender = "Nữ"
         else:
-            gender = "Unknown"  
+            gender = "-"  
 
         customers_data_schema = {
             'Id': customer["id"],
@@ -165,14 +191,10 @@ def process_customers_data(customers_data):
             'Contact_Number': customer.get("contactNumber", None),
             'Debt': customer.get("debt", None),
             'Created_Date': create_date,
-            # 'Total_Revenue': customer.get("totalRevenue"),
-            # 'Membership': customer.get("Groups",None),
-            #'Last_Trading_Date': customer.get("LastTradingDate", None)
         }
 
         # Add invoice to list if BranchId is not 0
-        if customers_data_schema["Id"] != 0:
-            df_customer.append(customers_data_schema)
+        df_customer.append(customers_data_schema)
 
     # """"""""""""""""""" CSV EXPORT_1 """""""""""""""""""
     # Define CSV field names
@@ -186,14 +208,10 @@ def process_customers_data(customers_data):
     # """"""""""""""""""" CSV IMPORT """""""""""""""""""
     # Load data into a DataFrame
     df_customer = pd.read_csv('kioviet_customer.csv')
-    # Replace missing value in debt with
     df_customer['Debt'] = df_customer['Debt'].fillna('None')
-    # Replace 0 in 'Debt' with 'None' using a vectorized operation
-    # df_customer['Debt'] = df_customer['Debt'].replace({0: 'None'})
-    # Ensure 'Contact_Number' is treated as strings, remove any '.0', and add leading '0' if not present
+    df_customer['Debt'] = df_customer['Debt'].replace({0: '-'})
     df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str).str.replace('.0', '', regex=False)
     df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x.lstrip('0'))
-    # Ensure consistent formatting: ###-###-####
     df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
 
@@ -204,7 +222,7 @@ def process_customers_data(customers_data):
 
     return df_customer
 
-def google_sheet_import(df_invoice, df_customer):
+def google_sheet_import(df_invoice, df_customer, df_invoice_details):
     # Defind the scope of the application
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
     # Add credential to account
@@ -216,9 +234,9 @@ def google_sheet_import(df_invoice, df_customer):
     # Get sheets
     sheet_1 = sheet.get_worksheet(0)
     sheet_2= sheet.get_worksheet(1)
-
+    sheet_3 = sheet.get_worksheet(2)
     # Convert api dataframe to a list of lists, ensuring dates are in string format for serialization
-    df_invoice['PurchaseDate'] = df_invoice['PurchaseDate'].dt.strftime('%Y-%m-%d')
+    df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.strftime('%Y-%m-%d')
 
     # Use 'set_with_dataframe' for a direct transfer
     try:
@@ -226,62 +244,67 @@ def google_sheet_import(df_invoice, df_customer):
         set_with_dataframe(sheet_1, df_invoice, include_column_header=True, resize=False)
         # Update the second worksheet with df_customer
         set_with_dataframe(sheet_2, df_customer, include_column_header=True, resize=True)
+        # Update the second worksheet with df_invoice_details
+        set_with_dataframe(sheet_3, df_invoice_details, include_column_header=True, resize=True)
         print("\nSuccessfully imported data to Google Sheets ✅\n")
     except gspread.exceptions.APIError as e:
         print(f"Failed to update Google Sheets due to an API error: {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-def main():
-    page_size = 100  # Adjust as maximum allowed if possible
-    pages = 210
-    invoices_data = []
-    customers_data =[]
+def run_git_commands():
+    try:
+        # Navigate to the directory containing your repository
+        os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
+        # Git commands
+        subprocess.run(['git', 'add', '.'], check=True)
+        subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
+        subprocess.run(['git', 'push'], check=True)
+        print("Changes pushed to GitHub ✅.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error in Git operation: {e}")
+        
+def main(pages, page_size):
+    page_size = page_size  # Adjust as maximum allowed if possible
+    pages = pages
+    all_invoices = []
+    all_customers =[]
 
 # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=20) as executor:
         futures_invoices = [executor.submit(fetch_invoices, page, page_size) for page in range(pages)]
         futures_customers = [executor.submit(fetch_customers, page, page_size) for page in range(pages)]
         
         for future in as_completed(futures_invoices):
-            invoices_data.extend(future.result())
+            all_invoices.extend(future.result())
         
         for future in as_completed(futures_customers):
-            customers_data.extend(future.result())
+            all_customers.extend(future.result())
 
 # """"""""""""""""""" DATA PROCESS TO DATAFRAME"""""""""""""""""""
 
-    df_invoice = process_invoices_data(invoices_data)
-    df_customer = process_customers_data(customers_data)
+    df_invoice = process_invoices_data(all_invoices)
+    df_invoice_details = process_invoice_detail_data(all_invoices)
+    df_customer = process_customers_data(all_customers)
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
-
+    # print(all_invoices)
     print(df_invoice, df_invoice.dtypes)
+    print(df_invoice_details, df_invoice_details.dtypes)
     print(df_customer, df_customer.dtypes)
 
-    print(f"{Fore.BLUE}Total_Customers: {len(df_customer)}")
-    print(f"{Fore.BLUE}Total_Invoices: {len(df_invoice)}")
+    print(f"{Fore.BLUE}Customers: {len(df_customer)}")
+    print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
+    print(f"{Fore.BLUE}Invoice_Detail: {len(df_invoice_details)}")
 
 # """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
-    google_sheet_import(df_invoice, df_customer)
+    google_sheet_import(df_invoice, df_customer, df_invoice_details)
 
-    """"""""""""""""""" AUTOMATION GITHUB UPDATE """""""""""""""""""
-    def run_git_commands():
-        try:
-            # Navigate to the directory containing your repository
-            os.chdir('C:\\Users\\Khoi\\Desktop\\BilliardsClub')
-            # Git commands
-            subprocess.run(['git', 'add', '.'], check=True)
-            subprocess.run(['git', 'commit', '-m', 'Daily update'], check=True)
-            subprocess.run(['git', 'push'], check=True)
-            print("Changes pushed to GitHub ✅.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error in Git operation: {e}")
-
+# """"""""""""""""""" AUTOMATION GITHUB UPDATE """""""""""""""""""
     run_git_commands()
 if __name__ == "__main__":
-    main()
+    main(pages=210, page_size=50)
 
 
 
