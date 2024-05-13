@@ -212,7 +212,7 @@ def process_customers_data(customers_data):
     df_customer['contact_Number'] = df_customer['contact_Number'].astype(str).str.replace('.0', '', regex=False)
     df_customer['contact_Number'] = df_customer['contact_Number'].apply(lambda x: '0' + x.lstrip('0'))
     df_customer['contact_Number'] = df_customer['contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
-    df_customer['created_Date'] = pd.to_datetime(df_customer['created_Date'])
+    # df_customer['created_Date'] = pd.to_datetime(df_customer['created_Date'])
 
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
 
