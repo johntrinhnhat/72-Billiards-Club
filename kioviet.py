@@ -94,7 +94,7 @@ def process_invoice_detail_data(invoices_data):
     # df_invoice_details['discount'].replace({0: '-'}, inplace=True) 
     df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
     df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
-    df_invoice_details['purchase_Date'] = pd.to_datetime(df_invoice_details['purchase_Date'])
+    # df_invoice_details['purchase_Date'] = pd.to_datetime(df_invoice_details['purchase_Date'])
     df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=False) 
 
     # df_invoice_details = df_invoice_details[~df_invoice_details['price'].isin([2836000, 2660000, 0])]
@@ -185,7 +185,7 @@ def process_customers_data(customers_data):
 
         customers_data_schema = {
             'id': customer["id"],
-            'name': customer.get("name", None),
+            'name': customer.get("name", None).title(),
             'gender': gender,
             'contact_Number': customer.get("contactNumber", None),
             'debt': customer.get("debt", None),
