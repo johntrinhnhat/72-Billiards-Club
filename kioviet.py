@@ -94,7 +94,7 @@ def process_invoice_detail_data(invoices_data):
     # df_invoice_details['discount'].replace({0: '-'}, inplace=True) 
     df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
     df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
-
+    df_invoice_details['purchase_Date'] = pd.to_datetime(df_invoice_details['purchase_Date'])
     df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=False) 
 
     # df_invoice_details = df_invoice_details[~df_invoice_details['price'].isin([2836000, 2660000, 0])]
@@ -184,12 +184,12 @@ def process_customers_data(customers_data):
             gender = "-"  
 
         customers_data_schema = {
-            'Id': customer["id"],
-            'Name': customer.get("name", None),
-            'Gender': gender,
-            'Contact_Number': customer.get("contactNumber", None),
-            'Debt': customer.get("debt", None),
-            'Created_Date': create_date,
+            'id': customer["id"],
+            'name': customer.get("name", None),
+            'gender': gender,
+            'contact_Number': customer.get("contactNumber", None),
+            'debt': customer.get("debt", None),
+            'created_Date': create_date,
         }
 
         # Add invoice to list if BranchId is not 0
@@ -197,7 +197,7 @@ def process_customers_data(customers_data):
 
     # """"""""""""""""""" CSV EXPORT_1 """""""""""""""""""
     # Define CSV field names
-    customer_schema=['Id', 'Name', 'Gender', 'Contact_Number', 'Created_Date', 'Debt']
+    customer_schema=['id', 'name', 'gender', 'contact_Number', 'created_Date', 'debt']
     # Write customers data to a CSV file
     with open ('kioviet_customer.csv', 'w', encoding='utf-8') as kioviet_customer_file:
         writer = csv.DictWriter(kioviet_customer_file, fieldnames=customer_schema)
@@ -207,15 +207,17 @@ def process_customers_data(customers_data):
     # """"""""""""""""""" CSV IMPORT """""""""""""""""""
     # Load data into a DataFrame
     df_customer = pd.read_csv('kioviet_customer.csv')
-    df_customer['Debt'] = df_customer['Debt'].fillna('None')
-    df_customer['Debt'] = df_customer['Debt'].replace({0: '-'})
-    df_customer['Contact_Number'] = df_customer['Contact_Number'].astype(str).str.replace('.0', '', regex=False)
-    df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: '0' + x.lstrip('0'))
-    df_customer['Contact_Number'] = df_customer['Contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
+    df_customer['debt'] = df_customer['debt'].fillna('None')
+    df_customer['debt'] = df_customer['debt'].replace({0: '-'})
+    df_customer['contact_Number'] = df_customer['contact_Number'].astype(str).str.replace('.0', '', regex=False)
+    df_customer['contact_Number'] = df_customer['contact_Number'].apply(lambda x: '0' + x.lstrip('0'))
+    df_customer['contact_Number'] = df_customer['contact_Number'].apply(lambda x: x[:3] + '-' + x[3:6] + '-' + x[6:])
+    df_customer['created_Date'] = pd.to_datetime(df_customer['created_Date'])
+
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
 
     # Select only the desired columns
-    df_customer = df_customer[['Id', 'Name', 'Gender', 'Contact_Number', 'Created_Date', 'Debt']]
+    df_customer = df_customer[['id', 'name', 'gender', 'contact_Number', 'created_Date', 'debt']]
     # Save DataFrame to CSV file
     df_customer.to_csv('kioviet_customer.csv', index=False)
 
