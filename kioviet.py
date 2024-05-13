@@ -271,7 +271,7 @@ def main(pages, page_size):
 
 # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=15) as executor:
         futures_invoices = [executor.submit(fetch_invoices, page, page_size) for page in range(pages)]
         futures_customers = [executor.submit(fetch_customers, page, page_size) for page in range(pages)]
         
