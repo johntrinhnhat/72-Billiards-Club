@@ -95,7 +95,7 @@ def process_invoice_detail_data(invoices_data):
     df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
     df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
 
-    df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=True) 
+    df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=False) 
 
     # df_invoice_details = df_invoice_details[~df_invoice_details['price'].isin([2836000, 2660000, 0])]
  
@@ -142,7 +142,7 @@ def process_invoices_data(invoices_data):
     df_invoice = df_invoice[df_invoice['id'] != 114200880]
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
-    df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=True) 
+    df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=False) 
 
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
     df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_Out', 'discount', 'revenue', 'status']]
