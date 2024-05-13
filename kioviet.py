@@ -70,24 +70,20 @@ def process_invoice_detail_data(invoices_data):
 
         # Iterate over each item in the invoice details
         for detail in invoice.get('invoiceDetails', []):
-            quantity = detail.get('quantity', '-')
-            price = detail.get('price', '-')
-            discount = detail.get('discount', '-')
-
             detail_invoice_schema = {
                 'id': invoice["id"],
-                'product_Name': detail.get('productName', '-'),
                 'purchase_Date': purchase_date,
-                'quantity': quantity,
-                'discount': discount,
-                'price': (price * quantity) - discount,
-                # 'Status': invoice["statusValue"],
+                'product_Name': detail.get('productName', '-').capitalize(),
+                'quantity': detail.get('quantity'),
+                # 'note': detail.get('note', ''),
+                'discount': detail.get('discount', 0),
+                'revenue': detail.get('subTotal', ''),
             }
-            
+
             df_invoice_detail.append(detail_invoice_schema)
 
 
-    detail_invoices_schema=['id', 'purchase_Date', 'product_Name', 'quantity', 'discount', 'price']
+    detail_invoices_schema=['id', 'purchase_Date', 'product_Name', 'quantity', 'discount', 'revenue']
     # Write invoices data to a CSV file
     with open('goods.csv', 'w', newline='', encoding='utf-8') as detail_invoices_file:
         writer = csv.DictWriter(detail_invoices_file, fieldnames=detail_invoices_schema)
@@ -95,7 +91,10 @@ def process_invoice_detail_data(invoices_data):
         writer.writerows(df_invoice_detail)
 
     df_invoice_details = pd.read_csv('goods.csv')
-    df_invoice_details['discount'].replace({0: '-'}, inplace=True) 
+    # df_invoice_details['discount'].replace({0: '-'}, inplace=True) 
+    df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
+    df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
+
     df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=True) 
 
     # df_invoice_details = df_invoice_details[~df_invoice_details['price'].isin([2836000, 2660000, 0])]
@@ -118,17 +117,16 @@ def process_invoices_data(invoices_data):
                 'customer_Name': invoice.get("customerName", "Khách lẻ").title(),
                 'purchase_Date': purchase_date,
                 'check_Out': purchase_hour,
+                'discount': invoice.get("discount", 0),
                 'revenue': invoice.get("totalPayment", ""),
-                'status': invoice.get("status", "")
-                # 'Details': product_name,
-                # 'Discount': discount,
+                'status': invoice.get("status")
             }
         if invoice_schema["id"] != -1:
             df_invoice.append(invoice_schema)
 
     # """"""""""""""""""" CSV EXPORT_1 """""""""""""""""""
     
-    invoice_schema = ['id', 'customer_Name', 'purchase_Date', 'check_Out', 'revenue', 'status']
+    invoice_schema = ['id', 'customer_Name', 'purchase_Date', 'check_Out', 'discount', 'revenue', 'status']
     # Write invoices data to a CSV file
     with open ('invoices.csv', 'w', newline='', encoding='utf-8') as invoices_file:
         writer = csv.DictWriter(invoices_file, fieldnames=invoice_schema)
@@ -138,15 +136,16 @@ def process_invoices_data(invoices_data):
     # """"""""""""""""""" PROCESS DATAFRAME """""""""""""""""""
     df_invoice = pd.read_csv('invoices.csv')
     df_invoice['customer_Name'] = df_invoice['customer_Name'].fillna('khách lẻ')
-    # df_invoice = df_invoice[~df_invoice['revenue'].isin([2836000, 2660000, 0])]
+    df_invoice = df_invoice[~df_invoice['revenue'].isin([0])]
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
     df_invoice = df_invoice[df_invoice['status'] != 'Đã hủy']
+    df_invoice = df_invoice[df_invoice['id'] != 114200880]
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
     df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=True) 
 
     # """"""""""""""""""" CSV EXPORT_2 """""""""""""""""""
-    df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_Out', 'revenue', 'status']]
+    df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_Out', 'discount', 'revenue', 'status']]
     df_invoice.to_csv('invoices.csv', index=False)
 
     return df_invoice
@@ -272,7 +271,7 @@ def main(pages, page_size):
 
 # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
 
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures_invoices = [executor.submit(fetch_invoices, page, page_size) for page in range(pages)]
         futures_customers = [executor.submit(fetch_customers, page, page_size) for page in range(pages)]
         
@@ -303,8 +302,9 @@ def main(pages, page_size):
 
 # """"""""""""""""""" AUTOMATION GITHUB UPDATE """""""""""""""""""
     run_git_commands()
+
 if __name__ == "__main__":
-    main(pages=210, page_size=50)
+    main(pages=215, page_size=100)
 
 
 
