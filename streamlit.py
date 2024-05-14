@@ -178,28 +178,28 @@ with tab2:
         st.metric(label="Total Membership", value=f"{total_customer}")
     with right_column:
         st.metric(label="Top Debt", value=None)
-        df_customer_sorted = df_customer.sort_values(by='Debt',ascending=False)
-        df_customer_sorted['Debt'] = df_customer_sorted['Debt'].apply(lambda x: f"{x:,}")
-        df_customer_sorted = df_customer_sorted[['Name', 'Debt']]
+        df_customer_sorted = df_customer.sort_values(by='debt',ascending=False)
+        df_customer_sorted['debt'] = df_customer_sorted['debt'].apply(lambda x: f"{x:,}")
+        df_customer_sorted = df_customer_sorted[['name', 'debt']]
         # print(df_customer_sorted)
         st.dataframe(df_customer_sorted,
-            column_order=("Name", "Debt"),
+            column_order=("name", "debt"),
             hide_index=True,
             width=None,
             column_config={
                 "Name": st.column_config.TextColumn(
-                    "Name",
+                    "name",
                 ),
                 "Debt": st.column_config.ProgressColumn(
-                    "Debt",
+                    "debt",
                     format="%d đ",
                     min_value=0,
-                    max_value=int(max(df_customer.Debt)),
+                    max_value=int(max(df_customer.debt)),
                 ),
                 }
             )
     st.markdown("---")
-    st.dataframe(df_customer[['Name', 'Gender', 'Contact_Number', 'Created_Date', 'Debt']])
+    st.dataframe(df_customer[['name', 'gender', 'contact_Number', 'created_Date', 'debt']])
 
     # # Button Show Plots
     # if st.button('Show Plot'):
