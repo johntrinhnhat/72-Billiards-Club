@@ -4,7 +4,7 @@ import os
 import subprocess
 import re
 import requests
-import csv
+import time
 import gspread
 from gspread_dataframe import set_with_dataframe
 from oauth2client.service_account import ServiceAccountCredentials
@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import pandas as pd
 from colorama import Fore, init
 init(autoreset=True)
+start_time = time.time()  # Record the start time
 
 
 # Initialize and load environment variables
@@ -62,6 +63,22 @@ def fetch_invoices(page, page_size):
     print(f'Fetching {page_size} invoices in page: {page} ...')
     return data
 
+def fetch_customers(page, page_size):
+    headers = {
+        'Retailer': retailer,   
+        'Authorization': f'Bearer {get_access_token()}',
+    }
+    params = {
+        'branchId': 245409,
+        'pageSize': page_size,
+        'currentItem': page * page_size + 1,
+        'fromPurchaseDate': '2023-11-07',
+}
+    response = session.get(customer_url, headers=headers, params=params)
+    data = response.json().get('data', [])
+    print(f'Fetching {page_size} customers in page: {page} ...')
+    return data
+
 def process_invoice_detail_data(invoices_data):
     df_invoice_detail = []
     for invoice in invoices_data:
@@ -74,17 +91,17 @@ def process_invoice_detail_data(invoices_data):
             detail_invoice_schema = {
                 'id': invoice["id"],
                 'purchase_Date': date,
-                'product_Name': detail.get('productName', '-').capitalize(),
+                'product_Name': detail.get('productName').capitalize(),
                 'quantity': detail.get('quantity'),
-                'discount': detail.get('discount', 0),
-                'revenue': detail.get('subTotal', ''),
+                'discount': detail.get('discount'),
+                'revenue': detail.get('subTotal'),
             }
 
             df_invoice_detail.append(detail_invoice_schema)
 
     # """"""""""""""""""" PROCESS DATAFRAME """""""""""""""""""
     df_invoice_details = pd.DataFrame(df_invoice_detail)
-    df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
+    # df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
     df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
     df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
@@ -104,18 +121,19 @@ def process_invoices_data(invoices_data):
                 'customer_Name': invoice.get("customerName", "khách lẻ").title(),
                 'purchase_Date': date,
                 'check_Out': hour,
-                'discount': invoice.get("discount", "-"),
-                'revenue': invoice.get("totalPayment", ""),
+                'discount': invoice.get("discount"),
+                'revenue': invoice.get("totalPayment"),
                 'status': invoice.get("status")
             }
         df_invoice.append(invoice_schema)
 
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
+
     df_invoice = pd.DataFrame(df_invoice)
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
-    df_invoice = df_invoice[df_invoice['id'] != 114200880]
+    # df_invoice = df_invoice[df_invoice['id'] != 114200880]
     df_invoice = df_invoice[~df_invoice['revenue'].isin([0])]
     df_invoice = df_invoice[df_invoice['status'] != 'Đã hủy']
     df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=False) 
@@ -125,22 +143,6 @@ def process_invoices_data(invoices_data):
     df_invoice.to_csv('invoices.csv', index=False)
 
     return df_invoice
-
-def fetch_customers(page, page_size):
-    headers = {
-        'Retailer': retailer,   
-        'Authorization': f'Bearer {get_access_token()}',
-    }
-    params = {
-        'branchId': 245409,
-        'pageSize': page_size,
-        'currentItem': page * page_size + 1,
-        'fromPurchaseDate': '2023-11-07',
-    }
-    response = session.get(customer_url, headers=headers, params=params)
-    data = response.json().get('data', [])
-    print(f'Fetching {page_size} customers in page: {page} ...')
-    return data
 
 def process_customers_data(customers_data):
     # """"""""""""""""""" CUSTOMER SCHEMA """""""""""""""""""
@@ -152,18 +154,18 @@ def process_customers_data(customers_data):
         
         gender_bool = customer.get("gender", None)
         if gender_bool is True:
-            gender = "Nam"
+            gender = "nam"
         elif gender_bool is False:
-            gender = "Nữ"
+            gender = "nữ"
         else:
             gender = "-"  
 
         customers_data_schema = {
             'id': customer["id"],
-            'name': customer.get("name", None).title(),
+            'name': customer.get("name").title(),
             'gender': gender,
-            'contact_Number': customer.get("contactNumber", None),
-            'debt': customer.get("debt", None),
+            'contact_Number': customer.get("contactNumber"),
+            'debt': customer.get("debt"),
             'created_Date': date,
         }
 
@@ -172,8 +174,6 @@ def process_customers_data(customers_data):
 
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
     df_customer = pd.DataFrame(df_customer)
-    df_customer['debt'] = df_customer['debt'].fillna('-')
-    # df_customer['debt'] = df_customer['debt'].replace({0: '-'})
     df_customer['contact_Number'] = df_customer['contact_Number'].astype(str).str.replace('.0', '', regex=False).apply(lambda x: '0' + x.lstrip('0')[:3] + '-' + x.lstrip('0')[3:6] + '-' + x.lstrip('0')[6:])
     df_customer = df_customer.sort_values(by='created_Date', ascending=False) 
 
@@ -220,9 +220,7 @@ def main(pages, page_size):
     pages = pages
     all_invoices = []
     all_customers =[]
-
 # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
-
     with ThreadPoolExecutor(max_workers=10) as executor:
         futures_invoices = [executor.submit(fetch_invoices, page, page_size) for page in range(pages)]
         futures_customers = [executor.submit(fetch_customers, page, page_size) for page in range(pages)]
@@ -256,7 +254,14 @@ def main(pages, page_size):
     run_git_commands()
 
 if __name__ == "__main__":
-    main(pages=215, page_size=100)
+    main(pages=215, page_size=100)\
+    
+for i in range(10000):
+    pass
 
+end_time = time.time()  # Record the end time
+runtime = end_time - start_time  # Calculate the runtime
+
+print(f"The script took {runtime} seconds to run.")
 
 
