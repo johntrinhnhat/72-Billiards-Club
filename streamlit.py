@@ -109,9 +109,7 @@ with st.sidebar:
         color = 'green' if val > 360000 else ''
         return f'background-color: {color}'
     
-    # df_selection = df_selection.head(100)
-
-    style_df_selection = df_selection.style.format({"revenue": "{:,.0f} đ", "discount": "{:,.0f} đ"}).map(highlight_sales, subset=['revenue', 'discount'])
+    style_df_selection = df_selection.style.format({"revenue": "{:,.0f}", "discount": "{:,.0f}"}).map(highlight_sales, subset=['revenue', 'discount'])
 # ----------------- MAIN PAGE -----------------
     
 # LOGO
@@ -123,8 +121,6 @@ tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
 
 # TAB_1
 with tab1:
-    # TOP KPI's
-
     # Calculate current period KPIs
     total_sales = int(df_selection['revenue'].sum())  
     average_sale_per_transaction = round(df_selection['revenue'].mean(), 2)

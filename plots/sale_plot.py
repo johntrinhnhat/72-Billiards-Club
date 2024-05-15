@@ -60,7 +60,7 @@ def sale_plot(df_selection):
         ### Line Chart (Purchasing Pattern)
         st.title("Purchasing Behavior of 'khách lẻ'")
         # Filter transactions for 'khách lẻ'
-        df_guest = df_selection[df_selection['customer_Name'] == None].copy()
+        df_guest = df_selection[df_selection['customer_Name'] == 'Khách lẻ'].copy()
         print(df_guest)
         # Aggregate sales by purchase date, day of the week and hour
         df_guest['dayOfWeek'] = pd.Categorical(df_guest['dayOfWeek'], categories=days_order, ordered=True)

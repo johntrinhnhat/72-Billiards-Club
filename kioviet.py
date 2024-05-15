@@ -101,7 +101,7 @@ def process_invoice_detail_data(invoices_data):
 
     # """"""""""""""""""" PROCESS DATAFRAME """""""""""""""""""
     df_invoice_details = pd.DataFrame(df_invoice_detail)
-    # df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
+    df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
     df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
     df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
@@ -118,7 +118,7 @@ def process_invoices_data(invoices_data):
         date, hour = purchase_date_match.groups() if purchase_date_match else (None, None)
         invoice_schema = {
                 'id': invoice["id"],
-                'customer_Name': invoice.get("customerName", "khách lẻ").title(),
+                'customer_Name': invoice.get("customerName", "").title(),
                 'purchase_Date': date,
                 'check_Out': hour,
                 'discount': invoice.get("discount"),
@@ -133,7 +133,8 @@ def process_invoices_data(invoices_data):
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
-    # df_invoice = df_invoice[df_invoice['id'] != 114200880]
+    df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
+    df_invoice = df_invoice[df_invoice['id'] != 114200880]
     df_invoice = df_invoice[~df_invoice['revenue'].isin([0])]
     df_invoice = df_invoice[df_invoice['status'] != 'Đã hủy']
     df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=False) 
@@ -221,7 +222,7 @@ def main(pages, page_size):
     all_invoices = []
     all_customers =[]
 # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=15) as executor:
         futures_invoices = [executor.submit(fetch_invoices, page, page_size) for page in range(pages)]
         futures_customers = [executor.submit(fetch_customers, page, page_size) for page in range(pages)]
         
