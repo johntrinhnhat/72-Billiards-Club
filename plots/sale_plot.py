@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 
 def sale_plot(df_selection):
         ### Line Chart ( Peak Houly Sales Trend)
-        st.title('Check Out Trends')
+        st.title('Check-Out Pattern')
 
          # Ensure 'Hour' and 'DayOfWeek' are in the correct format
         df_selection['check_Out'] = df_selection['check_Out'].astype(int)
@@ -69,7 +69,7 @@ def sale_plot(df_selection):
         purchasedate_sales_guest = df_guest.groupby(df_guest['purchase_Date'].dt.date)['revenue'].sum().reset_index()
 
         # Create a subplot figure
-        fig = make_subplots(rows=3, cols=1, subplot_titles=("Purchasing Behavior by Purchase Date", "Purchasing Behavior by Day of the Week", "Purchasing Behavior by Hour"))
+        fig = make_subplots(rows=3, cols=1, subplot_titles=("Check-Out by Purchase Date", "Check-Out by Day of the Week", "Check-Out by Hour"))
 
         # Add Purchase Date Sales trace
         fig.add_trace(

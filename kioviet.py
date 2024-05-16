@@ -1,14 +1,14 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
 import os
 import subprocess
 import re
 import requests
 import time
 import gspread
-from gspread_dataframe import set_with_dataframe
-from oauth2client.service_account import ServiceAccountCredentials
 from dotenv import load_dotenv
+from gspread_dataframe import set_with_dataframe
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from colorama import Fore, init
 init(autoreset=True)
@@ -44,6 +44,7 @@ def get_access_token():
 
 # Compiled regular expression for date and time extraction
 date_time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})')
+note_pattern = re.compile(r'Từ \d{2}/\d{2}/\d{4} (\d{2}:\d{2}) đến \d{2}/\d{2}/\d{4} \d{2}:\d{2} \(\d+ giờ \d+ phút\)')
 
 
 # Function to fetch invoices and customers in parallel
@@ -79,16 +80,29 @@ def fetch_customers(page, page_size):
     print(f'Fetching {page_size} customers in page: {page} ...')
     return data
 
-def process_invoice_detail_data(invoices_data):
-    df_invoice_detail = []
+def process_invoices_data(invoices_data):
+    # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
+    df_invoice = []
+    df_goods = []
+    product_code = ['SP000090', 'SP000091', 'SP000092', 'SP000093', 'SP000094','SP000096', 'SP000097', 'ComboK', 'ComboS', 'SP000076', 'SP000067', 'SP000066']
     for invoice in invoices_data:
-        # Extract date and hour using regular expression
         purchase_date_match = date_time_pattern.search(invoice.get("purchaseDate", ""))
-        date, _ = purchase_date_match.groups() if purchase_date_match else (None, None)
+        date, hour = purchase_date_match.groups() if purchase_date_match else (None, None)
 
-        # Iterate over each item in the invoice details
-        for detail in invoice.get('invoiceDetails', []):
-            detail_invoice_schema = {
+        for detail in invoice.get("invoiceDetails", []):
+            if detail.get("productCode") in product_code:
+                duration = detail.get("quantity", "")
+                note = detail.get("note", "")
+            else:
+                duration = ""
+                note = ""
+            note_match = note_pattern.search(note)
+            if note_match:
+                check_In = note_match.group(1)
+            else:
+                check_In = ""
+            
+            goods_schema = {
                 'id': invoice["id"],
                 'purchase_Date': date,
                 'product_Name': detail.get('productName').capitalize(),
@@ -97,36 +111,20 @@ def process_invoice_detail_data(invoices_data):
                 'revenue': detail.get('subTotal'),
             }
 
-            df_invoice_detail.append(detail_invoice_schema)
-
-    # """"""""""""""""""" PROCESS DATAFRAME """""""""""""""""""
-    df_invoice_details = pd.DataFrame(df_invoice_detail)
-    df_invoice_details = df_invoice_details[df_invoice_details['id'] != 114200880]
-    df_invoice_details = df_invoice_details[~df_invoice_details['revenue'].isin([0])]
-    df_invoice_details = df_invoice_details.sort_values(by='purchase_Date', ascending=False) 
-    # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_invoice_details.to_csv('goods.csv', index=False)
-
-    return df_invoice_details
-
-def process_invoices_data(invoices_data):
-    # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
-    df_invoice = []
-    for invoice in invoices_data:
+            df_goods.append(goods_schema)
         # Extract date and hour using regular expression
-        purchase_date_match = date_time_pattern.search(invoice.get("purchaseDate", ""))
-        date, hour = purchase_date_match.groups() if purchase_date_match else (None, None)
         invoice_schema = {
                 'id': invoice["id"],
                 'customer_Name': invoice.get("customerName", "").title(),
                 'purchase_Date': date,
+                'check_In': check_In,
                 'check_Out': hour,
+                'duration_Hour': duration,
                 'discount': invoice.get("discount"),
                 'revenue': invoice.get("totalPayment"),
-                'status': invoice.get("status")
+                'status': invoice.get("status"),
             }
         df_invoice.append(invoice_schema)
-
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
 
     df_invoice = pd.DataFrame(df_invoice)
@@ -134,16 +132,23 @@ def process_invoices_data(invoices_data):
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
+    df_invoice['duration_Hour']
+
     df_invoice = df_invoice[df_invoice['id'] != 114200880]
     df_invoice = df_invoice[~df_invoice['revenue'].isin([0])]
     df_invoice = df_invoice[df_invoice['status'] != 'Đã hủy']
     df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=False) 
 
+    df_goods = pd.DataFrame(df_goods)
+    df_goods = df_goods[df_goods['id'] != 114200880]
+    df_goods = df_goods[~df_goods['revenue'].isin([0])]
+    df_goods = df_goods.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_Out', 'discount', 'revenue', 'status']]
+    df_goods.to_csv('goods.csv', index=False)
+    # """"""""""""""""""" CSV EXPORT """""""""""""""""""
+    df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In',  'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
     df_invoice.to_csv('invoices.csv', index=False)
-
-    return df_invoice
+    return df_invoice, df_goods
 
 def process_customers_data(customers_data):
     # """"""""""""""""""" CUSTOMER SCHEMA """""""""""""""""""
@@ -234,28 +239,28 @@ def main(pages, page_size):
 
 # """"""""""""""""""" DATA PROCESS TO DATAFRAME"""""""""""""""""""
 
-    df_invoice = process_invoices_data(all_invoices)
-    df_invoice_details = process_invoice_detail_data(all_invoices)
+    df_invoice, df_goods = process_invoices_data(all_invoices)
     df_customer = process_customers_data(all_customers)
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
     # print(all_invoices)
-    print(df_invoice, df_invoice.dtypes)
-    print(df_invoice_details, df_invoice_details.dtypes)
-    print(df_customer, df_customer.dtypes)
+    print(df_invoice, df_invoice.dtypes, f"Duration length: {len(df_invoice[df_invoice['duration_Hour'] != ""])}", f"")
+    print(f"Duration length: {len(df_invoice[df_invoice['duration_Hour'] != ""])}", f"Check_In length: {len(df_invoice[df_invoice['check_In'] != ""])}")
+    # print(df_goods, df_goods.dtypes)
+    # print(df_customer, df_customer.dtypes)
 
-    print(f"{Fore.BLUE}Customers: {len(df_customer)}")
-    print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
-    print(f"{Fore.BLUE}Invoice_Detail: {len(df_invoice_details)}")
+    # print(f"{Fore.BLUE}Customers: {len(df_customer)}")
+    # print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
+    # print(f"{Fore.BLUE}Invoice_Detail: {len(df_invoice_details)}")
 
 # """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
-    google_sheet_import(df_invoice, df_customer, df_invoice_details)
+    google_sheet_import(df_invoice, df_customer, df_goods)
 
 # """"""""""""""""""" AUTOMATION GITHUB UPDATE """""""""""""""""""
     run_git_commands()
 
 if __name__ == "__main__":
-    main(pages=215, page_size=100)\
+    main(pages=215, page_size=100)
     
 for i in range(10000):
     pass

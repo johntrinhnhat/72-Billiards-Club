@@ -1,9 +1,15 @@
+import time
+from colorama import Fore
+from openai import OpenAI
 import pandas as pd
 from plots.sale_plot import sale_plot
 import streamlit as st
 import base64
 import plotly.express as px
-
+import requests
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/invoices.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_customer.csv"
@@ -117,12 +123,12 @@ st.image('./logo.png')
 st.markdown("##")
 
 # TAB
-tab1, tab2, tab3 = st.tabs(["SALE", "MEMBERSHIP", "TABLE"])
+tab1, tab2, tab3, tab4 = st.tabs(["SALE", "MEMBERSHIP", "TABLE", "AI"])
 
 # TAB_1
 with tab1:
     # Calculate current period KPIs
-    total_sales = int(df_selection['revenue'].sum())  
+    total_sales = int(df_selection['revenue'].sum())    
     average_sale_per_transaction = round(df_selection['revenue'].mean(), 2)
     total_invoices = len(df_selection)
     average_monthly_sale = round(df_summary['total_Revenue'].mean(), 2)
@@ -165,66 +171,66 @@ with tab1:
     # st.divider()
 
 
-# # TAB_2
-# with tab2:
-#     total_customer = len(df_customer)
-#     st.markdown("---")
-#     left_column, right_column = st.columns(2)
-#     with left_column:
-#         st.metric(label="Total Membership", value=f"{total_customer}")
-#     with right_column:
-#         st.metric(label="Top Debt", value=None)
-#         df_customer_sorted = df_customer.sort_values(by='debt',ascending=False)
-#         df_customer_sorted['debt'] = df_customer_sorted['debt'].apply(lambda x: f"{x:,}")
-#         df_customer_sorted = df_customer_sorted[['name', 'debt']]
-#         # print(df_customer_sorted)
-#         st.dataframe(df_customer_sorted,
-#             column_order=("name", "debt"),
-#             hide_index=True,
-#             width=None,
-#             column_config={
-#                 "Name": st.column_config.TextColumn(
-#                     "name",
-#                 ),
-#                 "Debt": st.column_config.ProgressColumn(
-#                     "debt",
-#                     format="%d đ",
-#                     min_value=0,
-#                     max_value=int(max(df_customer.debt)),
-#                 ),
-#                 }
-#             )
-#     st.markdown("---")
-#     st.dataframe(df_customer[['name', 'gender', 'contact_Number', 'created_Date', 'debt']])
+# TAB_2
+with tab2:
+    total_customer = len(df_customer)
+    st.markdown("---")
+    left_column, right_column = st.columns(2)
+    with left_column:
+        st.metric(label="Total Membership", value=f"{total_customer}")
+    with right_column:
+        st.metric(label="Top Debt", value=None)
+        df_customer_sorted = df_customer.sort_values(by='debt',ascending=False)
+        df_customer_sorted['debt'] = df_customer_sorted['debt'].apply(lambda x: f"{x:,}")
+        df_customer_sorted = df_customer_sorted[['name', 'debt']]
+        # print(df_customer_sorted)
+        st.dataframe(df_customer_sorted,
+            column_order=("name", "debt"),
+            hide_index=True,
+            width=None,
+            column_config={
+                "Name": st.column_config.TextColumn(
+                    "name",
+                ),
+                "Debt": st.column_config.ProgressColumn(
+                    "debt",
+                    format="%d đ",
+                    min_value=0,
+                    max_value=int(max(df_customer.debt)),
+                ),
+                }
+            )
+    st.markdown("---")
+    st.dataframe(df_customer[['name', 'gender', 'contact_Number', 'created_Date', 'debt']])
 
-#     # # Button Show Plots
-#     # if st.button('Show Plot'):
-#     #     # Bar Chart (Number of Membership)
-#     #     st.title('Number of Membership')
-#     #     membership_counts = df_customer['Membership'].value_counts(dropna=False).reset_index()
-#     #     membership_counts.columns = ['Membership', 'Count']
-#     #     membership_counts['Membership'] = membership_counts['Membership'].fillna('None')
-#     #     fig = px.bar(membership_counts, x='Membership', y='Count', 
-#     #                 hover_data=['Membership', 'Count'], color='Count')
-#     #     st.plotly_chart(fig)
+    # # Button Show Plots
+    # if st.button('Show Plot'):
+    #     # Bar Chart (Number of Membership)
+    #     st.title('Number of Membership')
+    #     membership_counts = df_customer['Membership'].value_counts(dropna=False).reset_index()
+    #     membership_counts.columns = ['Membership', 'Count']
+    #     membership_counts['Membership'] = membership_counts['Membership'].fillna('None')
+    #     fig = px.bar(membership_counts, x='Membership', y='Count', 
+    #                 hover_data=['Membership', 'Count'], color='Count')
+    #     st.plotly_chart(fig)
 
-# # TAB_3
-# with tab3:
-#     st.divider()
-#     left_column, right_column = st.columns(2)
-#     with left_column:
-#         st.metric(label="Total Table", value=15)
-#     with right_column:
-#         st.metric(label="Metric", value="")
-#         desc_stats = df['Duration(hour)'].describe()
-#         st.write(desc_stats)
+# TAB_3
+with tab3:
+    st.divider()
+    left_column, right_column = st.columns(2)
+    with left_column:
+        st.metric(label="Total Table", value=15)
+    with right_column:
+        st.metric(label="Metric", value="")
+        desc_stats = df['check_Out'].describe()
+        st.write(desc_stats)
     
-#     def highlight_PS5(val):
-#         color = '#FFA7FD' if val == 16 or val == 17 else ''
-#         return f'color: {color}'
+    def highlight_PS5(val):
+        color = '#FFA7FD' if val == 16 or val == 17 else ''
+        return f'color: {color}'
     
-#     df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
-#     # st.dataframe(df_style, width=650)
+    df_style = df.style.map(highlight_PS5, subset=['Table_Id'])
+    # st.dataframe(df_style, width=650)
 
 
 
@@ -295,9 +301,35 @@ with tab1:
 #     #     ax.set_ylabel("Date")
 #     #     st.pyplot(fig)
 
-        
+with tab4: 
+    st.title("ChatGPT-like clone")
 
 
+    client = OpenAI(api_key= os.getenv("open_api_key"))
 
-        
+    if "openai_model" not in st.session_state:
+        st.session_state["openai_model"] = "gpt-4o"
 
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if prompt := st.chat_input("What is up?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model=st.session_state["openai_model"],
+                messages=[
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ],
+                stream=True,
+            )
+            response = st.write_stream(stream)
+        st.session_state.messages.append({"role": "assistant", "content": response})
