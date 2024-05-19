@@ -178,7 +178,7 @@ def google_sheet_import(df_invoice, df_customer, df_invoice_details):
     client = gspread.authorize(creds)
     sheet = client.open('72BilliardsClub')
     # Convert api dataframe to a list of lists, ensuring dates are in string format for serialization
-    df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.strftime('%Y-%m-%d')
+    # df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.strftime('%Y-%m-%d')
 
     try:
         # Update the first worksheet with df
