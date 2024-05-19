@@ -48,7 +48,7 @@ note_pattern = re.compile(r'Từ \d{2}/\d{2}/\d{4} (\d{2}:\d{2}) đến \d{2}/\d
 
 
 # Function to fetch invoices and customers in parallel
-def fetch_invoices(page, page_size):
+def fetch_data(page, page_size, data_type):
     headers = {
         'Retailer': retailer, 
         'Authorization': f'Bearer {get_access_token()}',
@@ -59,25 +59,13 @@ def fetch_invoices(page, page_size):
         'currentItem': page * page_size + 1,
         'fromPurchaseDate': '2023-11-07',
     }
-    response = session.get(url, headers=headers, params=params)
-    data = response.json().get('data', [])
-    print(f'Fetching {page_size} invoices in page: {page} ...')
-    return data
-
-def fetch_customers(page, page_size):
-    headers = {
-        'Retailer': retailer,   
-        'Authorization': f'Bearer {get_access_token()}',
+    url_map = {
+        'invoices': url,
+        'customers': customer_url,
     }
-    params = {
-        'branchId': 245409,
-        'pageSize': page_size,
-        'currentItem': page * page_size + 1,
-        'fromPurchaseDate': '2023-11-07',
-}
-    response = session.get(customer_url, headers=headers, params=params)
+    response = session.get(url_map[data_type], headers=headers, params=params)
     data = response.json().get('data', [])
-    print(f'Fetching {page_size} customers in page: {page} ...')
+    print(f'Fetching {page_size} {data_type} in page: {page} ...')
     return data
 
 def process_invoices_data(invoices_data):
@@ -132,16 +120,12 @@ def process_invoices_data(invoices_data):
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
-    df_invoice['duration_Hour']
 
-    df_invoice = df_invoice[df_invoice['id'] != 114200880]
-    df_invoice = df_invoice[~df_invoice['revenue'].isin([0])]
-    df_invoice = df_invoice[df_invoice['status'] != 'Đã hủy']
+    df_invoice = df_invoice.query("id != 114200880 and revenue != 0 and status != 'Đã hủy'")
     df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=False) 
 
     df_goods = pd.DataFrame(df_goods)
-    df_goods = df_goods[df_goods['id'] != 114200880]
-    df_goods = df_goods[~df_goods['revenue'].isin([0])]
+    df_goods = df_goods.query("id != 114200880 and revenue != 0")
     df_goods = df_goods.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_goods.to_csv('goods.csv', index=False)
@@ -228,8 +212,8 @@ def main(pages, page_size):
     all_customers =[]
 # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
     with ThreadPoolExecutor(max_workers=15) as executor:
-        futures_invoices = [executor.submit(fetch_invoices, page, page_size) for page in range(pages)]
-        futures_customers = [executor.submit(fetch_customers, page, page_size) for page in range(pages)]
+        futures_invoices = [executor.submit(fetch_data, page, page_size, 'invoices') for page in range(pages)]
+        futures_customers = [executor.submit(fetch_data, page, page_size, 'customers') for page in range(pages)]
         
         for future in as_completed(futures_invoices):
             all_invoices.extend(future.result())
@@ -244,14 +228,12 @@ def main(pages, page_size):
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
     # print(all_invoices)
-    print(df_invoice, df_invoice.dtypes, f"Duration length: {len(df_invoice[df_invoice['duration_Hour'] != ""])}", f"")
-    print(f"Duration length: {len(df_invoice[df_invoice['duration_Hour'] != ""])}", f"Check_In length: {len(df_invoice[df_invoice['check_In'] != ""])}")
-    # print(df_goods, df_goods.dtypes)
-    # print(df_customer, df_customer.dtypes)
+    print(df_goods, df_goods.dtypes)
+    print(df_customer, df_customer.dtypes)
 
-    # print(f"{Fore.BLUE}Customers: {len(df_customer)}")
-    # print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
-    # print(f"{Fore.BLUE}Invoice_Detail: {len(df_invoice_details)}")
+    print(f"{Fore.BLUE}Customers: {len(df_customer)}")
+    print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
+    print(f"{Fore.BLUE}Invoice_Detail: {len(df_goods)}")
 
 # """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
     google_sheet_import(df_invoice, df_customer, df_goods)
