@@ -228,6 +228,7 @@ def main(pages, page_size):
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
     # print(all_invoices)
+    print(df_invoice, df_invoice.dtypes)
     print(df_goods, df_goods.dtypes)
     print(df_customer, df_customer.dtypes)
 
