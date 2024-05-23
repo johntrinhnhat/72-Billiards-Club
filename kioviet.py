@@ -243,7 +243,7 @@ def main(pages, page_size):
     run_git_commands()
 
 if __name__ == "__main__":
-    main(pages=230, page_size=100)
+    main(pages=250, page_size=100)
     
 for i in range(10000):
     pass
