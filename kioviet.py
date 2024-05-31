@@ -117,7 +117,7 @@ def process_invoices_data(invoices_data):
 
     df_invoice = pd.DataFrame(df_invoice)
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
-    df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
+    df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'], errors='coerce', format='%d/%m/%Y')
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
 
@@ -128,10 +128,10 @@ def process_invoices_data(invoices_data):
     df_goods = df_goods.query("id != 114200880 and revenue != 0")
     df_goods = df_goods.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_goods.to_csv('goods.csv', index=False)
+    # df_goods.to_csv('goods.csv', index=False)
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In',  'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
-    df_invoice.to_csv('invoices.csv', index=False)
+    # df_invoice.to_csv('invoices.csv', index=False)
     return df_invoice, df_goods
 
 def process_customers_data(customers_data):
@@ -168,7 +168,7 @@ def process_customers_data(customers_data):
     df_customer = df_customer.sort_values(by='created_Date', ascending=False) 
 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_customer.to_csv('kioviet_customer.csv', index=False)
+    # df_customer.to_csv('kioviet_customer.csv', index=False)
 
     return df_customer
 
