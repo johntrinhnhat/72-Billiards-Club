@@ -4,6 +4,7 @@ import re
 import requests
 import time
 import gspread
+import asyncio
 from dotenv import load_dotenv
 from gspread_dataframe import set_with_dataframe
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -130,10 +131,10 @@ def process_invoices_data(invoices_data):
     df_goods = df_goods.query("id != 114200880 and revenue != 0")
     df_goods = df_goods.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    # df_goods.to_csv('goods.csv', index=False)
+    df_goods.to_csv('goods.csv', index=False)
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In',  'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
-    # df_invoice.to_csv('invoices.csv', index=False)
+    df_invoice.to_csv('invoices.csv', index=False)
     return df_invoice, df_goods
 
 def process_customers_data(customers_data):
@@ -170,7 +171,7 @@ def process_customers_data(customers_data):
     df_customer = df_customer.sort_values(by='created_Date', ascending=False) 
 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    # df_customer.to_csv('kioviet_customer.csv', index=False)
+    df_customer.to_csv('kioviet_customer.csv', index=False)
 
     return df_customer
 
