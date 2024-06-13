@@ -117,8 +117,10 @@ def process_invoices_data(invoices_data):
 
     df_invoice = pd.DataFrame(df_invoice)
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
-    df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'], errors='coerce', format='%d/%m/%Y')
+    df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
+    df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.date
+
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
 
     df_invoice = df_invoice.query("id != 114200880 and revenue != 0 and status != 'Đã hủy'")
@@ -187,7 +189,7 @@ def google_sheet_import(df_invoice, df_customer, df_invoice_details):
         set_with_dataframe(sheet.get_worksheet(1), df_customer, include_column_header=True, resize=True)
         # Update the second worksheet with df_invoice_details
         set_with_dataframe(sheet.get_worksheet(2), df_invoice_details, include_column_header=True, resize=True)
-        print("\nSuccessfully imported data to Google Sheets ✅\n")
+        print("\nImported data to Google Sheets ✅\n")
     except gspread.exceptions.APIError as e:
         print(f"Failed to update Google Sheets due to an API error: {e}")
     except Exception as e:
