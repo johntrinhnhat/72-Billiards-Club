@@ -4,7 +4,6 @@ import re
 import requests
 import time
 import gspread
-import asyncio
 from dotenv import load_dotenv
 from gspread_dataframe import set_with_dataframe
 from concurrent.futures import ThreadPoolExecutor, as_completed
