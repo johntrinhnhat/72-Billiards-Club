@@ -193,7 +193,7 @@ def google_sheet_import(df_invoice, df_customer, df_invoice_details):
 
     try:
         # Update the first worksheet with df
-        set_with_dataframe(sheet.get_worksheet(0), df_invoice, include_column_header=True, resize=False)
+        set_with_dataframe(sheet.get_worksheet(0), df_invoice, include_column_header=True, resize=True)
         # Update the second worksheet with df_customer
         set_with_dataframe(sheet.get_worksheet(1), df_customer, include_column_header=True, resize=True)
         # Update the second worksheet with df_invoice_details
