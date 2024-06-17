@@ -120,7 +120,7 @@ def process_invoices_data(invoices_data):
         df_invoice.append(invoice_schema)
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
 
-    df_invoice = pd.DataFrame(df_invoice)
+    df_invoice = pd.DataFrame(df_invoice).query("id != 114200880 and revenue != 0 and status != 'Đã hủy'").sort_values(by='purchase_Date', ascending=False) 
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
@@ -128,11 +128,7 @@ def process_invoices_data(invoices_data):
 
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
 
-    df_invoice = df_invoice.query("id != 114200880 and revenue != 0 and status != 'Đã hủy'").sort_values(by='purchase_Date', ascending=False) 
-
-
-    df_goods = pd.DataFrame(df_goods).sort_values(by='purchase_Date', ascending=False)
-    df_goods = df_goods.query("id != 114200880 and revenue != 0")
+    df_goods = pd.DataFrame(df_goods).query("id != 114200880 and revenue != 0").sort_values(by='purchase_Date', ascending=False)
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_goods.to_csv('goods.csv', index=False)
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
@@ -169,9 +165,8 @@ def process_customers_data(customers_data):
         df_customer.append(customers_data_schema)
 
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
-    df_customer = pd.DataFrame(df_customer)
+    df_customer = pd.DataFrame(df_customer).sort_values(by='created_Date', ascending=False) 
     df_customer['contact_Number'] = df_customer['contact_Number'].astype(str).str.replace('.0', '', regex=False).apply(lambda x: '0' + x.lstrip('0')[:3] + '-' + x.lstrip('0')[3:6] + '-' + x.lstrip('0')[6:])
-    df_customer = df_customer.sort_values(by='created_Date', ascending=False) 
 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_customer.to_csv('kioviet_customer.csv', index=False)
