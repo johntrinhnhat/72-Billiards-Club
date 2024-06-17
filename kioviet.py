@@ -29,6 +29,10 @@ access_token = None
 last_token_time = datetime.min
 TOKEN_EXPIRY = 3500  # slightly less than one hour to handle edge cases
 
+# Compiled regular expression for date and time extraction
+date_time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})')
+note_pattern = re.compile(r'Từ \d{2}/\d{2}/\d{4} (\d{2}:\d{2}) đến \d{2}/\d{2}/\d{4} \d{2}:\d{2} \(\d+ giờ \d+ phút\)')
+
 def get_access_token():
     global access_token, last_token_time
     if access_token and (datetime.now() - last_token_time).seconds < TOKEN_EXPIRY:
@@ -43,9 +47,6 @@ def get_access_token():
     last_token_time = datetime.now()
     return access_token
 
-# Compiled regular expression for date and time extraction
-date_time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})')
-note_pattern = re.compile(r'Từ \d{2}/\d{2}/\d{4} (\d{2}:\d{2}) đến \d{2}/\d{2}/\d{4} \d{2}:\d{2} \(\d+ giờ \d+ phút\)')
 
 # Function to fetch invoices and customers in parallel
 def fetch_data(page, page_size, data_type):
@@ -120,20 +121,29 @@ def process_invoices_data(invoices_data):
         df_invoice.append(invoice_schema)
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
 
-    df_invoice = pd.DataFrame(df_invoice).query("id != 114200880 and revenue != 0 and status != 'Đã hủy'").sort_values(by='purchase_Date', ascending=False) 
-    df_invoice['status'].replace({1: 'Done'}, inplace=True)
-    df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
-    df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
-    df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.date
-
-    df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
-
-    df_goods = pd.DataFrame(df_goods).query("id != 114200880 and revenue != 0").sort_values(by='purchase_Date', ascending=False)
-    # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_goods.to_csv('goods.csv', index=False)
-    # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In',  'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
+    df_invoice = (
+        pd.DataFrame(df_invoice)
+        .query("id != 114200880 and revenue != 0 and status != 'Đã hủy'")
+        .assign(
+            status=lambda x: x['status'].replace({1: 'Done'}),
+            customer_Name=lambda x: x['customer_Name'].replace({"": "Khách lẻ"}),
+            purchase_Date=lambda x: pd.to_datetime(x['purchase_Date']))
+        .assign(
+            dayOfWeek=lambda x: x['purchase_Date'].dt.day_name(),
+            purchase_Date=lambda x: x['purchase_Date'].dt.date)
+            .sort_values(by='purchase_Date', ascending=False)
+            [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In', 'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
+        )
     df_invoice.to_csv('invoices.csv', index=False)
+
+
+    df_goods = (
+        pd.DataFrame(df_goods)
+        .query("id != 114200880 and revenue != 0")
+        .sort_values(by='purchase_Date', ascending=False)
+        )
+    df_goods.to_csv('goods.csv', index=False)
+
     return df_invoice, df_goods
 
 def process_customers_data(customers_data):
@@ -234,14 +244,14 @@ def main(page_size):
     df_customer = process_customers_data(all_customers)
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
-    # print(all_invoices)
-    print(df_invoice, df_invoice.dtypes)
-    print(df_goods, df_goods.dtypes)
-    print(df_customer, df_customer.dtypes)
+    print(all_invoices)
+    # print(df_invoice, df_invoice.dtypes)
+    # print(df_goods, df_goods.dtypes)
+    # print(df_customer, df_customer.dtypes)
 
-    print(f"{Fore.BLUE}Customers: {len(df_customer)}")
-    print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
-    print(f"{Fore.BLUE}Invoice_Detail: {len(df_goods)}")
+    # print(f"{Fore.BLUE}Customers: {len(df_customer)}")
+    # print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
+    # print(f"{Fore.BLUE}Invoice_Detail: {len(df_goods)}")
 
 # """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
     google_sheet_import(df_invoice, df_customer, df_goods)
