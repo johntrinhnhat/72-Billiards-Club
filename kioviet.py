@@ -131,8 +131,8 @@ def process_invoices_data(invoices_data):
             dayOfWeek=lambda x: x['purchase_Date'].dt.day_name(),
             purchase_Date=lambda x: x['purchase_Date'].dt.date)
             .sort_values(by='purchase_Date', ascending=False)
-            [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'discount', 'revenue', 'status']]
-            # [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In', 'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
+            # [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'discount', 'revenue', 'status']]
+            [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In', 'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
         )
     df_invoice.to_csv('invoices.csv', index=False)
 
@@ -179,7 +179,7 @@ def process_customers_data(customers_data):
     df_customer['contact_Number'] = df_customer['contact_Number'].astype(str).str.replace('.0', '', regex=False).apply(lambda x: '0' + x.lstrip('0')[:3] + '-' + x.lstrip('0')[3:6] + '-' + x.lstrip('0')[6:])
 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_customer.to_csv('kioviet_customer.csv', index=False)
+    df_customer.to_csv('customer.csv', index=False)
 
     return df_customer
 
@@ -188,9 +188,6 @@ def google_sheet_import(df_invoice, df_customer, df_invoice_details):
     creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json')
     client = gspread.authorize(creds)
     sheet = client.open('72BilliardsClub')
-    # Convert api dataframe to a list of lists, ensuring dates are in string format for serialization
-    # df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.strftime('%Y-%m-%d')
-
     try:
         # Update the first worksheet with df
         set_with_dataframe(sheet.get_worksheet(0), df_invoice, include_column_header=True, resize=True)
