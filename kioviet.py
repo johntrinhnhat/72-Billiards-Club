@@ -128,12 +128,10 @@ def process_invoices_data(invoices_data):
 
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
 
-    df_invoice = df_invoice.query("id != 114200880 and revenue != 0 and status != 'Đã hủy'")
-    df_invoice = df_invoice.sort_values(by='purchase_Date', ascending=False) 
+    df_invoice = df_invoice.query("id != 114200880 and revenue != 0 and status != 'Đã hủy'").sort_values(by='purchase_Date', ascending=False) 
 
-    df_goods = pd.DataFrame(df_goods)
+    df_goods = pd.DataFrame(df_goods).sort_values(by='purchase_Date', ascending=False)
     df_goods = df_goods.query("id != 114200880 and revenue != 0")
-    df_goods = df_goods.sort_values(by='purchase_Date', ascending=False) 
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_goods.to_csv('goods.csv', index=False)
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
