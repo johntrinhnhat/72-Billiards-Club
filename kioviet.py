@@ -78,24 +78,23 @@ def process_invoices_data(invoices_data):
     # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
     df_invoice = []
     df_goods = []
-    product_code = ['SP000090', 'SP000091', 'SP000092', 'SP000093', 'SP000094','SP000096', 'SP000097', 'ComboK', 'ComboS', 'SP000076', 'SP000067', 'SP000066']
+    product_codes = {'SP000090', 'SP000091', 'SP000092', 'SP000093', 'SP000094','SP000096', 'SP000097', 'ComboK', 'ComboS', 'SP000076', 'SP000067', 'SP000066'}
     for invoice in invoices_data:
         purchase_date_match = date_time_pattern.search(invoice.get("purchaseDate", ""))
         date, hour = purchase_date_match.groups() if purchase_date_match else (None, None)
 
         for detail in invoice.get("invoiceDetails", []):
-            if detail.get("productCode") in product_code:
+            product_code = detail.get("productCode")
+            if product_code in product_codes:
                 duration = detail.get("quantity", "")
                 note = detail.get("note", "")
             else:
                 duration = ""
                 note = ""
             note_match = note_pattern.search(note)
-            if note_match:
-                check_In = note_match.group(1)
-            else:
-                check_In = ""
-            
+            check_In = note_match.group(1) if note_match else ""
+
+
             goods_schema = {
                 'id': invoice["id"],
                 'purchase_Date': date,
@@ -244,14 +243,14 @@ def main(page_size):
     df_customer = process_customers_data(all_customers)
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
-    print(all_invoices)
-    # print(df_invoice, df_invoice.dtypes)
-    # print(df_goods, df_goods.dtypes)
-    # print(df_customer, df_customer.dtypes)
+    # print(all_invoices)
+    print(df_invoice, df_invoice.dtypes)
+    print(df_goods, df_goods.dtypes)
+    print(df_customer, df_customer.dtypes)
 
-    # print(f"{Fore.BLUE}Customers: {len(df_customer)}")
-    # print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
-    # print(f"{Fore.BLUE}Invoice_Detail: {len(df_goods)}")
+    print(f"{Fore.BLUE}Customers: {len(df_customer)}")
+    print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
+    print(f"{Fore.BLUE}Invoice_Detail: {len(df_goods)}")
 
 # """"""""""""""""""" IMPORT DATA TO GOOGLE SHEET """""""""""""""""""
     google_sheet_import(df_invoice, df_customer, df_goods)
