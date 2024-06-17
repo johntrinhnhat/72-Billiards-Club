@@ -87,12 +87,12 @@ def process_invoices_data(invoices_data):
             product_code = detail.get("productCode")
             if product_code in product_codes:
                 duration = detail.get("quantity", "")
-                # note = detail.get("note", "")
+                note = detail.get("note", "")
             else:
                 duration = ""
-                # note = ""
-            # note_match = note_pattern.search(note)
-            # check_In = note_match.group(1) if note_match else ""
+                note = ""
+            note_match = note_pattern.search(note)
+            check_In = note_match.group(1) if note_match else ""
 
 
             goods_schema = {
@@ -110,7 +110,7 @@ def process_invoices_data(invoices_data):
                 'id': invoice["id"],
                 'customer_Name': invoice.get("customerName", "").title(),
                 'purchase_Date': date,
-                # 'check_In': check_In,
+                'check_In': check_In,
                 'check_Out': hour,
                 'duration_Hour': duration,
                 'discount': invoice.get("discount"),
@@ -131,7 +131,7 @@ def process_invoices_data(invoices_data):
             dayOfWeek=lambda x: x['purchase_Date'].dt.day_name(),
             purchase_Date=lambda x: x['purchase_Date'].dt.date)
             .sort_values(by='purchase_Date', ascending=False)
-            [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
+            [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'duration_Hour', 'discount', 'revenue', 'status']]
             # [['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In', 'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
         )
     df_invoice.to_csv('invoices.csv', index=False)
