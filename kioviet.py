@@ -11,6 +11,7 @@ from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 from colorama import Fore, init
+
 init(autoreset=True)
 start_time = time.time()  # Record the start time
 
@@ -46,7 +47,6 @@ def get_access_token():
 date_time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})')
 note_pattern = re.compile(r'Từ \d{2}/\d{2}/\d{4} (\d{2}:\d{2}) đến \d{2}/\d{2}/\d{4} \d{2}:\d{2} \(\d+ giờ \d+ phút\)')
 
-
 # Function to fetch invoices and customers in parallel
 def fetch_data(page, page_size, data_type):
     headers = {
@@ -64,9 +64,14 @@ def fetch_data(page, page_size, data_type):
         'customers': customer_url,
     }
     response = session.get(url_map[data_type], headers=headers, params=params)
-    data = response.json().get('data', [])
+    response.raise_for_status()
+    data = response.json()
+    
+    total_records = data.get('total', 0) if page == 0 else None
+    records = data.get('data', [])
+    
     print(f'Fetching {page_size} {data_type} in page: {page} ...')
-    return data
+    return records, total_records
 
 def process_invoices_data(invoices_data):
     # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
@@ -207,21 +212,27 @@ def run_git_commands():
     except subprocess.CalledProcessError as e:
         print(f"Error in Git operation: {e}")
         
-def main(pages, page_size):
-    page_size = page_size  # Adjust as maximum allowed if possible
-    pages = pages
+def main(page_size):
+    page_size = page_size 
+    
+    # """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
+    initial_data, total_records = fetch_data(0, page_size, 'invoices')
+    total_pages = (total_records // page_size) + 1
+    
     all_invoices = []
     all_customers =[]
-# """"""""""""""""""" THREADPOOLEXCECUTOR TO FETCH DATA """""""""""""""""""
+    
     with ThreadPoolExecutor(max_workers=15) as executor:
-        futures_invoices = [executor.submit(fetch_data, page, page_size, 'invoices') for page in range(pages)]
-        futures_customers = [executor.submit(fetch_data, page, page_size, 'customers') for page in range(pages)]
+        futures_invoices = [executor.submit(fetch_data, page, page_size, 'invoices') for page in range(total_pages)]
+        futures_customers = [executor.submit(fetch_data, page, page_size, 'customers') for page in range(total_pages)]
         
         for future in as_completed(futures_invoices):
-            all_invoices.extend(future.result())
+            records, _ = future.result()
+            all_invoices.extend(records)
         
         for future in as_completed(futures_customers):
-            all_customers.extend(future.result())
+            records, _ = future.result()
+            all_customers.extend(records)
 
 # """"""""""""""""""" DATA PROCESS TO DATAFRAME"""""""""""""""""""
 
@@ -245,7 +256,7 @@ def main(pages, page_size):
     run_git_commands()
 
 if __name__ == "__main__":
-    main(pages=270, page_size=100)
+    main(page_size=100)
     
 for i in range(10000):
     pass
@@ -254,5 +265,3 @@ end_time = time.time()  # Record the end time
 runtime = end_time - start_time  # Calculate the runtime
 
 print(f"The script took {runtime} seconds to run.")
-
-
