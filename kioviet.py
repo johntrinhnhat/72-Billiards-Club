@@ -75,59 +75,66 @@ def fetch_data(page, page_size, data_type):
 
 def process_invoices_data(invoices_data):
     # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
+    df_invoice = []
+    df_goods = []
     product_code = ['SP000090', 'SP000091', 'SP000092', 'SP000093', 'SP000094','SP000096', 'SP000097', 'ComboK', 'ComboS', 'SP000076', 'SP000067', 'SP000066']
-
-    # Process invoice details and extract goods data
-    goods_data = [
-        {
-            'id': invoice["id"],
-            'purchase_Date': date_time_pattern.search(invoice.get("purchaseDate", "")).group(1) if date_time_pattern.search(invoice.get("purchaseDate", "")) else None,
-            'product_Name': detail.get('productName').capitalize(),
-            'quantity': detail.get('quantity'),
-            'discount': detail.get('discount'),
-            'revenue': detail.get('subTotal'),
-        }
-        for invoice in invoices_data
-        for detail in invoice.get("invoiceDetails", [])
-        if detail.get("productCode") in product_code
-    ]
-
-    # Create DataFrame for goods data
-    df_goods = pd.DataFrame(goods_data).sort_values(by='purchase_Date', ascending=False)
-    df_goods = df_goods.query("id != 114200880 and revenue != 0")
-    # """"""""""""""""""" CSV EXPORT """""""""""""""""""
-    df_goods.to_csv('goods.csv', index=False)
-
-    #Process invoice data
-    invoice_data = []
     for invoice in invoices_data:
         purchase_date_match = date_time_pattern.search(invoice.get("purchaseDate", ""))
-        date, hour = (purchase_date_match.group(1), purchase_date_match.group(2)) if purchase_date_match else (None, None)
+        date, hour = purchase_date_match.groups() if purchase_date_match else (None, None)
 
-        note_match = note_pattern.search(invoice.get("note", ""))
-        check_In = note_match.group(1) if note_match else ""
+        for detail in invoice.get("invoiceDetails", []):
+            if detail.get("productCode") in product_code:
+                duration = detail.get("quantity", "")
+                note = detail.get("note", "")
+            else:
+                duration = ""
+                note = ""
+            note_match = note_pattern.search(note)
+            if note_match:
+                check_In = note_match.group(1)
+            else:
+                check_In = ""
+            
+            goods_schema = {
+                'id': invoice["id"],
+                'purchase_Date': date,
+                'product_Name': detail.get('productName').capitalize(),
+                'quantity': detail.get('quantity'),
+                'discount': detail.get('discount'),
+                'revenue': detail.get('subTotal'),
+            }
 
-        invoice_data.append({
-            'id': invoice["id"],
-            'customer_Name': invoice.get("customerName", "").title(),
-            'purchase_Date': date,
-            'check_In': check_In,
-            'check_Out': hour,
-            'duration_Hour': next((detail.get("quantity", "") for detail in invoice.get("invoiceDetails", []) if detail.get("productCode") in product_code), ""),
-            'discount': invoice.get("discount"),
-            'revenue': invoice.get("totalPayment"),
-            'status': 'Done' if invoice.get("status") == 1 else invoice.get("status")
-        })
+            df_goods.append(goods_schema)
+        # Extract date and hour using regular expression
+        invoice_schema = {
+                'id': invoice["id"],
+                'customer_Name': invoice.get("customerName", "").title(),
+                'purchase_Date': date,
+                'check_In': check_In,
+                'check_Out': hour,
+                'duration_Hour': duration,
+                'discount': invoice.get("discount"),
+                'revenue': invoice.get("totalPayment"),
+                'status': invoice.get("status"),
+            }
+        df_invoice.append(invoice_schema)
     # """"""""""""""""""" PANDAS PROCESS DATAFRAME """""""""""""""""""
 
-    df_invoice = pd.DataFrame(invoice_data)
+    df_invoice = pd.DataFrame(df_invoice)
     df_invoice['status'].replace({1: 'Done'}, inplace=True)
     df_invoice['purchase_Date'] = pd.to_datetime(df_invoice['purchase_Date'])
     df_invoice['dayOfWeek'] = df_invoice['purchase_Date'].dt.day_name()
     df_invoice['purchase_Date'] = df_invoice['purchase_Date'].dt.date
+
     df_invoice['customer_Name'].replace({"": "Khách lẻ"}, inplace=True)
+
     df_invoice = df_invoice.query("id != 114200880 and revenue != 0 and status != 'Đã hủy'").sort_values(by='purchase_Date', ascending=False) 
 
+
+    df_goods = pd.DataFrame(df_goods).sort_values(by='purchase_Date', ascending=False)
+    df_goods = df_goods.query("id != 114200880 and revenue != 0")
+    # """"""""""""""""""" CSV EXPORT """""""""""""""""""
+    df_goods.to_csv('goods.csv', index=False)
     # """"""""""""""""""" CSV EXPORT """""""""""""""""""
     df_invoice = df_invoice[['id', 'customer_Name', 'purchase_Date', 'dayOfWeek', 'check_In',  'check_Out', 'duration_Hour', 'discount', 'revenue', 'status']]
     df_invoice.to_csv('invoices.csv', index=False)
