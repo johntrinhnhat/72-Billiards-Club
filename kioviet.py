@@ -78,6 +78,7 @@ def process_invoices_data(invoices_data):
     # """"""""""""""""""" INVOICE SCHEMA """""""""""""""""""
     df_invoice = []
     df_goods = []
+    invoice_ids = []
     product_codes = {'SP000090', 'SP000091', 'SP000092', 'SP000093', 'SP000094','SP000096', 'SP000097', 'ComboK', 'ComboS', 'SP000076', 'SP000067', 'SP000066'}
     for invoice in invoices_data:
         purchase_date_match = date_time_pattern.search(invoice.get("purchaseDate", ""))
