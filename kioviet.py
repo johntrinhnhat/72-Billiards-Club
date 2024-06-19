@@ -243,8 +243,11 @@ def main(page_size):
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
     # print(all_invoices)
+    print(f"{Fore.LIGHTRED_EX}Invoice:")
     print(df_invoice, df_invoice.dtypes)
+    print(f"{Fore.LIGHTRED_EX}Stock:")
     print(df_goods, df_goods.dtypes)
+    print(f"{Fore.LIGHTRED_EX}Customer:")
     print(df_customer, df_customer.dtypes)
 
     print(f"{Fore.BLUE}Customers: {len(df_customer)}")
