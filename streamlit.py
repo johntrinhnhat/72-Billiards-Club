@@ -143,21 +143,8 @@ with tab1:
         st.metric(label="Total Invoices", value=total_invoices)
     st.divider()
 
-    sale_frame_column, metric_column = st.columns([4,2])
-    with sale_frame_column:
-        st.dataframe(df_summary, width=650)
-    with metric_column:
-        summary_stats = df_summary.describe().astype(int)
-        # print(summary_stats)
-        st.write(summary_stats)
-    ## Button Show Plots
-    if st.button('Show Trends'):
-        sale_plot(df_selection)
-
-    st.divider()
-
     # Display Sale Dataframe
-    if st.button('Show All Invoices'):
+    with st.expander('Show All Invoices'):
         st.dataframe(style_df_selection, width=850)
         # Download data
         def filedownload(df_selection):
@@ -168,8 +155,18 @@ with tab1:
         # Display the download link
         st.markdown(filedownload(df_selection), unsafe_allow_html=True)
 
-    # st.divider()
+    sale_frame_column, metric_column = st.columns([4,2])
+    with sale_frame_column:
+        st.dataframe(df_summary, width=650)
+    with metric_column:
+        summary_stats = df_summary.describe().astype(int)
+        # print(summary_stats)
+        st.write(summary_stats)
+    st.divider()
 
+    ## Button Show Plots
+    if st.button('Show Trends'):
+        sale_plot(df_selection)
 
 # TAB_2
 with tab2:
