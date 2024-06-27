@@ -243,9 +243,12 @@ def main(page_size):
 
 # """"""""""""""""""" PRINT DATAFRAME """""""""""""""""""
     # print(all_invoices)
-    print(df_invoice, df_invoice.dtypes)
-    print(df_goods, df_goods.dtypes)
-    print(df_customer, df_customer.dtypes)
+    print(f"{Fore.LIGHTRED_EX}Invoice:")
+    print(df_invoice)
+    print(f"{Fore.LIGHTRED_EX}Stock:")
+    print(df_goods)
+    print(f"{Fore.LIGHTRED_EX}Customer:")
+    print(df_customer,)
 
     print(f"{Fore.BLUE}Customers: {len(df_customer)}")
     print(f"{Fore.BLUE}Invoices: {len(df_invoice)}")
