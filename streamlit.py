@@ -305,18 +305,18 @@ with tab3:
 #     #     ax.set_ylabel("Date")
 #     #     st.pyplot(fig)
 
-def get_chatgpt_response(messages):
-    client = OpenAI(api_key= os.getenv("open_api_key"))
+# def get_chatgpt_response(messages):
+#     client = OpenAI(api_key= os.getenv("open_api_key"))
     
     
-    # customer_query_engine.query(user_input)
-    messages.append({"role": "system", "content": f"You are working at 72 Billiard Club as a data analysis and your name is John"})
-    response = client.chat.completions.create(
-        model = "gpt-4o",
-        messages = messages
-    )
-    answer = response.choices[0].message.content
-    return answer
+#     # customer_query_engine.query(user_input)
+#     messages.append({"role": "system", "content": f"You are working at 72 Billiard Club as a data analysis and your name is John"})
+#     response = client.chat.completions.create(
+#         model = "gpt-4o",
+#         messages = messages
+#     )
+#     answer = response.choices[0].message.content
+#     return answer
 
 # with tab4: 
 # client=OpenAI(api_key= os.getenv("open_api_key"))
