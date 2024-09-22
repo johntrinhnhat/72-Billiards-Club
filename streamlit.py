@@ -1,18 +1,20 @@
-import time
-from colorama import Fore
-from openai import OpenAI
 import pandas as pd
+import openai
 from plots.sale_plot import sale_plot
 import streamlit as st
 import base64
 import plotly.express as px
 import requests
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from colorama import Fore
+from openai import OpenAI
+from llama_index.experimental.query_engine import PandasQueryEngine
 load_dotenv()
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/invoices.csv"
 github_csv_customer_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/customer.csv"
+github_csv_stock_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/goods.csv"
 github_csv_pool_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/kioviet_pool.csv"
 # ----------------- STREAMLIT APP -----------------
 
@@ -26,9 +28,11 @@ def load_data():
     return pd.read_csv(github_csv_url)
 def load_customer_data():
     return pd.read_csv(github_csv_customer_url)
-
+def load_stock_data():
+    return pd.read_csv(github_csv_stock_url)
 df = load_data()
 df_customer = load_customer_data()
+df_stock = load_stock_data()
 pd.set_option('display.float_format', '{:.2f}'.format)
 
 # ----------------- PROCESS DATA -----------------
@@ -144,16 +148,20 @@ with tab1:
     st.divider()
 
     # Display Sale Dataframe
-    with st.expander('Show All Invoices'):
-        st.dataframe(style_df_selection, width=850)
-        # Download data
-        def filedownload(df_selection):
-            csv = df_selection.to_csv(index=False)
-            b64 = base64.b64encode(csv.encode()).decode() # strings <-> bytes conversions
-            href = f'<a href="data:file/csv;base64, {b64}" download="data.csv">Download Excel file</a>'
-            return href 
-        # Display the download link
-        st.markdown(filedownload(df_selection), unsafe_allow_html=True)
+    # with st.expander('Show All Invoices'):
+    #     st.dataframe(style_df_selection, width=850)
+    #     # Download data
+    #     def filedownload(df_selection):
+    #         csv = df_selection.to_csv(index=False)
+    #         b64 = base64.b64encode(csv.encode()).decode() # strings <-> bytes conversions
+    #         href = f'<a href="data:file/csv;base64, {b64}" download="data.csv">Download Excel file</a>'
+    #         return href 
+    #     # Display the download link
+    #     st.markdown(filedownload(df_selection), unsafe_allow_html=True)
+
+    # llm = OpenAI(api_key=os.getenv('openai_api_key'))
+    # print(llm)
+    # print(style_df_selection.columns)
 
     sale_frame_column, metric_column = st.columns([4,2])
     with sale_frame_column:
@@ -298,35 +306,48 @@ with tab3:
 #     #     ax.set_ylabel("Date")
 #     #     st.pyplot(fig)
 
+def get_chatgpt_response(messages):
+    client = OpenAI(api_key= os.getenv("open_api_key"))
+    
+    
+    # customer_query_engine.query(user_input)
+    messages.append({"role": "system", "content": f"You are working at 72 Billiard Club as a data analysis and your name is John"})
+    response = client.chat.completions.create(
+        model = "gpt-4o",
+        messages = messages
+    )
+    answer = response.choices[0].message.content
+    return answer
+
 # with tab4: 
-#     st.title("ChatGPT-like clone")
+# client=OpenAI(api_key= os.getenv("open_api_key"))
+# st.title("Data Analysis Agent")
+
+# if "messages" not in st.session_state:
+#     st.session_state["messages"] = []
 
 
-#     client = OpenAI(api_key= os.getenv("open_api_key"))
+# user_input = st.chat_input("Message ChatGPT")
+# if user_input is not None:
+#     st.session_state["messages"].append({"role": "user", "content": user_input})
+#     if "customers" or "customer" in user_input:
+#         customer_query_engine= PandasQueryEngine(df=df_customer, verbose=True)
+#         answer = customer_query_engine.query(user_input).response
+#         st.session_state["messages"].append({"role": "assistant", "content": answer})
+#         print(answer)
+#     else:
+#         response = get_chatgpt_response(st.session_state["messages"])
+#         st.session_state["messages"].append({"role": "assistant", "content": response})
+#         print(response)
 
-#     if "openai_model" not in st.session_state:
-#         st.session_state["openai_model"] = "gpt-4o"
 
-#     if "messages" not in st.session_state:
-#         st.session_state.messages = []
+#     for message in st.session_state["messages"]:
+#         if message["role"] == "user":
+#             with st.chat_message("user"):
+#                 st.write(message["content"])
+#         elif message["role"] == "assistant":
+#             with st.chat_message("ai", avatar="🦖"):
+#                 st.write(message["content"])
 
-#     for message in st.session_state.messages:
-#         with st.chat_message(message["role"]):
-#             st.markdown(message["content"])
 
-#     if prompt := st.chat_input("What is up?"):
-#         st.session_state.messages.append({"role": "user", "content": prompt})
-#         with st.chat_message("user"):
-#             st.markdown(prompt)
 
-#         with st.chat_message("assistant"):
-#             stream = client.chat.completions.create(
-#                 model=st.session_state["openai_model"],
-#                 messages=[
-#                     {"role": m["role"], "content": m["content"]}
-#                     for m in st.session_state.messages
-#                 ],
-#                 stream=True,
-#             )
-#             response = st.write_stream(stream)
-#         st.session_state.messages.append({"role": "assistant", "content": response})
