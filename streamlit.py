@@ -9,7 +9,6 @@ import os
 from dotenv import load_dotenv
 from colorama import Fore
 from openai import OpenAI
-from llama_index.experimental.query_engine import PandasQueryEngine
 load_dotenv()
 
 github_csv_url = "https://raw.githubusercontent.com/johntrinhnhat/72-Billiards-Club/main/invoices.csv"
